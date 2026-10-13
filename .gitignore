@@ -1,0 +1,5 @@
+.DS_Store
+build/
+# Généré par XcodeGen à partir de project.yml
+Doneko.xcodeproj/
+xcuserdata/
