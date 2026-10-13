@@ -7,9 +7,12 @@ final class TodoStore {
     /// Versions précédentes des tâches touchées par complete / delete / edit, la plus récente en dernier.
     private var undoStack: [TodoItem] = []
     @ObservationIgnored private let clock: Clock
+    @ObservationIgnored private let persistence: Persistence?
 
-    init(items: [TodoItem] = [], clock: Clock = SystemClock()) {
-        self.items = items
+    /// Sans `persistence`, la liste reste en mémoire (tests).
+    init(persistence: Persistence? = nil, clock: Clock = SystemClock()) {
+        self.items = persistence?.load() ?? []
+        self.persistence = persistence
         self.clock = clock
     }
 
@@ -30,17 +33,20 @@ final class TodoStore {
         guard !title.isEmpty else { return }
         let order = (items.map(\.order).max() ?? -1) + 1
         items.append(TodoItem(title: title, createdAt: clock.now(), order: order))
+        save()
     }
 
     func complete(_ id: TodoItem.ID) {
         guard let i = index(of: id), items[i].completedAt == nil else { return }
         undoStack.append(items[i])
         items[i].completedAt = clock.now()
+        save()
     }
 
     func delete(_ id: TodoItem.ID) {
         guard let i = index(of: id) else { return }
         undoStack.append(items.remove(at: i))
+        save()
     }
 
     func edit(_ id: TodoItem.ID, title: String) {
@@ -48,6 +54,7 @@ final class TodoStore {
         guard !title.isEmpty, let i = index(of: id), items[i].title != title else { return }
         undoStack.append(items[i])
         items[i].title = title
+        save()
     }
 
     /// Remet la tâche dans l'état d'avant la dernière action (la réinsère si elle a été supprimée).
@@ -57,6 +64,15 @@ final class TodoStore {
             items[i] = previous
         } else {
             items.append(previous)
+        }
+        save()
+    }
+
+    private func save() {
+        do {
+            try persistence?.save(items)
+        } catch {
+            NSLog("Doneko : sauvegarde impossible (\(error))")
         }
     }
 
