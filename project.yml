@@ -19,4 +19,17 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.nathanmarchant.doneko
         INFOPLIST_FILE: Doneko/Info.plist
         CODE_SIGN_IDENTITY: "-"
-        ENABLE_HARDENED_RUNTIME: YES
+    scheme:
+      testTargets:
+        - DonekoTests
+  DonekoTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - DonekoTests
+    dependencies:
+      - target: Doneko
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_IDENTITY: "-"
