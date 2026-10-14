@@ -92,6 +92,14 @@ final class ObsidianExportTests: XCTestCase {
         XCTAssertEqual(try String(contentsOf: note, encoding: .utf8), "## Fait avec Doneko\n- [x] A\n- [x] B\n")
     }
 
+    func testExportFollowsTheStoreOnItsOwn() throws {
+        store.add("A")
+        store.complete(store.todos[0].id)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.2)) // l'observation exporte sur la file principale
+
+        XCTAssertEqual(try String(contentsOf: note, encoding: .utf8), "## Fait avec Doneko\n- [x] A\n")
+    }
+
     func testNothingIsWrittenWithoutFolder() {
         defaults.removeObject(forKey: SettingsKey.obsidianFolder)
         complete("A")

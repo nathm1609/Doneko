@@ -25,4 +25,11 @@ final class MenuBarControllerTests: XCTestCase {
         let topLeft = MenuBarController.panelTopLeft(size: size, icon: hidden, screen: screen, visible: visible)
         XCTAssertEqual(topLeft, NSPoint(x: 855 - 160, y: 1069))
     }
+
+    @MainActor func testSettingsWindowShowsItsWholeContent() {
+        let window = MenuBarController.makeSettingsWindow()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.2))
+
+        XCTAssertGreaterThan(window.contentLayoutRect.height, 300) // pas seulement la barre de titre
+    }
 }

@@ -4,7 +4,8 @@ import UserNotifications
 
 /// Rappels des échéances : une notification par tâche datée, le jour venu à l'heure choisie dans les réglages.
 /// Une tâche qui tombe, change de date ou disparaît voit son rappel suivre. Clic sur un rappel : le panneau s'ouvre.
-final class Reminders: NSObject, UNUserNotificationCenterDelegate {
+/// Toujours utilisé sur le fil principal (l'observation et l'autorisation y renvoient), d'où `@unchecked Sendable`.
+final class Reminders: NSObject, UNUserNotificationCenterDelegate, @unchecked Sendable {
     struct Reminder: Equatable {
         let id: String
         let title: String

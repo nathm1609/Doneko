@@ -98,6 +98,18 @@ final class ICloudSyncTests: XCTestCase {
         XCTAssertEqual(remote.load().count, 3)
     }
 
+    func testAnotherMacsChangesArriveOnTheirOwn() {
+        defaults.set(true, forKey: SettingsKey.iCloudSync)
+        let store = TodoStore(persistence: remote)
+        let sync = ICloudSync(store: store, defaults: defaults, local: local, remote: remote, isDriveAvailable: true, checkInterval: 0.05)
+
+        otherMac(["A"])
+        RunLoop.main.run(until: Date().addingTimeInterval(0.3))
+
+        XCTAssertEqual(store.todos.map(\.title), ["A"])
+        withExtendedLifetime(sync) {}
+    }
+
     func testSettingIsIgnoredWithoutICloudDrive() {
         let store = TodoStore(persistence: local)
         let sync = ICloudSync(store: store, defaults: defaults, local: local, remote: remote, isDriveAvailable: false)

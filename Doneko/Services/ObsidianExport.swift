@@ -4,7 +4,8 @@ import Observation
 /// Export des tâches faites dans le dossier Obsidian choisi dans les réglages : une note par jour (`AAAA-MM-JJ.md`),
 /// section « Fait avec Doneko ». Une tâche qui tombe y est ajoutée, une tâche décochée en est retirée ;
 /// la purge quotidienne n'efface rien, et le reste de la note n'est jamais modifié.
-final class ObsidianExport {
+/// Toujours utilisé sur le fil principal (l'observation y renvoie), d'où `@unchecked Sendable`.
+final class ObsidianExport: @unchecked Sendable {
     static let heading = "## Fait avec Doneko"
 
     private let store: TodoStore

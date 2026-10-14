@@ -73,18 +73,24 @@ final class MenuBarController: NSObject {
     /// Fenêtre « Réglages » : le panneau se ferme, la fenêtre passe au premier plan.
     @objc func openSettings() {
         hide()
-        let window = settingsWindow ?? {
-            let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView()))
-            window.title = "Réglages"
-            window.styleMask = [.titled, .closable]
-            window.isReleasedWhenClosed = false
-            window.center()
-            return window
-        }()
+        let window = settingsWindow ?? Self.makeSettingsWindow()
         settingsWindow = window
         NSApp.activate()
         window.makeKeyAndOrderFront(nil)
         window.orderFrontRegardless()
+    }
+
+    /// À la taille de son contenu : sans `preferredContentSize`, le formulaire (qui défile) ne donne aucune
+    /// hauteur et la fenêtre s'ouvre réduite à sa barre de titre.
+    static func makeSettingsWindow() -> NSWindow {
+        let hosting = NSHostingController(rootView: SettingsView())
+        hosting.sizingOptions = .preferredContentSize
+        let window = NSWindow(contentViewController: hosting)
+        window.title = "Réglages"
+        window.styleMask = [.titled, .closable]
+        window.isReleasedWhenClosed = false
+        window.center()
+        return window
     }
 
     /// Clic gauche : le panneau. Clic droit (ou ⌃ clic) : le menu Réglages / Quitter.
