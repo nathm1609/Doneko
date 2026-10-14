@@ -1,10 +1,20 @@
+import AppKit
 import SwiftUI
 
 struct TodoRow: View {
     let item: TodoItem
+    /// Appelé une fois l'animation « coup de patte » terminée.
     let onComplete: () -> Void
     let onEdit: (String) -> Void
 
+    /// Étapes du coup de patte : coche Matcha → patte qui touche la ligne → chute hors de la table.
+    private enum Phase: Int, Comparable {
+        case idle, checked, pawed, falling
+        static func < (a: Phase, b: Phase) -> Bool { a.rawValue < b.rawValue }
+    }
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var phase = Phase.idle
     @State private var isHovered = false
     @State private var isPadHovered = false
     @State private var isEditing = false
@@ -12,9 +22,22 @@ struct TodoRow: View {
     @FocusState private var isEditFocused: Bool
 
     var body: some View {
+        ZStack(alignment: .leading) {
+            row
+                .offset(x: phase == .falling && !reduceMotion ? Theme.Motion.fallDistance : 0)
+                .rotationEffect(phase == .falling && !reduceMotion ? Theme.Motion.fallRotation : .zero, anchor: .leading)
+                .opacity(phase == .falling ? 0 : 1)
+
+            if !reduceMotion {
+                paw
+            }
+        }
+    }
+
+    private var row: some View {
         HStack(spacing: Theme.Layout.rowContentSpacing) {
-            Button(action: onComplete) {
-                PawPad(isChecked: false, isHovered: isPadHovered)
+            Button(action: knockOff) {
+                PawPad(isChecked: phase >= .checked, isHovered: isPadHovered)
             }
             .buttonStyle(.plain)
             .onHover { isPadHovered = $0 }
@@ -46,7 +69,7 @@ struct TodoRow: View {
         .padding(.horizontal, Theme.Layout.rowHorizontalPadding)
         .frame(height: Theme.Layout.rowHeight)
         .background(
-            isHovered ? Theme.Palette.coussin : .clear,
+            isHovered && phase == .idle ? Theme.Palette.coussin : .clear,
             in: RoundedRectangle(cornerRadius: Theme.Layout.rowCornerRadius)
         )
         .contentShape(Rectangle())
@@ -55,8 +78,47 @@ struct TodoRow: View {
         .accessibilityAction(named: "Modifier", startEditing)
     }
 
+    /// Patte Mandarine qui arrive de la gauche et touche le bord de la ligne.
+    private var paw: some View {
+        Image(systemName: "pawprint.fill")
+            .font(.system(size: Theme.Layout.pawSize))
+            .rotationEffect(.degrees(90))
+            .foregroundStyle(Theme.Palette.mandarine)
+            .offset(x: phase >= .pawed ? -Theme.Layout.pawSize / 2 : -Theme.Layout.pawSize * 2)
+            .opacity(phase == .pawed ? 1 : 0)
+            .accessibilityHidden(true)
+    }
+
+    private func knockOff() {
+        guard phase == .idle, !isEditing else { return }
+        NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now)
+
+        if reduceMotion {
+            withAnimation(.easeOut(duration: Theme.Motion.reducedMotionFade)) {
+                phase = .falling
+            } completion: {
+                onComplete()
+            }
+            return
+        }
+
+        withAnimation(.easeOut(duration: Theme.Motion.checkFill)) {
+            phase = .checked
+        } completion: {
+            withAnimation(.easeOut(duration: Theme.Motion.pawSlide)) {
+                phase = .pawed
+            } completion: {
+                withAnimation(.spring(duration: Theme.Motion.fall, bounce: Theme.Motion.springBounce)) {
+                    phase = .falling
+                } completion: {
+                    onComplete()
+                }
+            }
+        }
+    }
+
     private func startEditing() {
-        guard !isEditing else { return }
+        guard !isEditing, phase == .idle else { return }
         draft = item.title
         isEditing = true
         isEditFocused = true

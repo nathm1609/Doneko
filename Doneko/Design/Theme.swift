@@ -31,6 +31,8 @@ enum Theme {
         static let smallSpacing: CGFloat = 4
         static let focusRingWidth: CGFloat = 2
         static let mascotSize: CGFloat = 48
+        /// Patte qui pousse la tâche hors de la table.
+        static let pawSize: CGFloat = 14
     }
 
     /// SF Pro Rounded partout.
@@ -49,8 +51,12 @@ enum Theme {
         static let pawSlide = 0.15
         static let fall = 0.30
         static let fallRotation = Angle.degrees(8)
+        static let fallDistance: CGFloat = 80
+        /// Ressort doux de la chute et de la remontée des lignes.
+        static let springBounce = 0.15
         static let closeGap = 0.25
         static let rowAppear = 0.20
+        static let rowAppearOffset: CGFloat = 8
         static let reducedMotionFade = 0.15
         static let undoToastDuration = 5.0
         static let breathePeriod = 3.0
