@@ -74,8 +74,9 @@ Police système **SF Pro Rounded** (aucune police à installer) :
 
 ### Icône de barre de menu
 - Tête de chat minimaliste dessinée en vecteur (SVG dans l'Asset Catalog, « Preserve Vector Data » activé, rendu **Template** pour s'adapter à la barre claire/sombre).
+- Même silhouette que la mascotte de l'icône : tête large aux joues rondes, oreilles hautes et pointues, trois rayures sur le front, petit nez en triangle.
 - Taille de dessin : 18 × 18 pt, trait de 1,5 pt, formes pleines simples.
-- Deux variantes : `MenuIconAwake` (yeux ouverts) et `MenuIconAsleep` (yeux fermés + petit z).
+- Deux variantes : `MenuIconAwake` (yeux ronds ouverts) et `MenuIconAsleep` (yeux fermés en arc + petit z).
 - Le compteur s'affiche à droite de la tête quand il reste au moins une tâche ; masqué à 0.
 - Clic gauche : le panneau. Clic droit (ou ⌃ clic) : menu « Réglages… » / « Laisser Doneko dormir (Quitter) ».
 
