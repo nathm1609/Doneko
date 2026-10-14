@@ -1,5 +1,6 @@
 #!/bin/sh
-# Régénère toutes les tailles de l'AppIcon depuis Artwork/AppIcon.svg (nécessite : brew install librsvg).
+# Régénère toutes les tailles de l'AppIcon depuis Artwork/AppIcon.svg, qui découpe Artwork/AppIcon.png
+# dans la forme d'icône macOS (nécessite : brew install librsvg).
 set -e
 cd "$(dirname "$0")/.."
 out=Doneko/Resources/Assets.xcassets/AppIcon.appiconset

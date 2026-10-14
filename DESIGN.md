@@ -76,8 +76,10 @@ Police système **SF Pro Rounded** (aucune police à installer) :
 - Clic gauche : le panneau. Clic droit (ou ⌃ clic) : menu « Réglages… » / « Laisser Doneko dormir (Quitter) ».
 
 ### Icône de l'app (Finder, réglages, « À propos »)
-- Carré arrondi macOS, fond Crème, tête de chat Mandarine au centre, légère ombre portée douce.
-- Fournir un SVG source et générer toutes les tailles de l'`AppIcon`.
+- Carré arrondi macOS, fond Crème, tête de chat roux tigré Mandarine au centre, collier Matcha avec une coche,
+  légère ombre portée douce.
+- Illustration source `Artwork/AppIcon.png` (générée avec Gemini), découpée dans la forme macOS par
+  `Artwork/AppIcon.svg` ; `Artwork/make-appicon.sh` génère toutes les tailles de l'`AppIcon`.
 
 ### Coche des tâches
 - Pas une case carrée : un **rond façon coussinet de patte** (cercle de 16 pt, contour Moustache 1,5 pt).
