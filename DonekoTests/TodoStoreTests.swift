@@ -226,6 +226,31 @@ final class TodoStoreTests: XCTestCase {
         XCTAssertEqual(store.later.map(\.title), ["A2"])
     }
 
+    func testUncompleteBringsTaskBackAtItsPlaceAndUndoRedoesIt() {
+        ["A", "B"].forEach(store.add)
+        let a = store.todos[0].id
+        store.complete(a)
+        store.uncomplete(store.todos[0].id) // tâche pas faite : rien ne change
+
+        store.uncomplete(a)
+        XCTAssertEqual(store.todos.map(\.title), ["A", "B"])
+        XCTAssertTrue(store.done.isEmpty)
+
+        store.undo()
+        XCTAssertEqual(store.done.map(\.title), ["A"])
+    }
+
+    func testMovingDoneTaskIntoListUncompletesIt() {
+        ["A", "B", "C"].forEach(store.add)
+        let c = store.todos[2].id
+        store.complete(c)
+
+        store.move(c, to: store.todos[0].id)
+
+        XCTAssertEqual(store.todos.map(\.title), ["C", "A", "B"])
+        XCTAssertTrue(store.done.isEmpty)
+    }
+
     func testSummaryCountsRemainingTasksWithPlural() {
         XCTAssertEqual(store.summary, "Doneko — plus rien sur la table")
         store.add("A")

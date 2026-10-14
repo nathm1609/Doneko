@@ -60,14 +60,14 @@ Doneko/
 │   ├── Models/
 │   │   └── TodoItem.swift       # id, title, createdAt, completedAt?, isPriority, dueDate?, order
 │   ├── Store/
-│   │   ├── TodoStore.swift      # @Observable : add, complete, undo, delete, edit, reorder, purge
+│   │   ├── TodoStore.swift      # @Observable : add, complete, uncomplete, undo, delete, edit, move, purge ; dates en français
 │   │   ├── Persistence.swift    # lecture / écriture JSON atomique
 │   │   └── Clock.swift          # protocole d'horloge injectable (tests de purge)
 │   ├── Views/
 │   │   ├── PanelView.swift
 │   │   ├── InputField.swift
 │   │   ├── TodoRow.swift        # rond « coussinet », animation coup de patte
-│   │   ├── DoneSection.swift    # « Tombé aujourd'hui »
+│   │   ├── DoneSection.swift    # « Tombé aujourd'hui », titres de section
 │   │   ├── EmptyState.swift     # mascotte endormie
 │   │   ├── UndoToast.swift
 │   │   └── SwipeToDelete.swift  # glisser à deux doigts vers la gauche

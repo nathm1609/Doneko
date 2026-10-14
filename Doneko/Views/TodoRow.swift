@@ -149,7 +149,7 @@ struct TodoRow: View {
         }
     }
 
-    /// « lun. 18 janv. » : en français comme le reste de l'interface, quelle que soit la langue du Mac.
+    /// « Lun. 19 oct. » : en français comme le reste de l'interface, quelle que soit la langue du Mac.
     private static let dueDateFormat = Date.FormatStyle.dateTime
         .weekday(.abbreviated).day().month(.abbreviated)
         .locale(Locale(identifier: "fr_FR"))

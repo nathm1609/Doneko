@@ -3,8 +3,12 @@ import SwiftUI
 /// Section repliable « Tombé aujourd'hui ».
 struct DoneSection: View {
     let items: [TodoItem]
+    /// Clic sur le rond coché : la tâche revient dans la liste.
+    let onUncomplete: (TodoItem.ID) -> Void
     /// Glissement à deux doigts vers la gauche sur une tâche faite.
     let onDelete: (TodoItem.ID) -> Void
+    /// Glisser-déposer vers la liste des tâches à faire.
+    let onDrag: (TodoItem.ID) -> NSItemProvider
 
     @AppStorage("doneSectionExpanded") private var isExpanded = true
 
@@ -28,7 +32,11 @@ struct DoneSection: View {
             if isExpanded {
                 ForEach(items) { item in
                     HStack(spacing: Theme.Layout.rowContentSpacing) {
-                        PawPad(isChecked: true, isHovered: false)
+                        Button { onUncomplete(item.id) } label: {
+                            PawPad(isChecked: true, isHovered: false)
+                        }
+                        .buttonStyle(.plain)
+                        .help("Remettre sur la table")
                         Text(item.title)
                             .font(Theme.Typography.task)
                             .foregroundStyle(Theme.Palette.moustache)
@@ -39,6 +47,8 @@ struct DoneSection: View {
                     .frame(height: Theme.Layout.rowHeight)
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel("Fait : \(item.title)")
+                    .accessibilityAction(named: "Remettre sur la table") { onUncomplete(item.id) }
+                    .onDrag { onDrag(item.id) }
                     .swipeToDelete { onDelete(item.id) }
                 }
             }

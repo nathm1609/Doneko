@@ -65,6 +65,14 @@ final class TodoStore {
         save()
     }
 
+    /// Décoche une tâche faite : elle revient à sa place dans la liste.
+    func uncomplete(_ id: TodoItem.ID) {
+        guard let i = index(of: id), items[i].completedAt != nil else { return }
+        undoStack.append(items[i])
+        items[i].completedAt = nil
+        save()
+    }
+
     func delete(_ id: TodoItem.ID) {
         guard let i = index(of: id) else { return }
         undoStack.append(items.remove(at: i))
@@ -134,8 +142,9 @@ final class TodoStore {
     }
 
     /// Glisser-déposer : `id` prend la place de `target`. Une tâche ne quitte pas son groupe
-    /// (section, date, priorité) : seul l'ordre à l'intérieur du groupe change.
+    /// (section, date, priorité) : seul l'ordre à l'intérieur du groupe change. Une tâche faite revient dans la liste.
     func move(_ id: TodoItem.ID, to target: TodoItem.ID) {
+        uncomplete(id)
         var list = todos
         guard let from = list.firstIndex(where: { $0.id == id }),
               let to = list.firstIndex(where: { $0.id == target }), from != to else { return }

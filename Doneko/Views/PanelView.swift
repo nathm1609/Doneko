@@ -111,6 +111,8 @@ struct PanelView: View {
             }
             if store.today.isEmpty {
                 EmptyState(allDone: !store.done.isEmpty)
+                    // Liste vide : une tâche faite glissée ici revient quand même.
+                    .onDrop(of: [.donekoTask], delegate: ReorderDropDelegate(draggedID: $draggedID, onEnter: uncomplete))
             } else {
                 rows(store.today)
             }
@@ -120,7 +122,7 @@ struct PanelView: View {
                 rows(store.later, showsDueDate: true)
             }
             if !store.done.isEmpty {
-                DoneSection(items: store.done, onDelete: delete)
+                DoneSection(items: store.done, onUncomplete: uncomplete, onDelete: delete, onDrag: dragProvider)
                     .padding(.top, Theme.Layout.panelPadding)
             }
         }
@@ -145,21 +147,17 @@ struct PanelView: View {
                 onDelete: { delete(item.id) }
             )
             // Glisser-déposer : la liste se réordonne en direct au passage sur chaque ligne.
-            .onDrag {
-                draggedID = item.id
-                // Type propre à Doneko, réservé à l'app : ni le champ ni une autre app ne reçoivent de texte.
-                let provider = NSItemProvider()
-                provider.registerDataRepresentation(forTypeIdentifier: UTType.donekoTask.identifier, visibility: .ownProcess) { done in
-                    done(Data(item.id.uuidString.utf8), nil)
-                    return nil
-                }
-                return provider
-            }
-            .onDrop(of: [.donekoTask], delegate: ReorderDropDelegate(target: item.id, draggedID: $draggedID) { id, target in
+            .onDrag { dragProvider(item.id) }
+            .onDrop(of: [.donekoTask], delegate: ReorderDropDelegate(draggedID: $draggedID) { id in
+                guard id != item.id else { return }
+                // Une tâche faite qui revient : le toast annulerait ce retour, pas la dernière action affichée.
+                if store.done.contains(where: { $0.id == id }) { toast = nil }
                 withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
-                    store.move(id, to: target)
+                    store.move(id, to: item.id)
                 }
             })
+            .accessibilityAction(named: "Monter") { reorder(item.id, in: items, by: -1) }
+            .accessibilityAction(named: "Descendre") { reorder(item.id, in: items, by: 1) }
             .transition(
                 reduceMotion
                     ? .opacity
@@ -225,6 +223,32 @@ struct PanelView: View {
         }
     }
 
+    private func uncomplete(_ id: TodoItem.ID) {
+        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
+            store.uncomplete(id)
+            toast = nil
+        }
+    }
+
+    /// VoiceOver : même effet qu'un glisser-déposer sur la ligne voisine.
+    private func reorder(_ id: TodoItem.ID, in items: [TodoItem], by delta: Int) {
+        guard let i = items.firstIndex(where: { $0.id == id }), items.indices.contains(i + delta) else { return }
+        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
+            store.move(id, to: items[i + delta].id)
+        }
+    }
+
+    /// Type propre à Doneko, réservé à l'app : ni le champ ni une autre app ne reçoivent de texte.
+    private func dragProvider(_ id: TodoItem.ID) -> NSItemProvider {
+        draggedID = id
+        let provider = NSItemProvider()
+        provider.registerDataRepresentation(forTypeIdentifier: UTType.donekoTask.identifier, visibility: .ownProcess) { done in
+            done(Data(id.uuidString.utf8), nil)
+            return nil
+        }
+        return provider
+    }
+
     private func delete(_ id: TodoItem.ID) {
         selectNeighbor(of: id)
         withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
@@ -258,15 +282,13 @@ private extension UTType {
     static let donekoTask = UTType(exportedAs: "com.nathanmarchant.doneko.task")
 }
 
-/// Glisser-déposer interne : la tâche attrapée prend la place de la ligne survolée, sans attendre le lâcher.
+/// Glisser-déposer interne : agit dès le survol (la tâche prend la place de la ligne), sans attendre le lâcher.
 private struct ReorderDropDelegate: DropDelegate {
-    let target: TodoItem.ID
     @Binding var draggedID: TodoItem.ID?
-    let move: (TodoItem.ID, TodoItem.ID) -> Void
+    let onEnter: (TodoItem.ID) -> Void
 
     func dropEntered(info: DropInfo) {
-        guard let draggedID, draggedID != target else { return }
-        move(draggedID, target)
+        if let draggedID { onEnter(draggedID) }
     }
 
     func dropUpdated(info: DropInfo) -> DropProposal? {
