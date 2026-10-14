@@ -109,15 +109,23 @@ struct TodoRow: View {
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
-    /// Patte Mandarine qui arrive de la gauche et touche le bord de la ligne.
+    /// Patte rousse qui entre par le bord gauche de la ligne, se pose sur le rond et pousse la tâche hors de la table.
     private var paw: some View {
-        Image(systemName: "pawprint.fill")
-            .font(.system(size: Theme.Layout.pawSize))
-            .rotationEffect(.degrees(90))
-            .foregroundStyle(Theme.Palette.mandarine)
-            .offset(x: phase >= .pawed ? -Theme.Layout.pawSize / 2 : -Theme.Layout.pawSize * 2)
+        Image("Paw")
+            .resizable()
+            .frame(width: Theme.Layout.pawWidth, height: Theme.Layout.pawHeight)
+            .offset(x: pawOffset)
             .opacity(phase == .pawed ? 1 : 0)
             .accessibilityHidden(true)
+    }
+
+    /// Cachée à gauche de la ligne (la liste coupe ce qui dépasse), posée sur le rond, puis poussant avec la chute.
+    private var pawOffset: CGFloat {
+        switch phase {
+        case .idle, .checked: -Theme.Layout.pawWidth
+        case .pawed: Theme.Layout.pawReach - Theme.Layout.pawWidth
+        case .falling: Theme.Layout.pawReach + Theme.Layout.pawPush - Theme.Layout.pawWidth
+        }
     }
 
     private func knockOff() {

@@ -83,7 +83,7 @@ Doneko/
 │   │   ├── ObsidianExport.swift # note du jour AAAA-MM-JJ.md, section « Fait avec Doneko »
 │   │   └── Reminders.swift      # notification le jour de l'échéance, à l'heure choisie
 │   └── Resources/
-│       └── Assets.xcassets      # couleurs nommées, MenuIconAwake, MenuIconAsleep, AppIcon
+│       └── Assets.xcassets      # couleurs nommées, icônes MenuIcon* de la barre de menu, mascottes, patte, AppIcon
 └── DonekoTests/
     ├── TodoStoreTests.swift
     ├── PersistenceTests.swift

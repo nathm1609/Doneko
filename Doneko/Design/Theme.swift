@@ -37,8 +37,12 @@ enum Theme {
         static let focusRingWidth: CGFloat = 2
         /// Illustration de la mascotte (endormie ou contente) quand la liste est vide.
         static let mascotSize: CGFloat = 96
-        /// Patte qui pousse la tâche hors de la table.
-        static let pawSize: CGFloat = 14
+        /// Patte qui pousse la tâche hors de la table (image Paw, 337 × 128) : elle entre par le bord gauche de la ligne,
+        /// se pose sur le rond, puis pousse encore un peu pendant la chute.
+        static let pawHeight: CGFloat = 20
+        static let pawWidth: CGFloat = 53
+        static let pawReach: CGFloat = 26
+        static let pawPush: CGFloat = 10
         /// Point Sakura devant une tâche prioritaire (« ! » en fin de saisie).
         static let priorityDotSize: CGFloat = 6
         /// Glissement à deux doigts vers la gauche au-delà duquel la tâche est supprimée.
@@ -79,5 +83,32 @@ enum Theme {
         static let undoToastDuration = 5.0
         static let breathePeriod = 3.0
         static let breatheScale: CGFloat = 1.03
+        /// Balancement de la tête au rythme de la respiration (d'un côté à l'autre), plus ample quand elle est contente.
+        static let mascotSwayContent = Angle.degrees(3)
+        static let mascotSwayAsleep = Angle.degrees(1.5)
+        /// Tête de chat de la barre de menu : petit saut quand une tâche arrive, coup de tête quand une tâche part.
+        static let iconReaction = 0.4
+        static let iconHopLift: CGFloat = 2
+        static let iconSwatAngle: CGFloat = 14
+        /// Vide autour de la petite patte du coup de tête, pour la détacher du trait de la tête.
+        static let iconPawGap: CGFloat = 1
+        /// Au repos, de temps en temps : clignement des yeux (éveillée) ou « z » qui monte en s'effaçant (endormie).
+        static let iconIdleDelay = 6.0...14.0
+        static let iconBlink = 0.15
+        static let iconSnore = 1.4
+        static let iconZLift: CGFloat = 2
+        /// Mascotte du panneau vide : saut de joie (tout est fait, clic) et tortillement dans son sommeil (clic).
+        static let mascotHopRise = 0.16
+        static let mascotHopHeight: CGFloat = 12
+        static let mascotLanding = 0.45
+        static let mascotWiggleAngle = Angle.degrees(6)
+        static let mascotBounce = 0.6
+        /// Images-clés de la mascotte (oreille, bâillement, joie) : fondu d'entrée et de sortie, puis durée affichée.
+        static let mascotPoseFade = 0.12
+        static let mascotEarTwitch = 0.4
+        static let mascotYawn = 1.6
+        static let mascotCheer = 0.9
+        /// Pendant la sieste, intervalle entre deux petits mouvements.
+        static let mascotNapEvery = 7.0...14.0
     }
 }

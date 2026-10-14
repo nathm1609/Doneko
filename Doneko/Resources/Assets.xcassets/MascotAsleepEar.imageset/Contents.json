@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "MascotAsleepEar.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

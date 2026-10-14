@@ -1,12 +1,20 @@
 // Détoure les mascottes (illustrations générées avec Gemini sur fond magenta uni) et les range dans l'Asset Catalog.
+// Aussi les images-clés des animations et la patte du coup de patte (Artwork/Paw.png).
 // Usage, depuis la racine du projet : swift Artwork/make-mascots.swift
 import CoreGraphics
 import Foundation
 import ImageIO
 import UniformTypeIdentifiers
 
-let names = ["MascotAsleep", "MascotContent"]
+/// Mascottes et images-clés de leurs animations (retouches Gemini des deux premières, en .png).
+let sources = [
+    ("MascotAsleep", "webp"), ("MascotContent", "webp"),
+    ("MascotAsleepEar", "png"), ("MascotYawn", "png"), ("MascotCheer", "png"),
+]
+let names = sources.map(\.0)
 let outputSize = 512
+/// Patte du coup de patte : hauteur de sortie, la largeur suit.
+let pawHeight = 128
 let sRGB = CGColorSpace(name: CGColorSpace.sRGB)!
 
 /// Pixels RGBA prémultipliés.
@@ -37,7 +45,9 @@ func removeMagenta(_ bitmap: inout Bitmap) {
         let (r, g, b) = (Double(bitmap.pixels[i]), Double(bitmap.pixels[i + 1]), Double(bitmap.pixels[i + 2]))
         let magenta = (min(r, b) - g) / 255
         // Le fond n'est pas tout à fait uni (léger dégradé en bas, part de magenta mesurée ≥ 0,8) : transparent dès 0,8.
-        let alpha = max(0, min(1, (0.8 - magenta) / 0.65))
+        // Sous 15 % d'opacité, c'est un reste de fond plus sombre par endroits (bords de certaines images) : transparent.
+        let opacity = max(0, min(1, (0.8 - magenta) / 0.65))
+        let alpha = opacity < 0.15 ? 0 : opacity
         func unmix(_ value: Double, _ background: Double) -> UInt8 {
             UInt8(max(0, min(alpha * 255, value - (1 - alpha) * background)).rounded())
         }
@@ -67,29 +77,47 @@ func makeImage(_ bitmap: Bitmap) -> CGImage {
     }
 }
 
-let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
-var bitmaps = names.map { load(root.appendingPathComponent("Artwork/\($0).webp")) }
-for i in bitmaps.indices { removeMagenta(&bitmaps[i]) }
+func isOpaque(_ bitmap: Bitmap, _ x: Int, _ y: Int) -> Bool { bitmap.pixels[(y * bitmap.width + x) * 4 + 3] > 128 }
 
-// Même cadre carré pour toutes : passer d'une mascotte à l'autre ne fait pas sauter le chat.
-let union = bitmaps.map(visibleBounds).reduce(CGRect.null) { $0.union($1) }
-let side = max(union.width, union.height) * 1.04
-let crop = CGRect(x: union.midX - side / 2, y: union.midY - side / 2, width: side, height: side).integral
+/// Repères de la tête qui ne bougent ni avec les oreilles ni avec la bouche : largeur aux joues (plus longue suite de
+/// pixels opaques qui traverse la colonne du milieu, sous le front) et bas du collier dans cette colonne.
+func headMarks(_ bitmap: Bitmap) -> (width: Double, centerX: Double, bottom: Double) {
+    let mid = bitmap.width / 2
+    let column = (0..<bitmap.height).filter { isOpaque(bitmap, mid, $0) }
+    guard let top = column.first, let bottom = column.last else { fatalError("Tête introuvable") }
+    var best = (width: 0, centerX: Double(mid))
+    for y in (top + (bottom - top) * 45 / 100)...bottom where isOpaque(bitmap, mid, y) {
+        var (left, right) = (mid, mid)
+        while left > 0, isOpaque(bitmap, left - 1, y) { left -= 1 }
+        while right < bitmap.width - 1, isOpaque(bitmap, right + 1, y) { right += 1 }
+        if right - left + 1 > best.width { best = (right - left + 1, Double(left + right) / 2) }
+    }
+    return (Double(best.width), best.centerX, Double(bottom))
+}
 
-for (name, bitmap) in zip(names, bitmaps) {
-    let context = CGContext(data: nil, width: outputSize, height: outputSize, bitsPerComponent: 8, bytesPerRow: 0,
-                            space: sRGB, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-    context.interpolationQuality = .high
-    let scale = CGFloat(outputSize) / crop.width
-    // CGContext a son origine en bas à gauche : on place l'image entière pour que `crop` remplisse la sortie.
-    context.draw(makeImage(bitmap), in: CGRect(x: -crop.minX * scale, y: -(CGFloat(bitmap.height) - crop.maxY) * scale,
-                                               width: CGFloat(bitmap.width) * scale, height: CGFloat(bitmap.height) * scale))
+/// Redessine `bitmap` dans le cadre de `reference`, tête à la même taille et au même endroit.
+func align(_ bitmap: Bitmap, to reference: Bitmap) -> Bitmap {
+    let (target, marks) = (headMarks(reference), headMarks(bitmap))
+    let scale = target.width / marks.width
+    let (width, height) = (Double(bitmap.width) * scale, Double(bitmap.height) * scale)
+    let top = target.bottom - marks.bottom * scale // origine en haut à gauche
+    var pixels = [UInt8](repeating: 0, count: reference.width * reference.height * 4)
+    pixels.withUnsafeMutableBytes { buffer in
+        let context = CGContext(data: buffer.baseAddress, width: reference.width, height: reference.height, bitsPerComponent: 8,
+                                bytesPerRow: reference.width * 4, space: sRGB, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        context.interpolationQuality = .high
+        context.draw(makeImage(bitmap), in: CGRect(x: target.centerX - marks.centerX * scale,
+                                                   y: Double(reference.height) - top - height, width: width, height: height))
+    }
+    return Bitmap(width: reference.width, height: reference.height, pixels: pixels)
+}
 
+func writeImageset(_ name: String, _ image: CGImage) {
     let folder = root.appendingPathComponent("Doneko/Resources/Assets.xcassets/\(name).imageset")
     try? FileManager.default.removeItem(at: folder)
     try! FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
     let destination = CGImageDestinationCreateWithURL(folder.appendingPathComponent("\(name).png") as CFURL, UTType.png.identifier as CFString, 1, nil)!
-    CGImageDestinationAddImage(destination, context.makeImage()!, nil)
+    CGImageDestinationAddImage(destination, image, nil)
     guard CGImageDestinationFinalize(destination) else { fatalError("Écriture impossible : \(name).png") }
     try! """
     {
@@ -106,5 +134,41 @@ for (name, bitmap) in zip(names, bitmaps) {
     }
 
     """.write(to: folder.appendingPathComponent("Contents.json"), atomically: true, encoding: .utf8)
-    print("\(name) : \(outputSize) × \(outputSize), cadre \(crop)")
+    print("\(name) : \(image.width) × \(image.height)")
 }
+
+let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+let detoured = sources.map { name, ext in
+    var bitmap = load(root.appendingPathComponent("Artwork/\(name).\(ext)"))
+    removeMagenta(&bitmap)
+    return bitmap
+}
+// Gemini redessine les retouches un peu plus grandes ou plus petites : toutes recalées sur la mascotte endormie.
+let bitmaps = detoured.indices.map { $0 == 0 ? detoured[0] : align(detoured[$0], to: detoured[0]) }
+
+// Même cadre carré pour toutes : passer d'une image à l'autre ne fait pas sauter le chat.
+let union = bitmaps.map(visibleBounds).reduce(CGRect.null) { $0.union($1) }
+let side = max(union.width, union.height) * 1.04
+let crop = CGRect(x: union.midX - side / 2, y: union.midY - side / 2, width: side, height: side).integral
+print("Cadre commun : \(crop)")
+
+for (name, bitmap) in zip(names, bitmaps) {
+    let context = CGContext(data: nil, width: outputSize, height: outputSize, bitsPerComponent: 8, bytesPerRow: 0,
+                            space: sRGB, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+    context.interpolationQuality = .high
+    let scale = CGFloat(outputSize) / crop.width
+    // CGContext a son origine en bas à gauche : on place l'image entière pour que `crop` remplisse la sortie.
+    context.draw(makeImage(bitmap), in: CGRect(x: -crop.minX * scale, y: -(CGFloat(bitmap.height) - crop.maxY) * scale,
+                                               width: CGFloat(bitmap.width) * scale, height: CGFloat(bitmap.height) * scale))
+    writeImageset(name, context.makeImage()!)
+}
+
+// Patte : détourée et recadrée au plus près, la jambe entre par le bord gauche.
+var paw = load(root.appendingPathComponent("Artwork/Paw.png"))
+removeMagenta(&paw)
+let pawBounds = visibleBounds(paw)
+let pawContext = CGContext(data: nil, width: Int((pawBounds.width * CGFloat(pawHeight) / pawBounds.height).rounded()), height: pawHeight,
+                           bitsPerComponent: 8, bytesPerRow: 0, space: sRGB, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+pawContext.interpolationQuality = .high
+pawContext.draw(makeImage(paw).cropping(to: pawBounds)!, in: CGRect(x: 0, y: 0, width: pawContext.width, height: pawHeight))
+writeImageset("Paw", pawContext.makeImage()!)

@@ -30,7 +30,10 @@ Ses états, utilisés dans l'icône de la barre de menu et les écrans vides :
 
 Dans le panneau vide, les états **Endormi** et **Content** sont des illustrations en couleur (96 pt), dans le style de
 l'icône de l'app : `Artwork/MascotAsleep.webp` et `Artwork/MascotContent.webp`, générées avec Gemini sur fond magenta
-uni, détourées par `swift Artwork/make-mascots.swift`. La barre de menu garde des icônes monochromes (template).
+uni, détourées par `swift Artwork/make-mascots.swift`. Leurs images-clés d'animation sont des retouches Gemini
+(Nano Banana Pro) des mêmes têtes : `MascotAsleepEar` (oreille repliée), `MascotYawn` (bâillement), `MascotCheer`
+(joie, bouche ouverte). Le script les recale sur la mascotte endormie (largeur aux joues, bas du collier) pour qu'on
+passe de l'une à l'autre sans que la tête bouge. La barre de menu garde des icônes monochromes (template).
 
 ---
 
@@ -76,7 +79,9 @@ Police système **SF Pro Rounded** (aucune police à installer) :
 - Tête de chat minimaliste dessinée en vecteur (SVG dans l'Asset Catalog, « Preserve Vector Data » activé, rendu **Template** pour s'adapter à la barre claire/sombre).
 - Même silhouette que la mascotte de l'icône : tête large aux joues rondes, oreilles hautes et pointues, trois rayures sur le front, petit nez en triangle.
 - Taille de dessin : 18 × 18 pt, trait de 1,5 pt, formes pleines simples.
-- Deux variantes : `MenuIconAwake` (yeux ronds ouverts) et `MenuIconAsleep` (yeux fermés en arc + petit z).
+- Images : `MenuIconAwake` (yeux ronds ouverts), `MenuIconBlink` (yeux fermés, pour cligner), `MenuIconAsleepHead`
+  (yeux fermés en arc) et `MenuIconZ` (petit z, à part pour pouvoir monter), `MenuIconPaw` (patte du coup de tête,
+  détachée de la tête par un vide de 1 pt). L'icône est composée en code à partir de ces images.
 - Le compteur s'affiche à droite de la tête quand il reste au moins une tâche ; masqué à 0.
 - Clic gauche : le panneau. Clic droit (ou ⌃ clic) : menu « Réglages… » / « Laisser Doneko dormir (Quitter) ».
 
@@ -117,15 +122,32 @@ L'animation de complétion est la signature de l'app. Tout le reste reste sobre.
 
 **Le coup de patte (complétion)**
 1. La coche se remplit en Matcha (120 ms).
-2. Une petite patte Mandarine glisse depuis la gauche et touche la ligne (150 ms).
-3. La ligne glisse vers la droite en pivotant légèrement (environ 8°) et s'estompe, comme un objet qui tombe de la table (300 ms, ressort doux).
+2. Une patte rousse (illustration `Artwork/Paw.png`, 20 pt de haut) entre par le bord gauche de la ligne et se pose
+   sur le rond (150 ms).
+3. La ligne glisse vers la droite en pivotant légèrement (environ 8°) et s'estompe, comme un objet qui tombe de la table (300 ms, ressort doux) ;
+   la patte pousse encore un peu et s'efface.
 4. Les lignes suivantes remontent pour combler l'espace (ressort, 250 ms).
 
 **Autres mouvements**
 - Ouverture du panneau : apparition native, aucun effet ajouté.
 - Ajout d'une tâche : la ligne apparaît en glissant légèrement du haut (200 ms).
 - Toast d'annulation : monte depuis le bas, disparaît après 5 s.
-- Liste vide : la mascotte endormie « respire » très lentement (échelle 1 → 1,03, 3 s, en boucle).
+- Liste vide : la mascotte endormie « respire » très lentement (échelle 1 → 1,03, 3 s, en boucle). Au même rythme,
+  sa tête se balance légèrement d'un côté à l'autre : ±1,5° endormie, ±3° contente.
+
+**La mascotte réagit**
+- Tête de la barre de menu, quand le nombre de tâches du jour change (400 ms) :
+  - une tâche arrive (ajout, annulation, échéance qui tombe aujourd'hui) : petit saut de 2 pt ; endormie, elle se
+    réveille en sautant ;
+  - une tâche part (faite, supprimée) : coup de tête vers la droite (14°) et petite patte levée, comme pour la pousser
+    hors de la table, puis léger balancement ; après la dernière, elle s'endort.
+- Tête de la barre de menu au repos, toutes les 6 à 14 s : éveillée, elle cligne des yeux (150 ms) ; endormie, son « z »
+  monte de 2 pt en s'effaçant puis revient (1,4 s).
+- Panneau vide : la mascotte contente saute de joie en arrivant (montée de 12 pt, retombée avec rebond), avec
+  l'image `MascotCheer` le temps du saut. Un clic la fait sauter de nouveau ; endormie, elle remue l'oreille et se
+  tortille dans son sommeil, puis se rendort.
+- Pendant la sieste, toutes les 7 à 14 s : l'oreille frémit (0,4 s) ou, une fois sur trois, la mascotte bâille (1,6 s).
+  Les images-clés passent en fondu de 120 ms.
 
 **Accessibilité** : si « Réduire les animations » est activé dans macOS, remplacer tous les mouvements par un simple fondu de 150 ms.
 
