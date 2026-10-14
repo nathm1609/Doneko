@@ -90,10 +90,25 @@ Sans synchronisation, les tâches sont enregistrées dans `~/Library/Application
 
 ## Installation
 
-Doneko se compile depuis les sources.
+1. Télécharge **[Doneko.dmg](https://github.com/nathm1609/Doneko/releases/latest/download/Doneko.dmg)**
+   (macOS 14 Sonoma ou plus récent, Mac Apple Silicon ou Intel).
+2. Ouvre-le et glisse **Doneko** dans **Applications**.
+3. Lance Doneko depuis Applications : la tête de chat apparaît dans la barre de menu.
 
-**Prérequis** : macOS 14 Sonoma ou plus récent, Xcode (le projet est développé avec Xcode 27) et
-[XcodeGen](https://github.com/yonaskolb/XcodeGen).
+**Au premier lancement, macOS bloque l'app** : elle n'est pas notarisée par Apple (il faudrait un compte
+Apple Developer payant). Pour l'autoriser une fois pour toutes, ouvre **Réglages Système › Confidentialité et
+sécurité**, descends jusqu'au message sur Doneko et clique sur **Ouvrir quand même**. Ou, dans le Terminal :
+
+```bash
+xattr -dr com.apple.quarantine /Applications/Doneko.app
+```
+
+macOS demande ensuite l'autorisation pour les notifications, iCloud Drive ou le dossier Obsidian au moment où
+Doneko en a besoin. Pour qu'il se lance à l'ouverture de session, active « Lancer au démarrage » dans les réglages.
+
+### Compiler depuis les sources
+
+**Prérequis** : Xcode (le projet est développé avec Xcode 27) et [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 
 ```bash
 brew install xcodegen
@@ -103,10 +118,6 @@ xcodegen generate
 xcodebuild -project Doneko.xcodeproj -scheme Doneko -configuration Debug -derivedDataPath build build
 open build/Build/Products/Debug/Doneko.app
 ```
-
-L'app est signée localement (signature *ad hoc*) : au premier usage, macOS demande l'autorisation pour les
-notifications, iCloud Drive ou le dossier Obsidian. Pour qu'elle se lance à l'ouverture de session, active
-« Lancer au démarrage » dans les réglages.
 
 > Compile hors d'un dossier synchronisé par iCloud (comme `~/Documents`) : les attributs ajoutés par iCloud
 > font échouer la signature.
@@ -122,6 +133,8 @@ xcodebuild -project Doneko.xcodeproj -scheme Doneko -derivedDataPath build test
 - Le projet Xcode est généré par XcodeGen à partir de `project.yml` : ne pas modifier le `.xcodeproj` à la main.
 - La direction artistique (palette, typographie, animations, micro-textes) est décrite dans [`DESIGN.md`](DESIGN.md).
 - Les illustrations sont dans `Artwork/` : `make-appicon.sh` génère l'icône, `make-mascots.swift` détoure les mascottes.
+- `./make-dmg.sh` compile la version Release et produit `build/Doneko.dmg`, à joindre telle quelle à une release
+  GitHub : le lien de téléchargement du README suppose ce nom.
 
 ## Crédits
 

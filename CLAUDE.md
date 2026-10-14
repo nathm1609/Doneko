@@ -100,6 +100,7 @@ Doneko/
 - Tester : `xcodebuild -project Doneko.xcodeproj -scheme Doneko -derivedDataPath build test`
 - Lancer : `open build/Build/Products/Debug/Doneko.app`
 - Relancer après modification : `pkill -x Doneko; open build/Build/Products/Debug/Doneko.app`
+- DMG pour une release GitHub : `./make-dmg.sh` → `build/Doneko.dmg`
 
 Prérequis sur la machine : Xcode complet installé, `brew install xcodegen`.
 
