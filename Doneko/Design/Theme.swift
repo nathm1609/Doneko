@@ -17,6 +17,8 @@ enum Theme {
     enum Layout {
         static let panelWidth: CGFloat = 320
         static let panelMaxHeight: CGFloat = 480
+        /// Zone des tâches : le panneau (480) moins le champ, les marges et la barre basse.
+        static let listMaxHeight: CGFloat = 380
         static let panelCornerRadius: CGFloat = 14
         static let panelPadding: CGFloat = 12
         static let rowHeight: CGFloat = 32

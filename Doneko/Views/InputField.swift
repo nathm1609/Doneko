@@ -1,14 +1,12 @@
 import SwiftUI
 
+/// Champ de saisie. Il garde le focus en permanence : quand il est vide, il pilote aussi la liste au clavier.
 struct InputField: View {
+    @Binding var text: String
     var isFocused: FocusState<Bool>.Binding
     let onSubmit: (String) -> Void
-    /// ↓ : passer à la liste.
-    let onArrowDown: () -> Void
-    /// ⌘Z quand le champ est vide : annuler la dernière action sur les tâches.
-    let onUndo: () -> Void
-
-    @State private var text = ""
+    /// ↑ ↓ Espace ⌫, reçues seulement quand le champ est vide (sinon elles servent à la frappe).
+    let onListKey: (KeyPress) -> KeyPress.Result
 
     var body: some View {
         TextField(
@@ -32,16 +30,8 @@ struct InputField: View {
             onSubmit(text)
             text = ""
         }
-        .onKeyPress(.downArrow) {
-            onArrowDown()
-            return .handled
+        .onKeyPress { press in
+            text.isEmpty ? onListKey(press) : .ignored
         }
-        // Champ non vide : ⌘Z garde son sens habituel (annuler la frappe).
-        .onKeyPress(keys: ["z"]) { press in
-            guard press.modifiers == .command, text.isEmpty else { return .ignored }
-            onUndo()
-            return .handled
-        }
-        .onAppear { isFocused.wrappedValue = true }
     }
 }

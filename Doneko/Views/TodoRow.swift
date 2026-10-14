@@ -14,7 +14,8 @@ struct TodoRow: View {
     let knockOffRequest: KnockOffRequest?
     /// Appelé une fois l'animation « coup de patte » terminée.
     let onComplete: () -> Void
-    let onEdit: (String) -> Void
+    /// Fin de la modification : le nouveau titre, ou nil si elle a été abandonnée.
+    let onEditEnd: (String?) -> Void
 
     /// Étapes du coup de patte : coche Matcha → patte qui touche la ligne → chute hors de la table.
     private enum Phase: Int, Comparable {
@@ -61,14 +62,11 @@ struct TodoRow: View {
                     .font(Theme.Typography.task)
                     .foregroundStyle(Theme.Palette.encre)
                     .focused($isEditFocused)
-                    .onSubmit {
-                        onEdit(draft)
-                        isEditing = false
-                    }
-                    .onExitCommand { isEditing = false }
+                    .onSubmit { finishEditing(saving: true) }
+                    .onExitCommand { finishEditing(saving: false) }
                     // Clic ailleurs : on abandonne la modification.
                     .onChange(of: isEditFocused) { _, focused in
-                        if !focused { isEditing = false }
+                        if !focused { finishEditing(saving: false) }
                     }
             } else {
                 Text(item.title)
@@ -134,6 +132,12 @@ struct TodoRow: View {
         draft = item.title
         isEditing = true
         isEditFocused = true
+    }
+
+    private func finishEditing(saving: Bool) {
+        guard isEditing else { return }
+        isEditing = false
+        onEditEnd(saving ? draft : nil)
     }
 }
 
