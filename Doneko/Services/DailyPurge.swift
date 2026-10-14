@@ -1,20 +1,35 @@
 import AppKit
 
-/// Vide « Tombé aujourd'hui » au démarrage, à minuit et au réveil de veille.
+/// Vide « Tombé aujourd'hui » à l'heure choisie dans les réglages (minuit par défaut) :
+/// au démarrage, au réveil de veille, et par une vérification chaque minute.
 final class DailyPurge {
-    private var observers: [(NotificationCenter, NSObjectProtocol)] = []
+    private let store: TodoStore
+    private let defaults: UserDefaults
+    private var wakeObserver: (center: NotificationCenter, token: NSObjectProtocol)?
+    private var timer: Timer?
 
-    init(store: TodoStore, workspaceCenter: NotificationCenter = NSWorkspace.shared.notificationCenter) {
-        store.purgeDone()
-        let purge: (Notification) -> Void = { _ in store.purgeDone() }
-        observers = [
-            // Posté par le système quand la date change (minuit, ou changement d'heure / de fuseau).
-            (.default, NotificationCenter.default.addObserver(forName: .NSCalendarDayChanged, object: nil, queue: .main, using: purge)),
-            (workspaceCenter, workspaceCenter.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main, using: purge)),
-        ]
+    init(
+        store: TodoStore,
+        defaults: UserDefaults = .standard,
+        workspaceCenter: NotificationCenter = NSWorkspace.shared.notificationCenter,
+        checkInterval: TimeInterval = 60
+    ) {
+        self.store = store
+        self.defaults = defaults
+        purge()
+        wakeObserver = (workspaceCenter, workspaceCenter.addObserver(
+            forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
+        ) { [weak self] _ in self?.purge() })
+        // Une vérification par minute suffit à passer n'importe quelle heure choisie, même après un changement d'heure.
+        timer = Timer.scheduledTimer(withTimeInterval: checkInterval, repeats: true) { [weak self] _ in self?.purge() }
     }
 
     deinit {
-        for (center, observer) in observers { center.removeObserver(observer) }
+        timer?.invalidate()
+        if let wakeObserver { wakeObserver.center.removeObserver(wakeObserver.token) }
+    }
+
+    func purge() {
+        store.purgeDone(atHour: defaults.integer(forKey: SettingsKey.purgeHour))
     }
 }

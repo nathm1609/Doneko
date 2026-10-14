@@ -17,6 +17,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var menuBar: MenuBarController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        UserDefaults.standard.register(defaults: [SettingsKey.showCounter: true])
         let store = TodoStore(persistence: Persistence())
         let menuBar = MenuBarController(store: store)
         dailyPurge = DailyPurge(store: store)

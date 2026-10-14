@@ -14,12 +14,17 @@ final class MenuBarController: NSObject {
     /// Coin haut-gauche du panneau : il reste fixe quand la liste grandit.
     private var topLeft = NSPoint.zero
     private var lastHide = Date.distantPast
+    private var settingsWindow: NSWindow?
 
     init(store: TodoStore) {
         self.store = store
         super.init()
 
-        let hosting = NSHostingController(rootView: PanelView(store: store, close: { [weak self] in self?.hide() }))
+        let hosting = NSHostingController(rootView: PanelView(
+            store: store,
+            close: { [weak self] in self?.hide() },
+            openSettings: { [weak self] in self?.openSettings() }
+        ))
         hosting.sizingOptions = .preferredContentSize
         panel.contentViewController = hosting
         panel.isOpaque = false
@@ -35,7 +40,9 @@ final class MenuBarController: NSObject {
         statusItem.button?.action = #selector(toggle)
         statusItem.button?.imagePosition = .imageLeading
         statusItem.button?.font = Self.counterFont
-        updateStatusItem()
+        observeStore()
+        // Réglage « Afficher le compteur ».
+        NotificationCenter.default.addObserver(self, selector: #selector(applyStatusItem), name: UserDefaults.didChangeNotification, object: nil)
     }
 
 
@@ -56,6 +63,23 @@ final class MenuBarController: NSObject {
         guard panel.isVisible else { return }
         panel.orderOut(nil)
         lastHide = Date()
+    }
+
+    /// Fenêtre « Réglages » : le panneau se ferme, la fenêtre passe au premier plan.
+    func openSettings() {
+        hide()
+        let window = settingsWindow ?? {
+            let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView()))
+            window.title = "Réglages"
+            window.styleMask = [.titled, .closable]
+            window.isReleasedWhenClosed = false
+            window.center()
+            return window
+        }()
+        settingsWindow = window
+        NSApp.activate()
+        window.makeKeyAndOrderFront(nil)
+        window.orderFrontRegardless()
     }
 
     @objc private func toggle() {
@@ -90,20 +114,25 @@ final class MenuBarController: NSObject {
         return NSPoint(x: x, y: top)
     }
 
-    /// Icône éveillée s'il reste des tâches, endormie sinon ; compteur masqué à 0. Suit le store.
-    private func updateStatusItem() {
-        guard let button = statusItem.button else { return }
+    /// Suit le store : l'icône se met à jour à chaque changement de la liste.
+    private func observeStore() {
         withObservationTracking {
-            let remaining = store.todos.count
-            let image = NSImage(named: remaining > 0 ? "MenuIconAwake" : "MenuIconAsleep")
-            image?.isTemplate = true
-            button.image = image
-            button.title = remaining > 0 ? "\(remaining)" : ""
-            button.toolTip = store.summary
-            button.setAccessibilityLabel(store.summary)
+            applyStatusItem()
         } onChange: { [weak self] in
-            Task { @MainActor in self?.updateStatusItem() }
+            Task { @MainActor in self?.observeStore() }
         }
+    }
+
+    /// Icône éveillée s'il reste des tâches, endormie sinon ; compteur masqué à 0 ou si le réglage le cache.
+    @objc private func applyStatusItem() {
+        guard let button = statusItem.button else { return }
+        let remaining = store.todos.count
+        let image = NSImage(named: remaining > 0 ? "MenuIconAwake" : "MenuIconAsleep")
+        image?.isTemplate = true
+        button.image = image
+        button.title = remaining > 0 && UserDefaults.standard.bool(forKey: SettingsKey.showCounter) ? "\(remaining)" : ""
+        button.toolTip = store.summary
+        button.setAccessibilityLabel(store.summary)
     }
 
     private static let counterFont: NSFont = {

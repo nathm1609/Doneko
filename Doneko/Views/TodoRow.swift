@@ -26,6 +26,7 @@ struct TodoRow: View {
     }
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage(SettingsKey.soundEnabled) private var soundEnabled = false
     @State private var phase = Phase.idle
     @State private var isHovered = false
     @State private var isPadHovered = false
@@ -115,6 +116,7 @@ struct TodoRow: View {
     private func knockOff() {
         guard phase == .idle, !isEditing else { return }
         NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now)
+        if soundEnabled { Self.pop?.play() }
 
         if reduceMotion {
             withAnimation(.easeOut(duration: Theme.Motion.reducedMotionFade)) {
@@ -139,6 +141,13 @@ struct TodoRow: View {
             }
         }
     }
+
+    /// « Pop » feutré du système (réglage, désactivé par défaut).
+    private static let pop: NSSound? = {
+        let sound = NSSound(named: "Pop")
+        sound?.volume = Theme.Sound.popVolume
+        return sound
+    }()
 
     private func startEditing() {
         guard !isEditing, phase == .idle else { return }

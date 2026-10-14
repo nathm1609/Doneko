@@ -22,6 +22,7 @@ enum Theme {
         static let panelCornerRadius: CGFloat = 14
         /// Espace entre la barre de menu (ou le bord de l'écran) et le panneau.
         static let panelScreenGap: CGFloat = 4
+        static let settingsWidth: CGFloat = 420
         static let panelPadding: CGFloat = 12
         static let rowHeight: CGFloat = 32
         static let rowSpacing: CGFloat = 2
@@ -52,6 +53,11 @@ enum Theme {
         static let caption = Font.system(size: 12, design: .rounded)
         /// Compteur de la barre de menu (AppKit) : medium, arrondi, chiffres à chasse fixe.
         static let counterSize: CGFloat = 12
+    }
+
+    enum Sound {
+        /// « Pop » feutré à la chute d'une tâche (réglage, désactivé par défaut).
+        static let popVolume: Float = 0.3
     }
 
     /// Durées en secondes.

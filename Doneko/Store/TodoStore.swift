@@ -92,10 +92,13 @@ final class TodoStore {
         save()
     }
 
-    /// Vide « Tombé aujourd'hui » : retire les tâches faites avant le début de la journée.
-    func purgeDone() {
-        let startOfToday = calendar.startOfDay(for: clock.now())
-        let purged = Set(items.filter { ($0.completedAt ?? .distantFuture) < startOfToday }.map(\.id))
+    /// Vide « Tombé aujourd'hui » : retire les tâches faites avant le dernier passage de l'heure de purge
+    /// (minuit par défaut, réglable).
+    func purgeDone(atHour hour: Int = 0) {
+        let now = clock.now()
+        var boundary = calendar.date(bySettingHour: hour, minute: 0, second: 0, of: now) ?? calendar.startOfDay(for: now)
+        if boundary > now { boundary = calendar.date(byAdding: .day, value: -1, to: boundary) ?? boundary }
+        let purged = Set(items.filter { ($0.completedAt ?? .distantFuture) < boundary }.map(\.id))
         guard !purged.isEmpty else { return }
         items.removeAll { purged.contains($0.id) }
         // Une annulation ne doit ramener aucune version d'une tâche purgée.

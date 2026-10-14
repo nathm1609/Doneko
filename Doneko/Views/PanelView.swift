@@ -6,6 +6,8 @@ struct PanelView: View {
     let store: TodoStore
     /// Ferme le panneau (Échap).
     let close: () -> Void
+    /// Bouton ⚙︎ : fenêtre « Réglages ».
+    let openSettings: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var newTitle = ""
@@ -39,14 +41,10 @@ struct PanelView: View {
             }
 
             HStack {
-                Menu {
-                    Toggle("Lancer au démarrage", isOn: Binding(get: { LaunchAtLogin.isEnabled }, set: { LaunchAtLogin.set($0) }))
-                } label: {
+                Button(action: openSettings) {
                     Image(systemName: "gearshape")
                 }
-                .menuStyle(.borderlessButton)
-                .menuIndicator(.hidden)
-                .fixedSize()
+                .buttonStyle(.plain)
                 .foregroundStyle(Theme.Palette.moustache)
                 .accessibilityLabel("Réglages")
                 Spacer()
