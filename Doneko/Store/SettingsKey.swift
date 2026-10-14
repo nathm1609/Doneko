@@ -6,4 +6,6 @@ enum SettingsKey {
     static let soundEnabled = "soundEnabled"
     /// Compteur de tâches à côté de l'icône (affiché par défaut).
     static let showCounter = "showCounter"
+    /// Chemin du dossier Obsidian où exporter les tâches faites (vide = pas d'export).
+    static let obsidianFolder = "obsidianFolder"
 }

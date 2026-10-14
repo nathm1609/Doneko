@@ -77,13 +77,15 @@ Doneko/
 │   │   ├── MenuBarController.swift # icône + compteur, panneau NSPanel
 │   │   ├── HotkeyService.swift
 │   │   ├── LaunchAtLogin.swift
-│   │   └── DailyPurge.swift
+│   │   ├── DailyPurge.swift
+│   │   └── ObsidianExport.swift # note du jour AAAA-MM-JJ.md, section « Fait avec Doneko »
 │   └── Resources/
 │       └── Assets.xcassets      # couleurs nommées, MenuIconAwake, MenuIconAsleep, AppIcon
 └── DonekoTests/
     ├── TodoStoreTests.swift
     ├── PersistenceTests.swift
     ├── DailyPurgeTests.swift
+    ├── ObsidianExportTests.swift
     └── MenuBarControllerTests.swift
 ```
 

@@ -14,6 +14,7 @@ struct DonekoApp: App {
 /// Au lancement : store, purge quotidienne, icône + panneau, raccourci ⌃⌥⌘D.
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var dailyPurge: DailyPurge?
+    private var obsidianExport: ObsidianExport?
     private var menuBar: MenuBarController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -21,6 +22,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let store = TodoStore(persistence: Persistence())
         let menuBar = MenuBarController(store: store)
         dailyPurge = DailyPurge(store: store)
+        obsidianExport = ObsidianExport(store: store)
         self.menuBar = menuBar
         KeyboardShortcuts.onKeyUp(for: .openPanel) { menuBar.show() }
     }
