@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Champ de saisie → tâches à faire → « Tombé aujourd'hui » → barre basse.
 struct PanelView: View {
@@ -14,6 +15,8 @@ struct PanelView: View {
     @State private var toast: Toast?
     @State private var selection: TodoItem.ID?
     @State private var knockOffRequest: KnockOffRequest?
+    /// Tâche attrapée par glisser-déposer.
+    @State private var draggedID: TodoItem.ID?
     @State private var listHeight: CGFloat = 0
     @FocusState private var isInputFocused: Bool
 
@@ -120,6 +123,22 @@ struct PanelView: View {
                         },
                         onDelete: { delete(item.id) }
                     )
+                    // Glisser-déposer : la liste se réordonne en direct au passage sur chaque ligne.
+                    .onDrag {
+                        draggedID = item.id
+                        // Type propre à Doneko, réservé à l'app : ni le champ ni une autre app ne reçoivent de texte.
+                        let provider = NSItemProvider()
+                        provider.registerDataRepresentation(forTypeIdentifier: UTType.donekoTask.identifier, visibility: .ownProcess) { done in
+                            done(Data(item.id.uuidString.utf8), nil)
+                            return nil
+                        }
+                        return provider
+                    }
+                    .onDrop(of: [.donekoTask], delegate: ReorderDropDelegate(target: item.id, draggedID: $draggedID) { id, target in
+                        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
+                            store.move(id, to: target)
+                        }
+                    })
                     .transition(
                         reduceMotion
                             ? .opacity
@@ -216,6 +235,32 @@ struct PanelView: View {
     /// « Réduire les animations » : tout mouvement devient un fondu de 150 ms.
     private func motion(_ animation: Animation) -> Animation {
         reduceMotion ? .easeOut(duration: Theme.Motion.reducedMotionFade) : animation
+    }
+}
+
+private extension UTType {
+    /// Tâche glissée dans le panneau (déclarée dans Info.plist).
+    static let donekoTask = UTType(exportedAs: "com.nathanmarchant.doneko.task")
+}
+
+/// Glisser-déposer interne : la tâche attrapée prend la place de la ligne survolée, sans attendre le lâcher.
+private struct ReorderDropDelegate: DropDelegate {
+    let target: TodoItem.ID
+    @Binding var draggedID: TodoItem.ID?
+    let move: (TodoItem.ID, TodoItem.ID) -> Void
+
+    func dropEntered(info: DropInfo) {
+        guard let draggedID, draggedID != target else { return }
+        move(draggedID, target)
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: .move)
+    }
+
+    func performDrop(info: DropInfo) -> Bool {
+        draggedID = nil
+        return true
     }
 }
 

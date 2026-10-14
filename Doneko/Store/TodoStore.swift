@@ -81,10 +81,27 @@ final class TodoStore {
         return (title.trimmingCharacters(in: .whitespaces), isPriority)
     }
 
+    /// Glisser-déposer : `id` prend la place de `target`. Les prioritaires restent en tête ;
+    /// l'ordre choisi est gardé à l'intérieur de chaque groupe.
+    func move(_ id: TodoItem.ID, to target: TodoItem.ID) {
+        var list = todos
+        guard let from = list.firstIndex(where: { $0.id == id }),
+              let to = list.firstIndex(where: { $0.id == target }), from != to else { return }
+        list.insert(list.remove(at: from), at: to)
+        list = list.filter(\.isPriority) + list.filter { !$0.isPriority }
+        // Mêmes valeurs d'ordre, redistribuées : aucun conflit avec les tâches faites.
+        for (item, order) in zip(list, todos.map(\.order).sorted()) {
+            if let i = index(of: item.id) { items[i].order = order }
+        }
+        save()
+    }
+
     /// Remet la tâche dans l'état d'avant la dernière action (la réinsère si elle a été supprimée).
+    /// Elle garde sa place actuelle : un glisser-déposer fait depuis ne s'annule pas avec elle.
     func undo() {
-        guard let previous = undoStack.popLast() else { return }
+        guard var previous = undoStack.popLast() else { return }
         if let i = index(of: previous.id) {
+            previous.order = items[i].order
             items[i] = previous
         } else {
             items.append(previous)

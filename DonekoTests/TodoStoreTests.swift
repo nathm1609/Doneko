@@ -131,6 +131,37 @@ final class TodoStoreTests: XCTestCase {
         XCTAssertEqual(store.todos.first?.isPriority, true)
     }
 
+    func testMoveDownAndUp() {
+        ["A", "B", "C"].forEach(store.add)
+        let ids = store.todos.map(\.id)
+
+        store.move(ids[0], to: ids[2])
+        XCTAssertEqual(store.todos.map(\.title), ["B", "C", "A"])
+
+        store.move(ids[0], to: ids[1])
+        XCTAssertEqual(store.todos.map(\.title), ["A", "B", "C"])
+    }
+
+    func testMoveKeepsPriorityTasksOnTop() {
+        ["Urgent !", "A", "B"].forEach(store.add)
+        let urgent = store.todos[0].id
+        let b = store.todos[2].id
+
+        store.move(b, to: urgent) // une tâche normale ne passe pas devant une prioritaire
+        XCTAssertEqual(store.todos.map(\.title), ["Urgent", "B", "A"])
+    }
+
+    func testMovedOrderIsSavedAndSurvivesUndoOfEarlierEdit() {
+        ["A", "B"].forEach(store.add)
+        let a = store.todos[0].id
+        store.edit(a, title: "A2")
+        store.move(a, to: store.todos[1].id)
+
+        store.undo() // annule la modification, pas le déplacement
+
+        XCTAssertEqual(store.todos.map(\.title), ["B", "A"])
+    }
+
     func testSummaryCountsRemainingTasksWithPlural() {
         XCTAssertEqual(store.summary, "Doneko — plus rien sur la table")
         store.add("A")
