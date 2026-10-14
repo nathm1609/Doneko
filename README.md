@@ -32,8 +32,17 @@ et un clic sur une tâche la fait tomber de la table d'un coup de patte.
 - **Glisser-déposer** pour réordonner, double-clic pour modifier, glissement à deux doigts vers la gauche pour supprimer.
 - **Export Obsidian** : les tâches faites s'ajoutent à la note du jour de ton coffre.
 - **Synchronisation iCloud Drive** entre tes Mac.
-- **Mascotte** : le chat de la barre de menu dort quand il n'y a plus rien à faire aujourd'hui, et le panneau vide te félicite.
+- **Mascotte animée** : une vraie patte rousse pousse chaque tâche hors de la table. La tête de chat de la barre de
+  menu saute quand une tâche arrive, donne un coup de patte quand elle tombe, cligne des yeux et s'endort quand il n'y a
+  plus rien à faire aujourd'hui. Dans le panneau vide, le chat fait la sieste (oreille qui remue, bâillements) ou saute
+  de joie quand tout est fait.
 - Mode clair et sombre, « Réduire les animations » respecté, VoiceOver, interface entièrement en français.
+
+<p align="center">
+  <img src="docs/images/animations.gif" width="320" alt="Animation du panneau : une tâche est ajoutée, puis chaque tâche est poussée hors de la table par une patte rousse ; une fois tout fait, le chat content saute de joie">
+  &nbsp;
+  <img src="docs/images/icone-animee.gif" width="140" alt="Animation de la tête de chat de la barre de menu : petit saut, clignement, coup de tête avec la patte levée, puis sieste avec un « z » qui monte">
+</p>
 
 <p align="center">
   <img src="docs/images/vide-endormi.png" width="320" alt="Liste vide : la mascotte dort">
