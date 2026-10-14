@@ -2,14 +2,11 @@ import SwiftUI
 
 @main
 struct DonekoApp: App {
+    @State private var store = TodoStore(persistence: Persistence())
+
     var body: some Scene {
         MenuBarExtra {
-            VStack {
-                Text("Doneko")
-                Button("Laisser Doneko dormir (Quitter)") { NSApplication.shared.terminate(nil) }
-                    .keyboardShortcut("q")
-            }
-            .padding()
+            PanelView(store: store)
         } label: {
             // Passage éveillé / endormi et compteur : étape 8.
             Image("MenuIconAwake")

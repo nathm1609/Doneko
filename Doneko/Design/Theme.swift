@@ -11,6 +11,7 @@ enum Theme {
         static let moustache = Color("Moustache")
         static let matcha = Color("Matcha")
         static let sakura = Color("Sakura")
+        static let checkmark = Color.white
     }
 
     enum Layout {
@@ -23,6 +24,13 @@ enum Theme {
         static let rowCornerRadius: CGFloat = 8
         static let pawPadDiameter: CGFloat = 16
         static let pawPadStroke: CGFloat = 1.5
+        /// Empreinte au survol et coche blanche, à l'intérieur du rond.
+        static let pawPadGlyphSize: CGFloat = 8
+        static let rowHorizontalPadding: CGFloat = 8
+        static let rowContentSpacing: CGFloat = 8
+        static let smallSpacing: CGFloat = 4
+        static let focusRingWidth: CGFloat = 2
+        static let mascotSize: CGFloat = 48
     }
 
     /// SF Pro Rounded partout.
