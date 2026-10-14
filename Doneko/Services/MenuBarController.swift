@@ -37,7 +37,12 @@ final class MenuBarController: NSObject {
         NotificationCenter.default.addObserver(self, selector: #selector(panelDidResignKey), name: NSWindow.didResignKeyNotification, object: panel)
 
         statusItem.button?.target = self
-        statusItem.button?.action = #selector(toggle)
+        statusItem.button?.action = #selector(statusItemClicked)
+        statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
+        statusItem.button?.setAccessibilityCustomActions([
+            NSAccessibilityCustomAction(name: "Réglages") { [weak self] in self?.openSettings(); return true },
+            NSAccessibilityCustomAction(name: "Quitter") { NSApp.terminate(nil); return true },
+        ])
         statusItem.button?.imagePosition = .imageLeading
         statusItem.button?.font = Self.counterFont
         observeStore()
@@ -66,7 +71,7 @@ final class MenuBarController: NSObject {
     }
 
     /// Fenêtre « Réglages » : le panneau se ferme, la fenêtre passe au premier plan.
-    func openSettings() {
+    @objc func openSettings() {
         hide()
         let window = settingsWindow ?? {
             let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView()))
@@ -82,7 +87,36 @@ final class MenuBarController: NSObject {
         window.orderFrontRegardless()
     }
 
-    @objc private func toggle() {
+    /// Clic gauche : le panneau. Clic droit (ou ⌃ clic) : le menu Réglages / Quitter.
+    @objc private func statusItemClicked() {
+        let event = NSApp.currentEvent
+        if event?.type == .rightMouseUp || event?.modifierFlags.contains(.control) == true {
+            showMenu()
+        } else {
+            toggle()
+        }
+    }
+
+    private func showMenu() {
+        hide()
+        guard let button = statusItem.button else { return }
+        button.highlight(true)
+        // Sous l'icône, comme un menu de barre de menu ; popUp rend la main une fois le menu fermé.
+        menu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.isFlipped ? button.bounds.maxY : 0), in: button)
+        button.highlight(false)
+    }
+
+    private lazy var menu: NSMenu = {
+        let menu = NSMenu()
+        let settings = NSMenuItem(title: "Réglages…", action: #selector(openSettings), keyEquivalent: ",")
+        settings.target = self
+        menu.addItem(settings)
+        menu.addItem(.separator())
+        menu.addItem(NSMenuItem(title: "Laisser Doneko dormir (Quitter)", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        return menu
+    }()
+
+    private func toggle() {
         // Cliquer sur l'icône panneau ouvert le ferme d'abord (perte d'activation) : ne pas le rouvrir aussitôt.
         if panel.isVisible || Date().timeIntervalSince(lastHide) < 0.3 {
             hide()

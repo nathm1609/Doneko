@@ -43,23 +43,16 @@ struct PanelView: View {
                 }
             }
 
-            HStack {
-                Button(action: openSettings) {
-                    Image(systemName: "gearshape")
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(Theme.Palette.moustache)
-                .accessibilityLabel("Réglages")
-                Spacer()
-                Button("Laisser Doneko dormir (Quitter)") { NSApplication.shared.terminate(nil) }
-                    .buttonStyle(.plain)
-                    .font(Theme.Typography.caption)
-                    .foregroundStyle(Theme.Palette.moustache)
-                    .keyboardShortcut("q")
+            // Quitter : clic droit sur l'icône de la barre de menu, ou ⌘Q.
+            Button(action: openSettings) {
+                Image(systemName: "gearshape")
             }
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.Palette.moustache)
+            .accessibilityLabel("Réglages")
         }
         .padding(Theme.Layout.panelPadding)
-        // Raccourcis invisibles : la fenêtre les reçoit avant le menu Édition (⌘Z) et quel que soit le focus (Échap).
+        // Raccourcis invisibles : la fenêtre les reçoit avant le menu Édition (⌘Z) et quel que soit le focus (Échap, ⌘Q).
         .background {
             Group {
                 // Champ non vide : désactivé, ⌘Z garde son sens habituel (annuler la frappe).
@@ -68,6 +61,8 @@ struct PanelView: View {
                     .disabled(!newTitle.isEmpty)
                 Button("Fermer", action: close)
                     .keyboardShortcut(.cancelAction)
+                Button("Quitter") { NSApplication.shared.terminate(nil) }
+                    .keyboardShortcut("q")
             }
             .opacity(0)
             .accessibilityHidden(true)

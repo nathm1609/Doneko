@@ -73,6 +73,7 @@ Police système **SF Pro Rounded** (aucune police à installer) :
 - Taille de dessin : 18 × 18 pt, trait de 1,5 pt, formes pleines simples.
 - Deux variantes : `MenuIconAwake` (yeux ouverts) et `MenuIconAsleep` (yeux fermés + petit z).
 - Le compteur s'affiche à droite de la tête quand il reste au moins une tâche ; masqué à 0.
+- Clic gauche : le panneau. Clic droit (ou ⌃ clic) : menu « Réglages… » / « Laisser Doneko dormir (Quitter) ».
 
 ### Icône de l'app (Finder, réglages, « À propos »)
 - Carré arrondi macOS, fond Crème, tête de chat Mandarine au centre, légère ombre portée douce.
@@ -91,7 +92,7 @@ Les autres icônes utilisent les SF Symbols, en version arrondie quand elle exis
 
 - Largeur fixe : **320 pt**. Hauteur qui s'adapte au contenu, maximum 480 pt puis défilement.
 - Coins arrondis : 14 pt. Marges internes : 12 pt.
-- Ordre vertical : champ de saisie → tâches à faire → section repliable « Tombé aujourd'hui » → barre basse discrète (réglages, quitter).
+- Ordre vertical : champ de saisie → tâches à faire → section repliable « Tombé aujourd'hui » → barre basse discrète (bouton réglages ; quitter passe par le clic droit sur l'icône ou ⌘Q).
 - Hauteur d'une ligne : 32 pt, espacement 2 pt, coins 8 pt, fond Coussin uniquement au survol ou à la sélection clavier.
 - Tâche prioritaire : petit point Sakura à gauche du texte, remontée en haut de liste.
 
