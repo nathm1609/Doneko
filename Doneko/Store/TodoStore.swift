@@ -28,6 +28,15 @@ final class TodoStore {
 
     var canUndo: Bool { !undoStack.isEmpty }
 
+    /// Info-bulle et libellé VoiceOver de l'icône : « Doneko — 3 tâches sur la table ».
+    var summary: String {
+        switch todos.count {
+        case 0: "Doneko — plus rien sur la table"
+        case 1: "Doneko — 1 tâche sur la table"
+        case let count: "Doneko — \(count) tâches sur la table"
+        }
+    }
+
     func add(_ title: String) {
         let title = title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !title.isEmpty else { return }

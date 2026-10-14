@@ -8,9 +8,15 @@ struct DonekoApp: App {
         MenuBarExtra {
             PanelView(store: store)
         } label: {
-            // Passage éveillé / endormi et compteur : étape 8.
-            Image("MenuIconAwake")
-                .accessibilityLabel("Doneko")
+            let remaining = store.todos.count
+            // Éveillé s'il reste des tâches, endormi sinon ; compteur masqué à 0.
+            Image(remaining > 0 ? "MenuIconAwake" : "MenuIconAsleep")
+                .help(store.summary)
+                .accessibilityLabel(store.summary)
+            if remaining > 0 {
+                Text("\(remaining)")
+                    .font(Theme.Typography.counter)
+            }
         }
         .menuBarExtraStyle(.window)
     }

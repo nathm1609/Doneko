@@ -99,6 +99,16 @@ final class TodoStoreTests: XCTestCase {
         XCTAssertFalse(store.canUndo)
     }
 
+    func testSummaryCountsRemainingTasksWithPlural() {
+        XCTAssertEqual(store.summary, "Doneko — plus rien sur la table")
+        store.add("A")
+        XCTAssertEqual(store.summary, "Doneko — 1 tâche sur la table")
+        store.add("B")
+        store.add("C")
+        store.complete(store.todos[0].id)
+        XCTAssertEqual(store.summary, "Doneko — 2 tâches sur la table")
+    }
+
     func testUndoIsLastInFirstOutAndKeepsLaterAdds() {
         store.add("A")
         let id = store.todos[0].id
