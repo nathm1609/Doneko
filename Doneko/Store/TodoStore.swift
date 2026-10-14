@@ -8,7 +8,7 @@ final class TodoStore {
     private var undoStack: [TodoItem] = []
     @ObservationIgnored private let clock: Clock
     @ObservationIgnored private let calendar: Calendar
-    @ObservationIgnored private let persistence: Persistence?
+    @ObservationIgnored private var persistence: Persistence?
     /// Début du jour en cours : sépare « Aujourd'hui » de « Plus tard ». Avancé par `refreshDay()`.
     private(set) var currentDay: Date
 
@@ -170,6 +170,40 @@ final class TodoStore {
             items.append(previous)
         }
         save()
+    }
+
+    /// Synchronisation iCloud activée ou coupée : la liste change de fichier. En rejoignant un fichier existant
+    /// (`merging`), ses tâches sont gardées et celles d'ici qui n'y sont pas s'y ajoutent.
+    /// Écriture impossible (accès refusé) : rien ne change, et la réponse est `false`.
+    @discardableResult
+    func relocate(to persistence: Persistence, merging: Bool) -> Bool {
+        var list = items
+        if merging {
+            let there = persistence.load()
+            let ids = Set(there.map(\.id))
+            list = there + items.filter { !ids.contains($0.id) }
+        }
+        do {
+            try persistence.save(list)
+        } catch {
+            NSLog("Doneko : impossible d'écrire dans \(persistence.url.path) (\(error))")
+            return false
+        }
+        self.persistence = persistence
+        if list != items {
+            items = list
+            undoStack.removeAll()
+        }
+        return true
+    }
+
+    /// Le fichier a été modifié ailleurs (un autre Mac, via iCloud) : la liste est relue. Notre propre écriture
+    /// ne compte pas ; fichier absent ou illisible (synchronisation en cours) : la liste reste telle quelle.
+    func reloadIfChangedOnDisk() {
+        guard let persistence, let data = try? Data(contentsOf: persistence.url),
+              data != (try? Persistence.encode(items)), let loaded = try? Persistence.decode(data) else { return }
+        items = loaded
+        undoStack.removeAll()
     }
 
     /// Au changement de jour, les tâches de « Plus tard » arrivées à échéance passent dans « Aujourd'hui ».

@@ -10,4 +10,6 @@ enum SettingsKey {
     static let obsidianFolder = "obsidianFolder"
     /// Heure (0 à 23) du rappel des tâches datées, le jour venu (9 h par défaut). -1 = jamais.
     static let reminderHour = "reminderHour"
+    /// Liste enregistrée dans iCloud Drive plutôt que sur ce Mac (désactivé par défaut).
+    static let iCloudSync = "iCloudSync"
 }

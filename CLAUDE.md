@@ -41,7 +41,8 @@ Ne pas commencer V1 tant que V0 n'est pas terminé, testé et validé par l'util
 - Swift 5.10+, SwiftUI, macOS 14+ (Sonoma), framework Observation (`@Observable`).
 - Icône `NSStatusItem` + panneau `NSPanel` (AppKit) qui héberge la vue SwiftUI : sous macOS 27, un `MenuBarExtra`
   ne peut pas être ouvert par code, ce qu'exige le raccourci ⌃⌥⌘D.
-- Stockage JSON (`Codable`) dans `~/Library/Application Support/Doneko/todos.json`.
+- Stockage JSON (`Codable`) dans `~/Library/Application Support/Doneko/todos.json`, ou dans iCloud Drive
+  (`Doneko/todos.json`) si la synchronisation est activée : sans compte Apple Developer payant, pas de CloudKit.
 - Raccourci global : package Swift `KeyboardShortcuts` (sindresorhus).
 - Lancement au démarrage : `SMAppService.mainApp`.
 - Projet généré avec XcodeGen à partir de `project.yml`.
@@ -78,6 +79,7 @@ Doneko/
 │   │   ├── HotkeyService.swift
 │   │   ├── LaunchAtLogin.swift
 │   │   ├── DailyPurge.swift
+│   │   ├── ICloudSync.swift     # liste dans iCloud Drive, relue quand un autre Mac la change
 │   │   ├── ObsidianExport.swift # note du jour AAAA-MM-JJ.md, section « Fait avec Doneko »
 │   │   └── Reminders.swift      # notification le jour de l'échéance, à l'heure choisie
 │   └── Resources/
@@ -86,6 +88,7 @@ Doneko/
     ├── TodoStoreTests.swift
     ├── PersistenceTests.swift
     ├── DailyPurgeTests.swift
+    ├── ICloudSyncTests.swift
     ├── ObsidianExportTests.swift
     ├── RemindersTests.swift
     └── MenuBarControllerTests.swift

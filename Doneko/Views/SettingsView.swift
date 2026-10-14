@@ -9,6 +9,7 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.soundEnabled) private var soundEnabled = false
     @AppStorage(SettingsKey.showCounter) private var showCounter = true
     @AppStorage(SettingsKey.obsidianFolder) private var obsidianFolder = ""
+    @AppStorage(SettingsKey.iCloudSync) private var iCloudSync = false
     @State private var isChoosingFolder = false
     @State private var launchAtLogin = LaunchAtLogin.isEnabled
 
@@ -43,6 +44,11 @@ struct SettingsView: View {
             .fileImporter(isPresented: $isChoosingFolder, allowedContentTypes: [.folder]) { result in
                 if case let .success(url) = result { obsidianFolder = url.path }
             }
+            Toggle(isOn: $iCloudSync) {
+                Text("Synchroniser avec iCloud Drive")
+                Text(ICloudSync.isDriveAvailable ? "Les mêmes tâches sur tous tes Mac" : "iCloud Drive n'est pas activé sur ce Mac")
+            }
+            .disabled(!ICloudSync.isDriveAvailable && !iCloudSync)
             Toggle("Lancer au démarrage", isOn: $launchAtLogin)
                 .onChange(of: launchAtLogin) { _, enabled in
                     LaunchAtLogin.set(enabled)

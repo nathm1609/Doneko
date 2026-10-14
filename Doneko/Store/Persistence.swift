@@ -18,9 +18,7 @@ struct Persistence {
     func load() -> [TodoItem] {
         guard FileManager.default.fileExists(atPath: url.path) else { return [] }
         do {
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            return try decoder.decode([TodoItem].self, from: Data(contentsOf: url))
+            return try Self.decode(Data(contentsOf: url))
         } catch {
             NSLog("Doneko : todos.json illisible (\(error)), renommé en todos.json.bak")
             try? FileManager.default.removeItem(at: backupURL)
@@ -32,9 +30,20 @@ struct Persistence {
     /// Écriture atomique : fichier temporaire puis remplacement.
     func save(_ items: [TodoItem]) throws {
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try Self.encode(items).write(to: url, options: .atomic)
+    }
+
+    /// Toujours le même contenu pour la même liste : on reconnaît ainsi un fichier qu'on vient d'écrire.
+    static func encode(_ items: [TodoItem]) throws -> Data {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        try encoder.encode(items).write(to: url, options: .atomic)
+        return try encoder.encode(items)
+    }
+
+    static func decode(_ data: Data) throws -> [TodoItem] {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode([TodoItem].self, from: data)
     }
 }
