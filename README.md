@@ -127,3 +127,7 @@ xcodebuild -project Doneko.xcodeproj -scheme Doneko -derivedDataPath build test
 
 - [KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) de Sindre Sorhus pour le raccourci global.
 - Icône et mascottes générées avec Gemini, puis retouchées pour l'app.
+
+## Licence
+
+Distribué sous licence [MIT](LICENSE).
