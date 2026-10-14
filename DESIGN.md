@@ -28,6 +28,10 @@ Ses états, utilisés dans l'icône de la barre de menu et les écrans vides :
 | **Patte levée** | Au moment où une tâche est cochée | Une patte apparaît brièvement à côté de la ligne |
 | **Content** | Toutes les tâches du jour faites | Yeux fermés en « ^ ^ », satisfait |
 
+Dans le panneau vide, les états **Endormi** et **Content** sont des illustrations en couleur (96 pt), dans le style de
+l'icône de l'app : `Artwork/MascotAsleep.webp` et `Artwork/MascotContent.webp`, générées avec Gemini sur fond magenta
+uni, détourées par `swift Artwork/make-mascots.swift`. La barre de menu garde des icônes monochromes (template).
+
 ---
 
 ## Palette

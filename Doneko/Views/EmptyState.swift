@@ -9,11 +9,10 @@ struct EmptyState: View {
 
     var body: some View {
         VStack(spacing: Theme.Layout.panelPadding) {
-            Image(allDone ? "MascotContent" : "MenuIconAsleep")
+            Image(allDone ? "MascotContent" : "MascotAsleep")
                 .resizable()
                 .scaledToFit()
                 .frame(width: Theme.Layout.mascotSize, height: Theme.Layout.mascotSize)
-                .foregroundStyle(Theme.Palette.mandarine)
                 .scaleEffect(isBreathingIn && !allDone ? Theme.Motion.breatheScale : 1)
                 .accessibilityHidden(true)
             Text(allDone ? "Table rase ! Bien joué." : "Plus rien sur la table. Doneko fait la sieste.")

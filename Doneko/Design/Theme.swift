@@ -35,7 +35,8 @@ enum Theme {
         static let rowContentSpacing: CGFloat = 8
         static let smallSpacing: CGFloat = 4
         static let focusRingWidth: CGFloat = 2
-        static let mascotSize: CGFloat = 48
+        /// Illustration de la mascotte (endormie ou contente) quand la liste est vide.
+        static let mascotSize: CGFloat = 96
         /// Patte qui pousse la tâche hors de la table.
         static let pawSize: CGFloat = 14
         /// Point Sakura devant une tâche prioritaire (« ! » en fin de saisie).
