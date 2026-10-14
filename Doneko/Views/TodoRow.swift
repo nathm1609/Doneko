@@ -1,8 +1,17 @@
 import AppKit
 import SwiftUI
 
+/// Demande de coup de patte venue du clavier (Espace). Le jeton rend chaque demande unique.
+struct KnockOffRequest: Equatable {
+    let id: TodoItem.ID
+    let token = UUID()
+}
+
 struct TodoRow: View {
     let item: TodoItem
+    /// Sélection clavier (↑/↓).
+    let isSelected: Bool
+    let knockOffRequest: KnockOffRequest?
     /// Appelé une fois l'animation « coup de patte » terminée.
     let onComplete: () -> Void
     let onEdit: (String) -> Void
@@ -31,6 +40,9 @@ struct TodoRow: View {
             if !reduceMotion {
                 paw
             }
+        }
+        .onChange(of: knockOffRequest) { _, request in
+            if request?.id == item.id { knockOff() }
         }
     }
 
@@ -69,7 +81,7 @@ struct TodoRow: View {
         .padding(.horizontal, Theme.Layout.rowHorizontalPadding)
         .frame(height: Theme.Layout.rowHeight)
         .background(
-            isHovered && phase == .idle ? Theme.Palette.coussin : .clear,
+            (isHovered || isSelected) && phase == .idle ? Theme.Palette.coussin : .clear,
             in: RoundedRectangle(cornerRadius: Theme.Layout.rowCornerRadius)
         )
         .contentShape(Rectangle())

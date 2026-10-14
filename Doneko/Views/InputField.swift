@@ -1,10 +1,14 @@
 import SwiftUI
 
 struct InputField: View {
+    var isFocused: FocusState<Bool>.Binding
     let onSubmit: (String) -> Void
+    /// ↓ : passer à la liste.
+    let onArrowDown: () -> Void
+    /// ⌘Z quand le champ est vide : annuler la dernière action sur les tâches.
+    let onUndo: () -> Void
 
     @State private var text = ""
-    @FocusState private var isFocused: Bool
 
     var body: some View {
         TextField(
@@ -15,19 +19,29 @@ struct InputField: View {
         .textFieldStyle(.plain)
         .font(Theme.Typography.input)
         .foregroundStyle(Theme.Palette.encre)
-        .focused($isFocused)
+        .focused(isFocused)
         .padding(.horizontal, Theme.Layout.rowHorizontalPadding)
         .frame(height: Theme.Layout.rowHeight)
         .background(Theme.Palette.coussin, in: RoundedRectangle(cornerRadius: Theme.Layout.rowCornerRadius))
         .overlay {
             RoundedRectangle(cornerRadius: Theme.Layout.rowCornerRadius)
-                .strokeBorder(Theme.Palette.mandarine, lineWidth: isFocused ? Theme.Layout.focusRingWidth : 0)
+                .strokeBorder(Theme.Palette.mandarine, lineWidth: isFocused.wrappedValue ? Theme.Layout.focusRingWidth : 0)
         }
         // Entrée ajoute la tâche ; le champ garde le focus pour enchaîner.
         .onSubmit {
             onSubmit(text)
             text = ""
         }
-        .onAppear { isFocused = true }
+        .onKeyPress(.downArrow) {
+            onArrowDown()
+            return .handled
+        }
+        // Champ non vide : ⌘Z garde son sens habituel (annuler la frappe).
+        .onKeyPress(keys: ["z"]) { press in
+            guard press.modifiers == .command, text.isEmpty else { return .ignored }
+            onUndo()
+            return .handled
+        }
+        .onAppear { isFocused.wrappedValue = true }
     }
 }
