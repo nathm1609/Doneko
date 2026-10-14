@@ -18,9 +18,7 @@ struct DoneSection: View {
                         .textCase(.uppercase)
                         .tracking(Theme.Typography.sectionTitleTracking)
                 }
-                .font(Theme.Typography.sectionTitle)
-                .foregroundStyle(Theme.Palette.moustache)
-                .padding(.horizontal, Theme.Layout.rowHorizontalPadding)
+                .sectionTitleStyle()
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -45,5 +43,26 @@ struct DoneSection: View {
                 }
             }
         }
+    }
+}
+
+/// Titre de section : « Aujourd'hui », « Plus tard ».
+struct SectionTitle: View {
+    let title: String
+
+    var body: some View {
+        Text(title)
+            .textCase(.uppercase)
+            .tracking(Theme.Typography.sectionTitleTracking)
+            .sectionTitleStyle()
+            .accessibilityAddTraits(.isHeader)
+    }
+}
+
+private extension View {
+    func sectionTitleStyle() -> some View {
+        font(Theme.Typography.sectionTitle)
+            .foregroundStyle(Theme.Palette.moustache)
+            .padding(.horizontal, Theme.Layout.rowHorizontalPadding)
     }
 }

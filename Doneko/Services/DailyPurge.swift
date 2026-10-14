@@ -1,7 +1,8 @@
 import AppKit
 
 /// Vide « Tombé aujourd'hui » à l'heure choisie dans les réglages (minuit par défaut) :
-/// au démarrage, au réveil de veille, et par une vérification chaque minute.
+/// au démarrage, au réveil de veille, et par une vérification chaque minute. Fait aussi passer
+/// les tâches de « Plus tard » dans « Aujourd'hui » au changement de jour.
 final class DailyPurge {
     private let store: TodoStore
     private let defaults: UserDefaults
@@ -30,6 +31,7 @@ final class DailyPurge {
     }
 
     func purge() {
+        store.refreshDay()
         store.purgeDone(atHour: defaults.integer(forKey: SettingsKey.purgeHour))
     }
 }

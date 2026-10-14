@@ -9,11 +9,21 @@ final class FakeClock: Clock {
 final class TodoStoreTests: XCTestCase {
     private var clock: FakeClock!
     private var store: TodoStore!
+    private var calendar = Calendar(identifier: .gregorian)
 
     override func setUp() {
         super.setUp()
-        clock = FakeClock()
-        store = TodoStore(clock: clock)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+        clock = FakeClock() // vendredi 15 janvier 2027, 8 h UTC
+        store = TodoStore(clock: clock, calendar: calendar)
+    }
+
+    private func day(_ month: Int, _ day: Int) -> Date? {
+        calendar.date(from: DateComponents(year: 2027, month: month, day: day))
+    }
+
+    private func due(_ title: String) -> Date? {
+        store.todos.first { $0.title == title }?.dueDate
     }
 
     func testAddTrimsTitleAndAppendsInOrder() {
@@ -160,6 +170,60 @@ final class TodoStoreTests: XCTestCase {
         store.undo() // annule la modification, pas le déplacement
 
         XCTAssertEqual(store.todos.map(\.title), ["B", "A"])
+    }
+
+    func testFrenchDateAtEndSetsDueDateAndLeavesTitle() {
+        [
+            "Appeler le véto demain", "Sport Après-demain", "Courses lundi", "Ménage vendredi",
+            "Payer le loyer le 20 !", "Rendre le livre le 3", "Banque le 14", "Gâteau pour le 1er", "Arroser aujourd’hui",
+        ].forEach(store.add)
+
+        XCTAssertEqual(due("Appeler le véto"), day(1, 16))
+        XCTAssertEqual(due("Sport"), day(1, 17))
+        XCTAssertEqual(due("Courses"), day(1, 18))
+        XCTAssertEqual(due("Ménage"), day(1, 22)) // vendredi un vendredi : la semaine prochaine
+        XCTAssertEqual(due("Payer le loyer"), day(1, 20))
+        XCTAssertEqual(store.todos.first { $0.title == "Payer le loyer" }?.isPriority, true)
+        XCTAssertEqual(due("Rendre le livre"), day(2, 3)) // jour passé : le mois suivant
+        XCTAssertEqual(due("Banque"), day(2, 14))
+        XCTAssertEqual(due("Gâteau"), day(2, 1))
+        XCTAssertEqual(due("Arroser"), day(1, 15))
+    }
+
+    func testDateWordsElsewhereOrAloneAreKeptInTitle() {
+        ["demain", "Demain matin réunion", "Revoir le 40", "Payer ! demain"].forEach(store.add)
+
+        XCTAssertEqual(store.todos.compactMap(\.dueDate), [day(1, 16)])
+        XCTAssertEqual(Set(store.todos.map(\.title)), ["demain", "Demain matin réunion", "Revoir le 40", "Payer"])
+    }
+
+    func testLaterTasksComeAfterTodayAndJoinItOnTheirDay() {
+        ["B lundi", "C demain", "A"].forEach(store.add)
+        XCTAssertEqual(store.today.map(\.title), ["A"])
+        XCTAssertEqual(store.later.map(\.title), ["C", "B"])
+        XCTAssertEqual(store.summary, "Doneko — 1 tâche sur la table")
+
+        clock.current += 86_400
+        store.refreshDay()
+        XCTAssertEqual(store.today.map(\.title), ["C", "A"])
+        XCTAssertEqual(store.later.map(\.title), ["B"])
+
+        store.move(store.later[0].id, to: store.today[0].id) // pas de passage d'une section à l'autre
+        XCTAssertEqual(store.todos.map(\.title), ["C", "A", "B"])
+    }
+
+    func testEditKeepsDueDateUnlessANewOneIsTyped() {
+        store.add("A demain")
+        let id = store.todos[0].id
+
+        store.edit(id, title: "A2")
+        XCTAssertEqual(store.later.map(\.title), ["A2"])
+
+        store.edit(id, title: "A2 aujourd'hui")
+        XCTAssertEqual(store.today.map(\.title), ["A2"])
+
+        store.undo()
+        XCTAssertEqual(store.later.map(\.title), ["A2"])
     }
 
     func testSummaryCountsRemainingTasksWithPlural() {

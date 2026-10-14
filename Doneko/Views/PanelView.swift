@@ -104,55 +104,70 @@ struct PanelView: View {
 
     private var lists: some View {
         VStack(alignment: .leading, spacing: Theme.Layout.rowSpacing) {
-            if store.todos.isEmpty {
+            // Sans tâche pour plus tard, pas de titres : une seule liste.
+            let hasLater = !store.later.isEmpty
+            if hasLater {
+                SectionTitle(title: "Aujourd'hui")
+            }
+            if store.today.isEmpty {
                 EmptyState(allDone: !store.done.isEmpty)
             } else {
-                ForEach(store.todos) { item in
-                    TodoRow(
-                        item: item,
-                        isSelected: item.id == selection,
-                        knockOffRequest: knockOffRequest,
-                        onComplete: { complete(item) },
-                        onEditEnd: { title in
-                            if let title {
-                                store.edit(item.id, title: title)
-                                // Le toast annulerait désormais la modification, pas la chute : on le retire.
-                                toast = nil
-                            }
-                            isInputFocused = true
-                        },
-                        onDelete: { delete(item.id) }
-                    )
-                    // Glisser-déposer : la liste se réordonne en direct au passage sur chaque ligne.
-                    .onDrag {
-                        draggedID = item.id
-                        // Type propre à Doneko, réservé à l'app : ni le champ ni une autre app ne reçoivent de texte.
-                        let provider = NSItemProvider()
-                        provider.registerDataRepresentation(forTypeIdentifier: UTType.donekoTask.identifier, visibility: .ownProcess) { done in
-                            done(Data(item.id.uuidString.utf8), nil)
-                            return nil
-                        }
-                        return provider
-                    }
-                    .onDrop(of: [.donekoTask], delegate: ReorderDropDelegate(target: item.id, draggedID: $draggedID) { id, target in
-                        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
-                            store.move(id, to: target)
-                        }
-                    })
-                    .transition(
-                        reduceMotion
-                            ? .opacity
-                            : .asymmetric(
-                                insertion: .offset(y: -Theme.Motion.rowAppearOffset).combined(with: .opacity),
-                                removal: .identity
-                            )
-                    )
-                }
+                rows(store.today)
+            }
+            if hasLater {
+                SectionTitle(title: "Plus tard")
+                    .padding(.top, Theme.Layout.panelPadding)
+                rows(store.later, showsDueDate: true)
             }
             if !store.done.isEmpty {
                 DoneSection(items: store.done, onDelete: delete)
                     .padding(.top, Theme.Layout.panelPadding)
             }
+        }
+    }
+
+    private func rows(_ items: [TodoItem], showsDueDate: Bool = false) -> some View {
+        ForEach(items) { item in
+            TodoRow(
+                item: item,
+                isSelected: item.id == selection,
+                showsDueDate: showsDueDate,
+                knockOffRequest: knockOffRequest,
+                onComplete: { complete(item) },
+                onEditEnd: { title in
+                    if let title {
+                        store.edit(item.id, title: title)
+                        // Le toast annulerait désormais la modification, pas la chute : on le retire.
+                        toast = nil
+                    }
+                    isInputFocused = true
+                },
+                onDelete: { delete(item.id) }
+            )
+            // Glisser-déposer : la liste se réordonne en direct au passage sur chaque ligne.
+            .onDrag {
+                draggedID = item.id
+                // Type propre à Doneko, réservé à l'app : ni le champ ni une autre app ne reçoivent de texte.
+                let provider = NSItemProvider()
+                provider.registerDataRepresentation(forTypeIdentifier: UTType.donekoTask.identifier, visibility: .ownProcess) { done in
+                    done(Data(item.id.uuidString.utf8), nil)
+                    return nil
+                }
+                return provider
+            }
+            .onDrop(of: [.donekoTask], delegate: ReorderDropDelegate(target: item.id, draggedID: $draggedID) { id, target in
+                withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
+                    store.move(id, to: target)
+                }
+            })
+            .transition(
+                reduceMotion
+                    ? .opacity
+                    : .asymmetric(
+                        insertion: .offset(y: -Theme.Motion.rowAppearOffset).combined(with: .opacity),
+                        removal: .identity
+                    )
+            )
         }
     }
 

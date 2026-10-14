@@ -123,10 +123,10 @@ final class MenuBarController: NSObject {
         }
     }
 
-    /// Icône éveillée s'il reste des tâches, endormie sinon ; compteur masqué à 0 ou si le réglage le cache.
+    /// Icône éveillée s'il reste des tâches pour aujourd'hui, endormie sinon ; compteur masqué à 0 ou si le réglage le cache.
     @objc private func applyStatusItem() {
         guard let button = statusItem.button else { return }
-        let remaining = store.todos.count
+        let remaining = store.today.count
         let image = NSImage(named: remaining > 0 ? "MenuIconAwake" : "MenuIconAsleep")
         image?.isTemplate = true
         button.image = image

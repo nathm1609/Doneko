@@ -11,6 +11,8 @@ struct TodoRow: View {
     let item: TodoItem
     /// Sélection clavier (↑/↓).
     let isSelected: Bool
+    /// Échéance affichée à droite (section « Plus tard »).
+    var showsDueDate = false
     let knockOffRequest: KnockOffRequest?
     /// Appelé une fois l'animation « coup de patte » terminée.
     let onComplete: () -> Void
@@ -87,6 +89,11 @@ struct TodoRow: View {
                         .accessibilityLabel(item.isPriority ? "Prioritaire : \(item.title)" : item.title)
                 }
                 Spacer(minLength: 0)
+                if showsDueDate, let dueDate = item.dueDate {
+                    Text(dueDate, format: Self.dueDateFormat)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Palette.moustache)
+                }
             }
         }
         .padding(.horizontal, Theme.Layout.rowHorizontalPadding)
@@ -141,6 +148,11 @@ struct TodoRow: View {
             }
         }
     }
+
+    /// « lun. 18 janv. » : en français comme le reste de l'interface, quelle que soit la langue du Mac.
+    private static let dueDateFormat = Date.FormatStyle.dateTime
+        .weekday(.abbreviated).day().month(.abbreviated)
+        .locale(Locale(identifier: "fr_FR"))
 
     /// « Pop » feutré du système (réglage, désactivé par défaut).
     private static let pop: NSSound? = {
