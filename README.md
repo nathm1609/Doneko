@@ -133,8 +133,9 @@ xcodebuild -project Doneko.xcodeproj -scheme Doneko -derivedDataPath build test
 - Le projet Xcode est généré par XcodeGen à partir de `project.yml` : ne pas modifier le `.xcodeproj` à la main.
 - La direction artistique (palette, typographie, animations, micro-textes) est décrite dans [`DESIGN.md`](DESIGN.md).
 - Les illustrations sont dans `Artwork/` : `make-appicon.sh` génère l'icône, `make-mascots.swift` détoure les mascottes.
-- `./make-dmg.sh` compile la version Release et produit `build/Doneko.dmg`, à joindre telle quelle à une release
-  GitHub : le lien de téléchargement du README suppose ce nom.
+- `./make-dmg.sh` compile la version Release et produit `build/Doneko.dmg`, à joindre tel quel à une release
+  GitHub : le lien de téléchargement du README suppose ce nom. Le Finder enregistre la disposition de la fenêtre
+  (fond, icônes) : macOS demande une fois l'autorisation de le piloter, et aucun volume Doneko ne doit être ouvert.
 
 ## Crédits
 

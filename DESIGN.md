@@ -86,6 +86,12 @@ Police système **SF Pro Rounded** (aucune police à installer) :
 - Illustration source `Artwork/AppIcon.png` (générée avec Gemini), découpée dans la forme macOS par
   `Artwork/AppIcon.svg` ; `Artwork/make-appicon.sh` génère toutes les tailles de l'`AppIcon`.
 
+### Fenêtre du DMG
+- Fond Crème, piste d'empreintes Mandarine et flèche de l'app vers Applications, chat allongé dessous qui pousse
+  de la patte. Pas de texte : le dessin suffit.
+- Illustration source `Artwork/DMGBackground.webp` (générée avec Gemini), recadrée et unifiée par
+  `Artwork/make-dmg-background.swift`, que `make-dmg.sh` appelle.
+
 ### Coche des tâches
 - Pas une case carrée : un **rond façon coussinet de patte** (cercle de 16 pt, contour Moustache 1,5 pt).
 - Au survol : le contour passe en Mandarine et une minuscule empreinte de patte apparaît à l'intérieur.
