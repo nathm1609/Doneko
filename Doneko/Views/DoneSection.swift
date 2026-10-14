@@ -24,7 +24,7 @@ struct DoneSection: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Tombé aujourd'hui, \(items.count) tâches")
+            .accessibilityLabel("Tombé aujourd'hui, \(items.count) \(items.count == 1 ? "tâche" : "tâches")")
             .accessibilityValue(isExpanded ? "Déplié" : "Replié")
 
             if isExpanded {

@@ -89,6 +89,7 @@ struct TodoRow: View {
         .onHover { isHovered = $0 }
         .onTapGesture(count: 2, perform: startEditing)
         .accessibilityAction(named: "Modifier", startEditing)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     /// Patte Mandarine qui arrive de la gauche et touche le bord de la ligne.
