@@ -72,10 +72,19 @@ struct TodoRow: View {
                         if !focused { finishEditing(saving: false) }
                     }
             } else {
-                Text(item.title)
-                    .font(Theme.Typography.task)
-                    .foregroundStyle(Theme.Palette.encre)
-                    .lineLimit(1)
+                HStack(spacing: Theme.Layout.smallSpacing) {
+                    if item.isPriority {
+                        Circle()
+                            .fill(Theme.Palette.sakura)
+                            .frame(width: Theme.Layout.priorityDotSize, height: Theme.Layout.priorityDotSize)
+                            .accessibilityHidden(true)
+                    }
+                    Text(item.title)
+                        .font(Theme.Typography.task)
+                        .foregroundStyle(Theme.Palette.encre)
+                        .lineLimit(1)
+                        .accessibilityLabel(item.isPriority ? "Prioritaire : \(item.title)" : item.title)
+                }
                 Spacer(minLength: 0)
             }
         }
@@ -133,7 +142,8 @@ struct TodoRow: View {
 
     private func startEditing() {
         guard !isEditing, phase == .idle else { return }
-        draft = item.title
+        // Le « ! » reste visible pendant la modification : l'effacer retire la priorité.
+        draft = item.isPriority ? "\(item.title) !" : item.title
         isEditing = true
         isEditFocused = true
     }

@@ -18,8 +18,10 @@ final class TodoStore {
         self.calendar = calendar
     }
 
+    /// Tâches à faire : les prioritaires en tête, puis dans l'ordre d'ajout.
     var todos: [TodoItem] {
-        items.filter { $0.completedAt == nil }.sorted { $0.order < $1.order }
+        items.filter { $0.completedAt == nil }
+            .sorted { ($0.isPriority ? 0 : 1, $0.order) < ($1.isPriority ? 0 : 1, $1.order) }
     }
 
     /// Tâches faites, la plus récente en premier.
@@ -39,11 +41,11 @@ final class TodoStore {
         }
     }
 
-    func add(_ title: String) {
-        let title = title.trimmingCharacters(in: .whitespacesAndNewlines)
+    func add(_ input: String) {
+        let (title, isPriority) = Self.parse(input)
         guard !title.isEmpty else { return }
         let order = (items.map(\.order).max() ?? -1) + 1
-        items.append(TodoItem(title: title, createdAt: clock.now(), order: order))
+        items.append(TodoItem(title: title, createdAt: clock.now(), isPriority: isPriority, order: order))
         save()
     }
 
@@ -60,12 +62,23 @@ final class TodoStore {
         save()
     }
 
-    func edit(_ id: TodoItem.ID, title: String) {
-        let title = title.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !title.isEmpty, let i = index(of: id), items[i].title != title else { return }
+    /// Le titre suit les mêmes règles qu'à l'ajout : « ! » final = prioritaire, son absence retire la priorité.
+    func edit(_ id: TodoItem.ID, title input: String) {
+        let (title, isPriority) = Self.parse(input)
+        guard !title.isEmpty, let i = index(of: id),
+              items[i].title != title || items[i].isPriority != isPriority else { return }
         undoStack.append(items[i])
         items[i].title = title
+        items[i].isPriority = isPriority
         save()
+    }
+
+    /// « ! » en fin de saisie (un ou plusieurs) = tâche prioritaire ; il est retiré du titre.
+    private static func parse(_ input: String) -> (title: String, isPriority: Bool) {
+        var title = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        let isPriority = title.hasSuffix("!")
+        while title.hasSuffix("!") { title.removeLast() }
+        return (title.trimmingCharacters(in: .whitespaces), isPriority)
     }
 
     /// Remet la tâche dans l'état d'avant la dernière action (la réinsère si elle a été supprimée).

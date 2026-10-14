@@ -37,6 +37,8 @@ enum Theme {
         static let mascotSize: CGFloat = 48
         /// Patte qui pousse la tâche hors de la table.
         static let pawSize: CGFloat = 14
+        /// Point Sakura devant une tâche prioritaire (« ! » en fin de saisie).
+        static let priorityDotSize: CGFloat = 6
         /// Glissement à deux doigts vers la gauche au-delà duquel la tâche est supprimée.
         static let swipeDeleteThreshold: CGFloat = 80
     }

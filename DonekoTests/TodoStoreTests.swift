@@ -99,6 +99,38 @@ final class TodoStoreTests: XCTestCase {
         XCTAssertFalse(store.canUndo)
     }
 
+    func testExclamationMarkAtEndMakesPriorityTaskOnTop() {
+        store.add("Arroser le basilic")
+        store.add("Payer le loyer !")
+        store.add("Appeler le véto!!")
+
+        XCTAssertEqual(store.todos.map(\.title), ["Payer le loyer", "Appeler le véto", "Arroser le basilic"])
+        XCTAssertEqual(store.todos.map(\.isPriority), [true, true, false])
+    }
+
+    func testExclamationMarkElsewhereOrAloneIsNotPriority() {
+        store.add("!important : relire")
+        store.add(" ! ")
+
+        XCTAssertEqual(store.todos.map(\.title), ["!important : relire"])
+        XCTAssertFalse(store.todos[0].isPriority)
+    }
+
+    func testEditAddsOrRemovesPriorityAndUndoRestoresIt() {
+        store.add("A")
+        store.add("B")
+        let b = store.todos[1].id
+
+        store.edit(b, title: "B !")
+        XCTAssertEqual(store.todos.map(\.title), ["B", "A"])
+
+        store.edit(b, title: "B")
+        XCTAssertEqual(store.todos.map(\.title), ["A", "B"])
+
+        store.undo()
+        XCTAssertEqual(store.todos.first?.isPriority, true)
+    }
+
     func testSummaryCountsRemainingTasksWithPlural() {
         XCTAssertEqual(store.summary, "Doneko — plus rien sur la table")
         store.add("A")
