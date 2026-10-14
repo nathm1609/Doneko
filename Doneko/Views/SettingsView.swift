@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 /// Fenêtre « Réglages », ouverte par le bouton ⚙︎ du panneau.
 struct SettingsView: View {
     @AppStorage(SettingsKey.purgeHour) private var purgeHour = 0
+    @AppStorage(SettingsKey.reminderHour) private var reminderHour = 9
     @AppStorage(SettingsKey.soundEnabled) private var soundEnabled = false
     @AppStorage(SettingsKey.showCounter) private var showCounter = true
     @AppStorage(SettingsKey.obsidianFolder) private var obsidianFolder = ""
@@ -15,6 +16,12 @@ struct SettingsView: View {
         Form {
             KeyboardShortcuts.Recorder("Raccourci pour appeler Doneko", name: .openPanel)
             Picker("Vider « Tombé aujourd'hui » à", selection: $purgeHour) {
+                ForEach(0..<24, id: \.self) { hour in
+                    Text(hour == 0 ? "minuit" : "\(hour) h").tag(hour)
+                }
+            }
+            Picker("Rappeler les tâches datées à", selection: $reminderHour) {
+                Text("jamais").tag(-1)
                 ForEach(0..<24, id: \.self) { hour in
                     Text(hour == 0 ? "minuit" : "\(hour) h").tag(hour)
                 }

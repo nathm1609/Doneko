@@ -8,4 +8,6 @@ enum SettingsKey {
     static let showCounter = "showCounter"
     /// Chemin du dossier Obsidian où exporter les tâches faites (vide = pas d'export).
     static let obsidianFolder = "obsidianFolder"
+    /// Heure (0 à 23) du rappel des tâches datées, le jour venu (9 h par défaut). -1 = jamais.
+    static let reminderHour = "reminderHour"
 }

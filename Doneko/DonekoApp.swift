@@ -15,14 +15,16 @@ struct DonekoApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var dailyPurge: DailyPurge?
     private var obsidianExport: ObsidianExport?
+    private var reminders: Reminders?
     private var menuBar: MenuBarController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        UserDefaults.standard.register(defaults: [SettingsKey.showCounter: true])
+        UserDefaults.standard.register(defaults: [SettingsKey.showCounter: true, SettingsKey.reminderHour: 9])
         let store = TodoStore(persistence: Persistence())
         let menuBar = MenuBarController(store: store)
         dailyPurge = DailyPurge(store: store)
         obsidianExport = ObsidianExport(store: store)
+        reminders = Reminders(store: store, onOpen: { menuBar.show() })
         self.menuBar = menuBar
         KeyboardShortcuts.onKeyUp(for: .openPanel) { menuBar.show() }
     }

@@ -78,7 +78,8 @@ Doneko/
 │   │   ├── HotkeyService.swift
 │   │   ├── LaunchAtLogin.swift
 │   │   ├── DailyPurge.swift
-│   │   └── ObsidianExport.swift # note du jour AAAA-MM-JJ.md, section « Fait avec Doneko »
+│   │   ├── ObsidianExport.swift # note du jour AAAA-MM-JJ.md, section « Fait avec Doneko »
+│   │   └── Reminders.swift      # notification le jour de l'échéance, à l'heure choisie
 │   └── Resources/
 │       └── Assets.xcassets      # couleurs nommées, MenuIconAwake, MenuIconAsleep, AppIcon
 └── DonekoTests/
@@ -86,6 +87,7 @@ Doneko/
     ├── PersistenceTests.swift
     ├── DailyPurgeTests.swift
     ├── ObsidianExportTests.swift
+    ├── RemindersTests.swift
     └── MenuBarControllerTests.swift
 ```
 
