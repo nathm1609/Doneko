@@ -2,7 +2,14 @@ import SwiftUI
 
 @main
 struct DonekoApp: App {
-    @State private var store = TodoStore(persistence: Persistence())
+    @State private var store: TodoStore
+    private let dailyPurge: DailyPurge
+
+    init() {
+        let store = TodoStore(persistence: Persistence())
+        _store = State(initialValue: store)
+        dailyPurge = DailyPurge(store: store)
+    }
 
     var body: some Scene {
         MenuBarExtra {

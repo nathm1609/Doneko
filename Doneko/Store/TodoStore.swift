@@ -7,13 +7,15 @@ final class TodoStore {
     /// Versions précédentes des tâches touchées par complete / delete / edit, la plus récente en dernier.
     private var undoStack: [TodoItem] = []
     @ObservationIgnored private let clock: Clock
+    @ObservationIgnored private let calendar: Calendar
     @ObservationIgnored private let persistence: Persistence?
 
     /// Sans `persistence`, la liste reste en mémoire (tests).
-    init(persistence: Persistence? = nil, clock: Clock = SystemClock()) {
+    init(persistence: Persistence? = nil, clock: Clock = SystemClock(), calendar: Calendar = .current) {
         self.items = persistence?.load() ?? []
         self.persistence = persistence
         self.clock = clock
+        self.calendar = calendar
     }
 
     var todos: [TodoItem] {
@@ -74,6 +76,17 @@ final class TodoStore {
         } else {
             items.append(previous)
         }
+        save()
+    }
+
+    /// Vide « Tombé aujourd'hui » : retire les tâches faites avant le début de la journée.
+    func purgeDone() {
+        let startOfToday = calendar.startOfDay(for: clock.now())
+        let purged = Set(items.filter { ($0.completedAt ?? .distantFuture) < startOfToday }.map(\.id))
+        guard !purged.isEmpty else { return }
+        items.removeAll { purged.contains($0.id) }
+        // Une annulation ne doit ramener aucune version d'une tâche purgée.
+        undoStack.removeAll { purged.contains($0.id) }
         save()
     }
 

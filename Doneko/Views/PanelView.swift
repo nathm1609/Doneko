@@ -106,7 +106,8 @@ struct PanelView: View {
                                 toast = nil
                             }
                             isInputFocused = true
-                        }
+                        },
+                        onDelete: { delete(item.id) }
                     )
                     .transition(
                         reduceMotion
@@ -119,7 +120,7 @@ struct PanelView: View {
                 }
             }
             if !store.done.isEmpty {
-                DoneSection(items: store.done)
+                DoneSection(items: store.done, onDelete: delete)
                     .padding(.top, Theme.Layout.panelPadding)
             }
         }

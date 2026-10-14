@@ -16,6 +16,8 @@ struct TodoRow: View {
     let onComplete: () -> Void
     /// Fin de la modification : le nouveau titre, ou nil si elle a été abandonnée.
     let onEditEnd: (String?) -> Void
+    /// Glissement à deux doigts vers la gauche.
+    let onDelete: () -> Void
 
     /// Étapes du coup de patte : coche Matcha → patte qui touche la ligne → chute hors de la table.
     private enum Phase: Int, Comparable {
@@ -45,6 +47,7 @@ struct TodoRow: View {
         .onChange(of: knockOffRequest) { _, request in
             if request?.id == item.id { knockOff() }
         }
+        .swipeToDelete(isEnabled: !isEditing && phase == .idle, onDelete: onDelete)
     }
 
     private var row: some View {

@@ -3,6 +3,8 @@ import SwiftUI
 /// Section repliable « Tombé aujourd'hui ».
 struct DoneSection: View {
     let items: [TodoItem]
+    /// Glissement à deux doigts vers la gauche sur une tâche faite.
+    let onDelete: (TodoItem.ID) -> Void
 
     @AppStorage("doneSectionExpanded") private var isExpanded = true
 
@@ -39,6 +41,7 @@ struct DoneSection: View {
                     .frame(height: Theme.Layout.rowHeight)
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel("Fait : \(item.title)")
+                    .swipeToDelete { onDelete(item.id) }
                 }
             }
         }

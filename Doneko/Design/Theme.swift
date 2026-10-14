@@ -35,6 +35,8 @@ enum Theme {
         static let mascotSize: CGFloat = 48
         /// Patte qui pousse la tâche hors de la table.
         static let pawSize: CGFloat = 14
+        /// Glissement à deux doigts vers la gauche au-delà duquel la tâche est supprimée.
+        static let swipeDeleteThreshold: CGFloat = 80
     }
 
     /// SF Pro Rounded partout.
@@ -59,6 +61,8 @@ enum Theme {
         static let closeGap = 0.25
         static let rowAppear = 0.20
         static let rowAppearOffset: CGFloat = 8
+        /// Estompage de la ligne au seuil du glissement de suppression.
+        static let swipeFade = 0.5
         static let reducedMotionFade = 0.15
         static let undoToastDuration = 5.0
         static let breathePeriod = 3.0
