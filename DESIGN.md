@@ -40,7 +40,7 @@ Couleurs nommées pour être utilisées telles quelles dans le code (`Color("Man
 | **Crème** | Fond du panneau | `#FBF7F0` | `#1C1A22` |
 | **Coussin** | Surface des lignes au survol, champ de saisie | `#F2ECE2` | `#26232E` |
 | **Encre** | Texte principal | `#1F1B24` | `#F2EEF6` |
-| **Moustache** | Texte secondaire, tâches faites, séparateurs | `#9A93A3` | `#8A8394` |
+| **Moustache** | Texte secondaire, tâches faites, séparateurs | `#6D6874` | `#90889A` |
 | **Matcha** | Confirmation, coche validée | `#5DB27F` | `#6FC892` |
 | **Sakura** | Priorité (`!`) | `#F2668B` | `#FF7FA0` |
 
