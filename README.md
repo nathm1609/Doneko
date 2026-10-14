@@ -95,6 +95,10 @@ Sans synchronisation, les tâches sont enregistrées dans `~/Library/Application
 2. Ouvre-le et glisse **Doneko** dans **Applications**.
 3. Lance Doneko depuis Applications : la tête de chat apparaît dans la barre de menu.
 
+<p align="center">
+  <img src="docs/images/dmg.png" width="480" alt="Fenêtre du DMG : l'icône de Doneko à gauche, le dossier Applications à droite, reliés par des empreintes de pattes, avec le chat allongé en dessous">
+</p>
+
 **Au premier lancement, macOS bloque l'app** : elle n'est pas notarisée par Apple (il faudrait un compte
 Apple Developer payant). Pour l'autoriser une fois pour toutes, ouvre **Réglages Système › Confidentialité et
 sécurité**, descends jusqu'au message sur Doneko et clique sur **Ouvrir quand même**. Ou, dans le Terminal :
