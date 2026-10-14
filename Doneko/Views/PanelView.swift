@@ -4,6 +4,8 @@ import SwiftUI
 /// Champ de saisie → tâches à faire → « Tombé aujourd'hui » → barre basse.
 struct PanelView: View {
     let store: TodoStore
+    /// Ferme le panneau (Échap).
+    let close: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var newTitle = ""
@@ -37,6 +39,16 @@ struct PanelView: View {
             }
 
             HStack {
+                Menu {
+                    Toggle("Lancer au démarrage", isOn: Binding(get: { LaunchAtLogin.isEnabled }, set: { LaunchAtLogin.set($0) }))
+                } label: {
+                    Image(systemName: "gearshape")
+                }
+                .menuStyle(.borderlessButton)
+                .menuIndicator(.hidden)
+                .fixedSize()
+                .foregroundStyle(Theme.Palette.moustache)
+                .accessibilityLabel("Réglages")
                 Spacer()
                 Button("Laisser Doneko dormir (Quitter)") { NSApplication.shared.terminate(nil) }
                     .buttonStyle(.plain)
@@ -53,7 +65,7 @@ struct PanelView: View {
                 Button("Annuler", action: undo)
                     .keyboardShortcut("z")
                     .disabled(!newTitle.isEmpty)
-                Button("Fermer") { NSApp.keyWindow?.close() }
+                Button("Fermer", action: close)
                     .keyboardShortcut(.cancelAction)
             }
             .opacity(0)
@@ -84,7 +96,8 @@ struct PanelView: View {
         }
         .frame(width: Theme.Layout.panelWidth)
         .frame(maxHeight: Theme.Layout.panelMaxHeight)
-        .background(Theme.Palette.creme)
+        .background(Theme.Palette.creme, in: RoundedRectangle(cornerRadius: Theme.Layout.panelCornerRadius))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Layout.panelCornerRadius))
         .fontDesign(.rounded)
     }
 

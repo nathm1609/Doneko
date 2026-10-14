@@ -1,7 +1,7 @@
 # Doneko — app to-do dans la barre de menu macOS
 
 Doneko (*done* + *neko*, « chat » en japonais) est une petite app de to-do qui vit dans la barre de menu.
-Un clic sur la tête de chat (ou ⌥⌘D) ouvre un panneau : on tape ce qu'il reste à faire, et un clic sur une tâche
+Un clic sur la tête de chat (ou ⌃⌥⌘D) ouvre un panneau : on tape ce qu'il reste à faire, et un clic sur une tâche
 la fait « tomber de la table », comme un chat pousse un objet du bord.
 
 **La direction artistique complète est dans `DESIGN.md`. La lire avant tout travail d'interface et la respecter
@@ -19,7 +19,7 @@ strictement** (palette, typographie, icônes, animations, micro-textes).
 - « Tombé aujourd'hui » est vidé automatiquement chaque jour (à minuit, au démarrage, au réveil de veille).
 - Double-clic pour modifier une tâche ; ⌫ pour la supprimer (avec annulation).
 - Clavier : ↑/↓ pour naviguer, Espace pour cocher, ⌫ pour supprimer, ⌘Z pour annuler, Échap pour fermer.
-- Raccourci global ⌥⌘D pour ouvrir le panneau, curseur directement dans le champ.
+- Raccourci global ⌃⌥⌘D (⌥⌘D est réservé par macOS au masquage du Dock) pour ouvrir le panneau, curseur directement dans le champ.
 - Option « Lancer au démarrage ».
 - Sauvegarde automatique locale.
 
@@ -39,7 +39,8 @@ Ne pas commencer V1 tant que V0 n'est pas terminé, testé et validé par l'util
 
 ## Stack
 - Swift 5.10+, SwiftUI, macOS 14+ (Sonoma), framework Observation (`@Observable`).
-- `MenuBarExtra` avec `.menuBarExtraStyle(.window)`.
+- Icône `NSStatusItem` + panneau `NSPanel` (AppKit) qui héberge la vue SwiftUI : sous macOS 27, un `MenuBarExtra`
+  ne peut pas être ouvert par code, ce qu'exige le raccourci ⌃⌥⌘D.
 - Stockage JSON (`Codable`) dans `~/Library/Application Support/Doneko/todos.json`.
 - Raccourci global : package Swift `KeyboardShortcuts` (sindresorhus).
 - Lancement au démarrage : `SMAppService.mainApp`.
@@ -54,7 +55,7 @@ Doneko/
 ├── CLAUDE.md
 ├── DESIGN.md
 ├── Doneko/
-│   ├── DonekoApp.swift          # point d'entrée, MenuBarExtra, icône + compteur
+│   ├── DonekoApp.swift          # point d'entrée, AppDelegate (store, purge, raccourci ⌃⌥⌘D)
 │   ├── Info.plist               # LSUIElement = YES
 │   ├── Models/
 │   │   └── TodoItem.swift       # id, title, createdAt, completedAt?, isPriority, dueDate?, order
@@ -68,10 +69,12 @@ Doneko/
 │   │   ├── TodoRow.swift        # rond « coussinet », animation coup de patte
 │   │   ├── DoneSection.swift    # « Tombé aujourd'hui »
 │   │   ├── EmptyState.swift     # mascotte endormie
-│   │   └── UndoToast.swift
+│   │   ├── UndoToast.swift
+│   │   └── SwipeToDelete.swift  # glisser à deux doigts vers la gauche
 │   ├── Design/
 │   │   └── Theme.swift          # couleurs, tailles, durées d'animation issues de DESIGN.md
 │   ├── Services/
+│   │   ├── MenuBarController.swift # icône + compteur, panneau NSPanel
 │   │   ├── HotkeyService.swift
 │   │   ├── LaunchAtLogin.swift
 │   │   └── DailyPurge.swift
@@ -80,7 +83,8 @@ Doneko/
 └── DonekoTests/
     ├── TodoStoreTests.swift
     ├── PersistenceTests.swift
-    └── DailyPurgeTests.swift
+    ├── DailyPurgeTests.swift
+    └── MenuBarControllerTests.swift
 ```
 
 ## Commandes
@@ -115,5 +119,5 @@ Prérequis sur la machine : Xcode complet installé, `brew install xcodegen`.
 7. Navigation clavier complète.
 8. Icône éveillée/endormie + compteur dans la barre de menu.
 9. Purge quotidienne (minuit, démarrage, réveil) + tests avec horloge simulée.
-10. Raccourci global ⌥⌘D et lancement au démarrage.
+10. Raccourci global ⌃⌥⌘D et lancement au démarrage.
 11. Passe finale : relecture de `DESIGN.md` point par point, modes clair et sombre, « Réduire les animations », VoiceOver.

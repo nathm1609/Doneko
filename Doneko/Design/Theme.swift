@@ -20,6 +20,8 @@ enum Theme {
         /// Zone des tâches : le panneau (480) moins le champ, les marges et la barre basse.
         static let listMaxHeight: CGFloat = 380
         static let panelCornerRadius: CGFloat = 14
+        /// Espace entre la barre de menu (ou le bord de l'écran) et le panneau.
+        static let panelScreenGap: CGFloat = 4
         static let panelPadding: CGFloat = 12
         static let rowHeight: CGFloat = 32
         static let rowSpacing: CGFloat = 2
@@ -46,7 +48,8 @@ enum Theme {
         static let sectionTitle = Font.system(size: 11, weight: .semibold, design: .rounded)
         static let sectionTitleTracking: CGFloat = 0.5
         static let caption = Font.system(size: 12, design: .rounded)
-        static let counter = Font.system(size: 12, weight: .medium, design: .rounded).monospacedDigit()
+        /// Compteur de la barre de menu (AppKit) : medium, arrondi, chiffres à chasse fixe.
+        static let counterSize: CGFloat = 12
     }
 
     /// Durées en secondes.
