@@ -15,6 +15,12 @@ ou <kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd><kbd>D</kbd> depuis n'importe où, 
 et un clic sur une tâche la fait tomber de la table d'un coup de patte.
 
 <p align="center">
+  <a href="docs/videos/doneko.mp4"><img src="docs/images/video.jpg" width="640" alt="Vidéo de présentation de Doneko : une patte de chat pousse une tâche hors de la table"></a>
+  <br>
+  <sub>▶︎ <a href="docs/videos/doneko.mp4">Voir la vidéo de présentation</a> (20 s, avec le son)</sub>
+</p>
+
+<p align="center">
   <img src="docs/images/panneau-clair.png" width="320" alt="Panneau de Doneko en mode clair : tâches d'aujourd'hui, tâches pour plus tard et tâches tombées">
   &nbsp;
   <img src="docs/images/panneau-sombre.png" width="320" alt="Le même panneau en mode sombre">
