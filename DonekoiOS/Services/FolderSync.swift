@@ -3,7 +3,7 @@ import Observation
 
 /// Synchronisation sur iPhone. Sans compte développeur payant, l'app n'a pas d'accès direct à iCloud Drive : on choisit
 /// une fois dans Fichiers le dossier `iCloud Drive › Doneko` (celui de la sync Mac), et l'accès est mémorisé (signet).
-/// La liste y vit alors (`todos.json`), et ce que le Mac y change est relu toutes les 5 s quand l'app est ouverte,
+/// La liste y vit alors (`todos.json`), et ce que le Mac y change est fusionné toutes les 5 s quand l'app est ouverte,
 /// au retour au premier plan et quand on tire la liste vers le bas.
 @Observable
 final class FolderSync {
@@ -11,7 +11,6 @@ final class FolderSync {
     private(set) var folderName: String?
     @ObservationIgnored private let store: TodoStore
     @ObservationIgnored private let defaults: UserDefaults
-    @ObservationIgnored private var file: URL?
     @ObservationIgnored private var timer: Timer?
 
     static func persistence(in folder: URL) -> Persistence {
@@ -36,7 +35,6 @@ final class FolderSync {
         self.store = store
         self.defaults = defaults
         folderName = folder?.lastPathComponent
-        file = folder.map { Self.persistence(in: $0).url }
         timer = Timer.scheduledTimer(withTimeInterval: checkInterval, repeats: true) { [weak self] _ in self?.check() }
     }
 
@@ -56,7 +54,6 @@ final class FolderSync {
         }
         defaults.set(bookmark, forKey: SettingsKey.iCloudFolderBookmark)
         folderName = folder.lastPathComponent
-        file = persistence.url
         return true
     }
 
@@ -65,19 +62,11 @@ final class FolderSync {
         guard store.relocate(to: Persistence(), merging: false) else { return }
         defaults.removeObject(forKey: SettingsKey.iCloudFolderBookmark)
         folderName = nil
-        file = nil
     }
 
-    /// Relit la liste si un autre appareil l'a changée. Fichier pas encore à jour sur l'iPhone : on demande la dernière
-    /// version à iCloud et on relira au passage suivant, sans bloquer l'écran pendant le téléchargement.
+    /// Fusionne la liste si un autre appareil l'a changée. Fichier pas encore à jour sur l'iPhone : iCloud le télécharge
+    /// et la fusion se fait au passage suivant, sans bloquer l'écran (`Persistence.currentData()`).
     func check() {
-        guard var file else { return }
-        file.removeAllCachedResourceValues()
-        if let status = try? file.resourceValues(forKeys: [.ubiquitousItemDownloadingStatusKey]).ubiquitousItemDownloadingStatus,
-           status != .current {
-            try? FileManager.default.startDownloadingUbiquitousItem(at: file)
-            return
-        }
-        store.reloadIfChangedOnDisk()
+        if folderName != nil { store.reloadIfChangedOnDisk() }
     }
 }

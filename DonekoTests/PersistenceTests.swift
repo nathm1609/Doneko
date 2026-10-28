@@ -52,8 +52,18 @@ final class PersistenceTests: XCTestCase {
 
         let reloaded = TodoStore(persistence: persistence, clock: FakeClock())
 
-        XCTAssertEqual(reloaded.items, store.items)
+        XCTAssertEqual(reloaded.todos, store.todos)
+        XCTAssertEqual(reloaded.done, store.done)
         XCTAssertEqual(reloaded.todos.map(\.title), ["B"])
         XCTAssertEqual(reloaded.done.map(\.title), ["A"])
+    }
+
+    /// Doneko 1.1 n'écrivait ni `updatedAt` ni `deletedAt`.
+    func testFileFromVersion1StillLoads() throws {
+        try persistence.save([])
+        let json = #"[{"createdAt":"2027-01-15T08:00:00Z","id":"6F1C1E52-8B0A-4F7C-9A11-2D8E5B7C4A10","isPriority":false,"order":0,"title":"Lait"}]"#
+        try Data(json.utf8).write(to: persistence.url)
+
+        XCTAssertEqual(persistence.load().map(\.title), ["Lait"])
     }
 }

@@ -66,10 +66,10 @@ Doneko/
 ├── PLAN-V3.md                   # V3 : iPhone, synchronisation, dossiers
 ├── Shared/                      # compilé dans les deux apps
 │   ├── Models/
-│   │   └── TodoItem.swift       # id, title, createdAt, completedAt?, isPriority, dueDate?, order
+│   │   └── TodoItem.swift       # id, title, createdAt, completedAt?, isPriority, dueDate?, order, updatedAt?, deletedAt?
 │   ├── Store/
-│   │   ├── TodoStore.swift      # @Observable : add, complete, uncomplete, undo, delete, edit, move, purge ; dates en français
-│   │   ├── Persistence.swift    # lecture / écriture JSON atomique
+│   │   ├── TodoStore.swift      # @Observable : add, complete, uncomplete, undo, delete, edit, move, purge, fusion ; dates en français
+│   │   ├── Persistence.swift    # lecture / écriture JSON atomique, lecture sans attendre iCloud, versions en conflit
 │   │   ├── Clock.swift          # protocole d'horloge injectable (tests de purge)
 │   │   └── SettingsKey.swift    # clés des réglages (UserDefaults)
 │   ├── Views/
@@ -103,7 +103,7 @@ Doneko/
 │   │   ├── HotkeyService.swift
 │   │   ├── LaunchAtLogin.swift
 │   │   ├── DailyPurge.swift
-│   │   ├── ICloudSync.swift     # liste dans iCloud Drive, relue quand un autre Mac la change
+│   │   ├── ICloudSync.swift     # liste dans iCloud Drive, fusionnée quand un autre appareil la change
 │   │   ├── ObsidianExport.swift # note du jour AAAA-MM-JJ.md, section « Fait avec Doneko »
 │   │   └── Reminders.swift      # notification le jour de l'échéance, à l'heure choisie
 │   └── Resources/
@@ -113,6 +113,7 @@ Doneko/
     ├── PersistenceTests.swift
     ├── DailyPurgeTests.swift
     ├── ICloudSyncTests.swift
+    ├── MergeTests.swift         # Mac et iPhone sur le même fichier : hors ligne, suppressions, même seconde
     ├── ObsidianExportTests.swift
     ├── RemindersTests.swift
     └── MenuBarControllerTests.swift
@@ -136,7 +137,11 @@ Prérequis sur la machine : Xcode complet installé, `brew install xcodegen`.
 - Toute la logique métier vit dans `TodoStore`, jamais dans les vues.
 - Chaque fonctionnalité du store a ses tests unitaires avant d'être branchée à l'interface.
 - L'heure est injectée via `Clock` : aucun `Date()` direct dans la logique.
-- Écriture JSON atomique (fichier temporaire puis remplacement). Fichier illisible → renommé en `todos.json.bak`, liste vide, pas de crash.
+- Écriture JSON atomique (fichier temporaire puis remplacement). Fichier abîmé → renommé en `todos.json.bak`, liste vide, pas de crash.
+  Fichier pas encore téléchargé par iCloud → ni renommé, ni écrasé.
+- Synchronisation : toute modification d'une tâche date `updatedAt` avec `stamp(after:)`, et une suppression la garde
+  30 jours avec `deletedAt` (jamais de retrait sec, sinon l'autre appareil la ferait revenir). Même règle pour tout
+  nouvel élément synchronisé (dossiers).
 - Ne jamais modifier le `.xcodeproj` à la main : modifier `project.yml` puis regénérer.
 - Toutes les valeurs visuelles (couleurs, tailles, durées) passent par `Theme.swift`, jamais en dur dans les vues.
 - Respecter « Réduire les animations » (fondu simple à la place des mouvements).

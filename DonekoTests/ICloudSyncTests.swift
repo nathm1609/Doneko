@@ -88,7 +88,7 @@ final class ICloudSyncTests: XCTestCase {
         XCTAssertFalse(store.relocate(to: Persistence(url: URL(fileURLWithPath: "/dev/null/Doneko/todos.json")), merging: true))
         store.add("B")
 
-        XCTAssertEqual(local.load().map(\.title), ["A", "B"])
+        XCTAssertEqual(Set(local.load().map(\.title)), ["A", "B"])
     }
 
     func testSettingMovesTheListBetweenThisMacAndICloud() {

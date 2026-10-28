@@ -1,9 +1,7 @@
 import Foundation
 
 /// Synchronisation iCloud : la liste vit dans iCloud Drive (`Doneko/todos.json`) au lieu de ce Mac, et ce qu'un autre
-/// Mac y change est relu dès qu'iCloud le dépose (vérification toutes les 5 s).
-/// shortcut: un seul fichier, le dernier qui écrit gagne : deux Mac modifiés dans les mêmes secondes peuvent perdre
-/// une modification. Passer à CloudKit (compte Apple Developer payant) pour fusionner tâche par tâche.
+/// appareil (Mac ou iPhone) y change est fusionné tâche par tâche dès qu'iCloud le dépose (vérification toutes les 5 s).
 final class ICloudSync: NSObject {
     static let driveURL = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Mobile Documents/com~apple~CloudDocs", isDirectory: true)

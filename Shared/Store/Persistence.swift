@@ -14,17 +14,58 @@ struct Persistence {
 
     var backupURL: URL { url.appendingPathExtension("bak") }
 
-    /// Fichier absent → liste vide. Fichier illisible → mis de côté en `.bak`, liste vide, jamais de crash.
-    /// shortcut: sur iPhone hors ligne, un fichier iCloud pas encore téléchargé compte comme illisible ;
-    /// la fusion tâche par tâche (étape 3 de PLAN-V3.md) évitera alors d'écraser la liste du Mac.
+    /// Fichier absent → liste vide. Fichier abîmé → mis de côté en `.bak`, liste vide, jamais de crash.
+    /// Fichier pas encore téléchargé ou pas accessible → liste vide, mais il n'est pas abîmé : on n'y touche pas.
     func load() -> [TodoItem] {
+        let data: Data
         do {
-            return try read() ?? []
+            guard let current = try currentData() else { return [] }
+            data = current
+        } catch {
+            NSLog("Doneko : todos.json pas lisible pour l'instant (\(error))")
+            return []
+        }
+        do {
+            return try Self.decode(data)
         } catch {
             NSLog("Doneko : todos.json illisible (\(error)), renommé en todos.json.bak")
             try? FileManager.default.removeItem(at: backupURL)
             try? FileManager.default.moveItem(at: url, to: backupURL)
             return []
+        }
+    }
+
+    /// Contenu du fichier, `nil` s'il n'existe pas. Fichier iCloud pas à jour sur cet appareil : iCloud est prié de
+    /// télécharger la dernière version et l'erreur rend la main tout de suite, sans bloquer l'écran pendant ce temps.
+    func currentData() throws -> Data? {
+        var url = url
+        url.removeAllCachedResourceValues()
+        if let status = try? url.resourceValues(forKeys: [.ubiquitousItemDownloadingStatusKey]).ubiquitousItemDownloadingStatus,
+           status != .current {
+            try? FileManager.default.startDownloadingUbiquitousItem(at: url)
+            throw CocoaError(.fileReadUnknown)
+        }
+        do {
+            return try data()
+        } catch CocoaError.fileReadNoSuchFile {
+            return nil
+        }
+    }
+
+    /// Versions qu'iCloud a mises de côté quand deux appareils ont écrit sans se voir (l'un était hors ligne), avec
+    /// leur liste. Celles qu'on ne sait pas lire sont ignorées et restent là.
+    /// shortcut: aucun test automatique (il faut un vrai conflit iCloud) ; vérifié par le scénario hors ligne sur iPhone.
+    func conflicts() -> [(version: NSFileVersion, items: [TodoItem])] {
+        (NSFileVersion.unresolvedConflictVersionsOfItem(at: url) ?? []).compactMap { version in
+            (try? Self.decode(Data(contentsOf: version.url))).map { (version, $0) }
+        }
+    }
+
+    /// Versions dont la liste a été fusionnée puis enregistrée : iCloud peut les oublier.
+    func resolve(_ versions: [NSFileVersion]) {
+        for version in versions {
+            version.isResolved = true
+            try? version.remove()
         }
     }
 
