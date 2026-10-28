@@ -43,8 +43,10 @@ iCloud Drive.
 **Noter vite**
 - Le curseur est dans le champ dès l'ouverture, <kbd>Entrée</kbd> ajoute la tâche et garde le focus.
 - Un `!` en fin de saisie et la tâche devient prioritaire : elle remonte en haut, avec un point rose.
-- Dates en français : « demain », « lundi », « le 20 »… en fin de saisie fixent l'échéance ; les tâches à venir
-  attendent dans « Plus tard » et remontent dans « Aujourd'hui » le jour venu.
+- Dates en français : « demain », « lundi », « le 20 », « le 25 décembre »… en fin de saisie fixent l'échéance ; les
+  tâches à venir attendent dans « Plus tard » et remontent dans « Aujourd'hui » le jour venu.
+- Ou le **bouton calendrier** au bout du champ : un clic sur un jour, et la prochaine tâche est pour ce jour-là.
+  Clic droit sur une tâche › « Échéance… » pour changer ou retirer sa date.
 - `#courses` dans la saisie range la tâche dans le dossier « courses », créé au besoin.
 
 **Ranger**
@@ -161,11 +163,13 @@ vers le bas. iCloud Drive met de quelques secondes à une minute à faire passer
 | `Appeler le véto demain` | « Appeler le véto », pour demain |
 | `Courses lundi` | Pour lundi prochain |
 | `Réserver le resto pour le 14` | Pour le 14 (ce mois-ci, ou le suivant s'il est passé) |
+| `Examen pour le 25 décembre` | Pour le 25 décembre (cette année, ou la suivante s'il est passé) |
+| `Impôts le 15 mai 2028` | Pour le 15 mai 2028 |
 | `Gâteau après-demain !` | Prioritaire, pour après-demain |
 | `Lait #courses demain !` | Dans le dossier « courses », prioritaire, pour demain |
 
 Mots reconnus en fin de saisie : `aujourd'hui`, `demain`, `après-demain`, `lundi` … `dimanche`, `le 20`, `le 1er`,
-précédés ou non de `pour`. Le `!` et la date se combinent dans n'importe quel ordre. Le `#dossier` peut être placé
+`le 25 décembre`, `14 juillet 2028` (accents facultatifs), précédés ou non de `pour`. Le `!` et la date se combinent dans n'importe quel ordre. Le `#dossier` peut être placé
 n'importe où ; en modifiant une tâche, il la range ailleurs.
 
 ### Clavier
@@ -192,7 +196,8 @@ Clic droit sur l'icône de la barre de menu : **Réglages…** et **Quitter**.
 | Toucher le rond | Faire tomber la tâche (« Annuler » pendant 5 secondes) |
 | Toucher le texte | Modifier la tâche |
 | Balayer vers la gauche | Supprimer |
-| Appui long | Prioritaire, Ranger dans, Supprimer |
+| Bouton calendrier, au bout du champ | Choisir le jour de la prochaine tâche |
+| Appui long | Prioritaire, Échéance…, Ranger dans, Supprimer |
 | Appui long puis glisser | Changer la tâche de place |
 | Appui long sur un dossier | Renommer, déplacer, supprimer |
 | Tirer la liste vers le bas | Relire la liste partagée avec le Mac |

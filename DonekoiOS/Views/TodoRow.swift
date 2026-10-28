@@ -13,6 +13,8 @@ struct TodoRow: View {
     var folders: [Folder] = []
     var onFile: (Folder.ID?) -> Void = { _ in }
     var onPriority: (Bool) -> Void = { _ in }
+    /// Appui long › « Échéance… » : le calendrier « Pour quand ? ».
+    var onPickDate: () -> Void = {}
     /// Appelé une fois l'animation « coup de patte » terminée.
     let onComplete: () -> Void
     /// Fin de la modification : le nouveau titre (le store ignore un titre vide ou inchangé).
@@ -103,7 +105,7 @@ struct TodoRow: View {
                                 .accessibilityLabel("Dossier \(folderName)")
                         }
                         if showsDueDate, let dueDate = item.dueDate {
-                            Text(dueDate, format: Self.dueDateFormat)
+                            Text(dueDate, format: .dueDate)
                         }
                     }
                     .font(Theme.Typography.touchCaption)
@@ -124,6 +126,9 @@ struct TodoRow: View {
     private var menu: some View {
         Toggle(isOn: Binding(get: { item.isPriority }, set: onPriority)) {
             Label("Prioritaire", systemImage: "exclamationmark")
+        }
+        Button(action: onPickDate) {
+            Label("Échéance…", systemImage: "calendar")
         }
         if !folders.isEmpty {
             Picker(selection: Binding(get: { item.folderID }, set: onFile)) {
@@ -188,11 +193,6 @@ struct TodoRow: View {
             }
         }
     }
-
-    /// « Lun. 19 oct. » : en français comme le reste de l'interface, quelle que soit la langue de l'iPhone.
-    private static let dueDateFormat = Date.FormatStyle.dateTime
-        .weekday(.abbreviated).day().month(.abbreviated)
-        .locale(Locale(identifier: "fr_FR"))
 
     /// « Pop » feutré (réglage, désactivé par défaut), muet quand l'iPhone est en silencieux.
     private static let pop: AVAudioPlayer? = {

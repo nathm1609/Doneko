@@ -3,6 +3,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// Champ de saisie → barre de dossiers → tâches à faire → « Tombé aujourd'hui » → barre basse.
+/// Le calendrier « Pour quand ? » prend la place des tâches le temps de choisir une date.
 struct PanelView: View {
     let store: TodoStore
     /// Ferme le panneau (Échap).
@@ -16,6 +17,9 @@ struct PanelView: View {
     @State private var toast: Toast?
     @State private var selection: TodoItem.ID?
     @State private var knockOffRequest: KnockOffRequest?
+    /// Date choisie au calendrier pour la prochaine tâche, et calendrier ouvert (pour elle ou pour une tâche).
+    @State private var pickedDate: Date?
+    @State private var datePicking: DatePicking?
     /// Tâche attrapée par glisser-déposer.
     @State private var draggedID: TodoItem.ID?
     @State private var listHeight: CGFloat = 0
@@ -26,8 +30,15 @@ struct PanelView: View {
             InputField(
                 text: $newTitle,
                 isFocused: $isInputFocused,
+                dueDate: pickedDate,
+                isPickingDate: datePicking == .newTask,
+                onCalendar: { togglePicking(.newTask) },
                 onSubmit: { title in
-                    withAnimation(motion(.easeOut(duration: Theme.Motion.rowAppear))) { store.add(title, in: folder) }
+                    withAnimation(motion(.easeOut(duration: Theme.Motion.rowAppear))) {
+                        store.add(title, in: folder, due: pickedDate)
+                    }
+                    pickedDate = nil
+                    datePicking = nil
                 },
                 onListKey: handleListKey
             )
@@ -36,15 +47,19 @@ struct PanelView: View {
                 isInputFocused = true
             }
 
-            // Hauteur au contenu, puis défilement une fois le maximum atteint. Hauteur explicite : MenuBarExtra
-            // mesure le panneau en partant de 0, et une zone de défilement sans hauteur s'y écrase à 0.
-            ScrollViewReader { proxy in
-                ScrollView {
-                    lists.onGeometryChange(for: CGFloat.self) { $0.size.height } action: { listHeight = $0 }
-                }
-                .frame(height: min(listHeight, Theme.Layout.listMaxHeight))
-                .onChange(of: selection) { _, id in
-                    if let id { proxy.scrollTo(id) }
+            if let datePicking {
+                datePanel(datePicking)
+            } else {
+                // Hauteur au contenu, puis défilement une fois le maximum atteint. Hauteur explicite : MenuBarExtra
+                // mesure le panneau en partant de 0, et une zone de défilement sans hauteur s'y écrase à 0.
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        lists.onGeometryChange(for: CGFloat.self) { $0.size.height } action: { listHeight = $0 }
+                    }
+                    .frame(height: min(listHeight, Theme.Layout.listMaxHeight))
+                    .onChange(of: selection) { _, id in
+                        if let id { proxy.scrollTo(id) }
+                    }
                 }
             }
 
@@ -64,8 +79,11 @@ struct PanelView: View {
                 Button("Annuler", action: undo)
                     .keyboardShortcut("z")
                     .disabled(!newTitle.isEmpty)
-                Button("Fermer", action: close)
-                    .keyboardShortcut(.cancelAction)
+                // Calendrier ouvert : Échap le referme, sans fermer le panneau.
+                Button("Fermer") {
+                    if datePicking != nil { togglePicking(datePicking) } else { close() }
+                }
+                .keyboardShortcut(.cancelAction)
                 Button("Quitter") { NSApplication.shared.terminate(nil) }
                     .keyboardShortcut("q")
                 // ⌘1 : « Tout » ; ⌘2 à ⌘9 : les dossiers, dans l'ordre de la barre.
@@ -158,6 +176,7 @@ struct PanelView: View {
                 folderName: folder == nil ? store.folder(of: item)?.name : nil,
                 folders: store.folders,
                 onFile: { file(item.id, in: $0) },
+                onPickDate: { togglePicking(.task(item.id)) },
                 knockOffRequest: knockOffRequest,
                 onComplete: { complete(item) },
                 onEditEnd: { title in
@@ -286,6 +305,54 @@ struct PanelView: View {
             store.undo()
             toast = nil
         }
+    }
+
+    /// « Pour quand ? » à la place des tâches : un clic sur un jour le choisit et referme le calendrier.
+    private func datePanel(_ picking: DatePicking) -> some View {
+        let task: TodoItem? = if case .task(let id) = picking { store.todos.first { $0.id == id } } else { nil }
+        let current = task.map(\.dueDate) ?? pickedDate
+        return VStack(alignment: .leading, spacing: Theme.Layout.smallSpacing) {
+            SectionTitle(title: "Pour quand ?")
+            if let task {
+                Text(task.title)
+                    .font(Theme.Typography.task)
+                    .foregroundStyle(Theme.Palette.encre)
+                    .lineLimit(1)
+                    .padding(.horizontal, Theme.Layout.rowHorizontalPadding)
+            }
+            DueDatePicker(selection: current, today: store.currentDay) { pick($0, for: picking) }
+                .frame(maxWidth: .infinity)
+            HStack {
+                Button("Sans échéance") { pick(nil, for: picking) }
+                    .disabled(current == nil)
+                Spacer()
+                // Valide le jour sélectionné (aujourd'hui s'il n'y avait pas de date) ; Échap annule.
+                Button("OK") { pick(current ?? store.currentDay, for: picking) }
+            }
+            .buttonStyle(.plain)
+            .font(Theme.Typography.caption)
+            .foregroundStyle(Theme.Palette.moustache)
+            .padding(.horizontal, Theme.Layout.rowHorizontalPadding)
+        }
+    }
+
+    /// Ouvre le calendrier pour `picking`, ou le referme s'il l'est déjà ; le curseur revient dans le champ.
+    private func togglePicking(_ picking: DatePicking?) {
+        datePicking = datePicking == picking ? nil : picking
+        selection = nil
+        isInputFocused = true
+    }
+
+    private func pick(_ date: Date?, for picking: DatePicking) {
+        switch picking {
+        case .newTask:
+            pickedDate = date
+        case .task(let id):
+            withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
+                store.setDueDate(id, date)
+            }
+        }
+        togglePicking(picking)
     }
 
     /// « Ranger dans » : rangée ailleurs, la tâche quitte la liste du dossier affiché.

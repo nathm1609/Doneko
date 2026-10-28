@@ -205,6 +205,47 @@ final class TodoStoreTests: XCTestCase {
         XCTAssertEqual(due("Arroser"), day(1, 15))
     }
 
+    func testDayAndMonthSetTheNextSuchDate() {
+        [
+            "Examen pour le 25 décembre", "Vacances le 1er août !", "Galette 14 janvier", "Impôts le 15 mai 2028",
+            "Rendez-vous le 15 janvier", "Rien le 31 février", "Soldes le 10 DECEMBRE",
+        ].forEach { store.add($0) }
+
+        XCTAssertEqual(due("Examen"), day(12, 25))
+        XCTAssertEqual(due("Vacances"), day(8, 1))
+        XCTAssertEqual(store.todos.first { $0.title == "Vacances" }?.isPriority, true)
+        // Jour déjà passé cette année : l'an prochain.
+        XCTAssertEqual(due("Galette"), calendar.date(from: DateComponents(year: 2028, month: 1, day: 14)))
+        XCTAssertEqual(due("Impôts"), calendar.date(from: DateComponents(year: 2028, month: 5, day: 15)))
+        XCTAssertEqual(due("Rendez-vous"), day(1, 15))
+        XCTAssertNil(due("Rien le 31 février"))
+        XCTAssertEqual(due("Soldes"), day(12, 10))
+    }
+
+    func testPickedDateIsUsedUnlessOneIsTyped() {
+        store.add("Examen", due: clock.current.addingTimeInterval(3 * 24 * 3600))
+        store.add("Sport demain", due: day(3, 1))
+
+        XCTAssertEqual(due("Examen"), day(1, 18)) // ramenée au début du jour
+        XCTAssertEqual(due("Sport"), day(1, 16))
+    }
+
+    func testSetDueDateChangesOrRemovesItAndUndoRestoresIt() {
+        store.add("Examen le 20")
+        let id = store.todos[0].id
+
+        store.setDueDate(id, day(12, 25)?.addingTimeInterval(3600))
+        XCTAssertEqual(due("Examen"), day(12, 25))
+        store.setDueDate(id, nil)
+        XCTAssertNil(due("Examen"))
+        XCTAssertEqual(store.today.map(\.title), ["Examen"])
+
+        store.undo()
+        XCTAssertEqual(due("Examen"), day(12, 25))
+        store.undo()
+        XCTAssertEqual(due("Examen"), day(1, 20))
+    }
+
     func testDateWordsElsewhereOrAloneAreKeptInTitle() {
         ["demain", "Demain matin réunion", "Revoir le 40", "Payer ! demain"].forEach { store.add($0) }
 

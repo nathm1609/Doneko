@@ -78,6 +78,7 @@ Doneko/
 │   ├── Views/
 │   │   ├── EmptyState.swift     # mascotte endormie ou contente
 │   │   ├── PawPad.swift         # rond « coussinet » (16 pt sur Mac, 22 pt sur iPhone)
+│   │   ├── DueDatePicker.swift  # calendrier « Pour quand ? », format « Ven. 25 déc. »
 │   │   └── UndoToast.swift      # « … · Annuler »
 │   ├── Design/
 │   │   └── Theme.swift          # couleurs, tailles, durées d'animation issues de DESIGN.md

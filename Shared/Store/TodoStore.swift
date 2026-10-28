@@ -91,13 +91,15 @@ final class TodoStore {
     }
 
     /// `folder` : dossier choisi dans la barre ; un `#nom` tapé l'emporte.
-    func add(_ input: String, in folder: Folder.ID? = nil) {
+    /// `due` : date choisie au calendrier ; une date tapée dans la saisie l'emporte.
+    func add(_ input: String, in folder: Folder.ID? = nil, due: Date? = nil) {
         let parsed = parse(input)
         guard !parsed.title.isEmpty else { return }
         let folderID = parsed.folder.flatMap(addFolder) ?? folder
         let order = (items.map(\.order).max() ?? -1) + 1
         items.append(TodoItem(
-            title: parsed.title, createdAt: clock.now(), isPriority: parsed.isPriority, dueDate: parsed.dueDate,
+            title: parsed.title, createdAt: clock.now(), isPriority: parsed.isPriority,
+            dueDate: parsed.dueDate ?? due.map(calendar.startOfDay),
             order: order, folderID: folderID, updatedAt: stamp(after: nil)
         ))
         save()
@@ -154,6 +156,16 @@ final class TodoStore {
         undoStack.append(.task(items[i]))
         items[i].updatedAt = stamp(after: items[i].lastChange)
         items[i].isPriority = isPriority
+        save()
+    }
+
+    /// « Échéance… » : le jour choisi au calendrier, ou `nil` pour retirer l'échéance.
+    func setDueDate(_ id: TodoItem.ID, _ date: Date?) {
+        let dueDate = date.map(calendar.startOfDay)
+        guard let i = index(of: id), items[i].dueDate != dueDate else { return }
+        undoStack.append(.task(items[i]))
+        items[i].updatedAt = stamp(after: items[i].lastChange)
+        items[i].dueDate = dueDate
         save()
     }
 
@@ -219,7 +231,7 @@ final class TodoStore {
     }
 
     /// Fin de saisie : « ! » (un ou plusieurs) = prioritaire, et une date en français (« demain », « lundi »,
-    /// « le 20 »), dans un ordre ou l'autre ; n'importe où, `#nom` range la tâche dans ce dossier.
+    /// « le 20 », « le 25 décembre »), dans un ordre ou l'autre ; n'importe où, `#nom` range la tâche dans ce dossier.
     /// Tous sont retirés du titre.
     private func parse(_ input: String) -> (title: String, isPriority: Bool, dueDate: Date?, folder: String?) {
         var title = input.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -245,10 +257,11 @@ final class TodoStore {
         return true
     }
 
-    /// « aujourd'hui », « demain », « après-demain », un jour de la semaine (le prochain, jamais aujourd'hui)
-    /// ou « le 20 » / « le 1er » (ce mois-ci, sinon le suivant), précédé ou non de « pour ».
+    /// « aujourd'hui », « demain », « après-demain », un jour de la semaine (le prochain, jamais aujourd'hui),
+    /// « le 20 » / « le 1er » (ce mois-ci, sinon le suivant) ou « le 25 décembre » / « 14 juillet 2028 » (cette année,
+    /// sinon la suivante), précédé ou non de « pour ».
     private func stripDueDate(_ title: inout String) -> Date? {
-        let suffix = #/(?i)\s+(?:pour\s+)?(aujourd['’]hui|apr[eè]s-demain|demain|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|le\s+(\d{1,2})(?:er)?)$/#
+        let suffix = #/(?i)\s+(?:pour\s+)?(aujourd['’]hui|apr[eè]s-demain|demain|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|(?:le\s+)?(\d{1,2})(?:er)?\s+(janvier|f[eé]vrier|mars|avril|mai|juin|juillet|ao[uû]t|septembre|octobre|novembre|d[eé]cembre)(?:\s+(\d{4}))?|le\s+(\d{1,2})(?:er)?)$/#
         guard let match = title.firstMatch(of: suffix) else { return nil }
         let today = calendar.startOfDay(for: clock.now())
         let word = match.1.lowercased().replacingOccurrences(of: "è", with: "e").replacingOccurrences(of: "’", with: "'")
@@ -261,7 +274,9 @@ final class TodoStore {
         default:
             if let weekday = weekdays.firstIndex(of: word) {
                 dueDate = calendar.nextDate(after: today, matching: DateComponents(weekday: weekday + 1), matchingPolicy: .nextTime)
-            } else if let day = match.2.flatMap({ Int($0) }), (1...31).contains(day),
+            } else if let monthName = match.3, let day = match.2.flatMap({ Int($0) }) {
+                dueDate = date(day: day, monthName: String(monthName), year: match.4.flatMap { Int($0) }, from: today)
+            } else if let day = match.5.flatMap({ Int($0) }), (1...31).contains(day),
                       let yesterday = calendar.date(byAdding: .day, value: -1, to: today) {
                 // Les mois sans ce jour (le 31) sont sautés.
                 dueDate = calendar.nextDate(after: yesterday, matching: DateComponents(day: day), matchingPolicy: .strict)
@@ -273,6 +288,20 @@ final class TodoStore {
             title = String(title[..<match.range.lowerBound])
         }
         return dueDate
+    }
+
+    /// « 25 décembre » : cette année si le jour n'est pas passé, sinon la suivante ; avec l'année, ce jour-là.
+    /// Un jour qui n'existe pas (« 31 février ») ne donne rien.
+    private func date(day: Int, monthName: String, year: Int?, from today: Date) -> Date? {
+        let months = ["janvier", "fevrier", "mars", "avril", "mai", "juin", "juillet", "aout", "septembre", "octobre",
+                      "novembre", "decembre"]
+        let name = monthName.lowercased().folding(options: .diacriticInsensitive, locale: Locale(identifier: "fr_FR"))
+        guard let month = months.firstIndex(of: name).map({ $0 + 1 }),
+              // 2000 est bissextile : le 29 février reste possible.
+              DateComponents(calendar: calendar, year: year ?? 2000, month: month, day: day).isValidDate else { return nil }
+        if let year { return calendar.date(from: DateComponents(year: year, month: month, day: day)) }
+        guard let yesterday = calendar.date(byAdding: .day, value: -1, to: today) else { return nil }
+        return calendar.nextDate(after: yesterday, matching: DateComponents(month: month, day: day), matchingPolicy: .strict)
     }
 
     /// Glisser-déposer : `id` prend la place de `target`. Une tâche ne quitte pas son groupe

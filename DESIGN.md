@@ -115,6 +115,14 @@ Les autres icônes utilisent les SF Symbols, en version arrondie quand elle exis
 - Hauteur d'une ligne : 32 pt, espacement 2 pt, coins 8 pt, fond Coussin uniquement au survol ou à la sélection clavier.
 - Tâche prioritaire : petit point Sakura à gauche du texte, remontée en haut de liste.
 
+### Échéance au calendrier
+- Au bout du champ : le bouton calendrier (SF Symbol `calendar`, Moustache, Mandarine quand le calendrier est
+  ouvert), ou la date choisie pour la prochaine tâche (« Ven. 25 déc. », 12 pt). Une date tapée l'emporte.
+- « Pour quand ? » s'ouvre à la place des tâches : titre de section, la tâche visée s'il y en a une, calendrier en
+  français (lundi en premier, jours passés grisés), puis « Sans échéance » et « OK ». Un clic sur un jour le choisit
+  et referme ; « OK » valide le jour sélectionné (aujourd'hui sans date) ; Échap referme sans rien changer.
+- Clic droit sur une tâche : « Échéance… » ouvre le même calendrier pour elle.
+
 ### Dossiers
 - Barre sous le champ : pastilles arrondies de 24 pt de haut, texte 12 pt : « Tout », les dossiers dans leur ordre, puis « + ».
   Pastille choisie : fond Coussin, texte Encre ; les autres : texte Moustache, sans fond. La barre défile
@@ -148,10 +156,13 @@ Les autres icônes utilisent les SF Symbols, en version arrondie quand elle exis
   - toucher le rond : coup de patte, vibration légère ;
   - toucher le texte : modifier ; toucher ailleurs garde la modification ;
   - balayer vers la gauche : « Supprimer » ;
-  - appui long : « Prioritaire », « Ranger dans », « Supprimer » ; appui long puis glisser : changer de place ;
+  - appui long : « Prioritaire », « Échéance… », « Ranger dans », « Supprimer » ; appui long puis glisser : changer
+    de place ;
   - appui long sur un dossier : le menu du Mac, avec icônes ; un nom de dossier se tape dans une alerte ;
   - tirer la liste vers le bas : relire la liste partagée avec le Mac.
 - Bouton ⚙︎ (Moustache) en haut à droite : « Réglages » en feuille. La synchronisation avec le Mac s'y règle.
+- Bouton calendrier au bout du champ, comme sur le Mac ; « Pour quand ? » s'ouvre en feuille juste assez haute pour
+  le calendrier (470 pt), avec « Sans échéance » à gauche et « OK » à droite. Balayer la feuille annule.
 - Pastille rouge du système sur l'icône : le nombre de tâches du jour, comme le compteur de la barre de menu.
 - « Pop » feutré optionnel (désactivé par défaut) : son propre à l'app (`Artwork/make-pop.py`), muet en silencieux.
 - Liste entièrement vide : la mascotte au milieu de l'écran ; sinon à la place des tâches du jour, comme sur le Mac.
@@ -216,7 +227,10 @@ Tutoiement, phrases courtes, une pointe d'humour félin, jamais de jeu de mots f
 | Clic droit sur une tâche | Ranger dans › Aucun dossier, puis les dossiers |
 | Clic droit sur un dossier | Renommer · Vers la gauche · Vers la droite · Supprimer le dossier |
 | Suppression d'un dossier | Dossier supprimé · **Annuler** |
-| Appui long sur une tâche (iPhone) | Prioritaire · Ranger dans · Supprimer |
+| Appui long sur une tâche (iPhone) | Prioritaire · Échéance… · Ranger dans · Supprimer |
+| Bouton calendrier (info-bulle, VoiceOver) | Choisir une date · Changer la date · Échéance : ven. 25 déc. |
+| Calendrier | Pour quand ? · Sans échéance · OK |
+| Clic droit sur une tâche (en plus) | Échéance… |
 | Balayer une tâche vers la gauche (iPhone) | Supprimer |
 | Nouveau dossier (iPhone, alerte) | Nouveau dossier · Nom du dossier · Annuler · Créer |
 | Renommer un dossier (iPhone, alerte) | Renommer le dossier · Annuler · Renommer |

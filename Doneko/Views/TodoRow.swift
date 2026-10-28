@@ -18,6 +18,8 @@ struct TodoRow: View {
     /// Clic droit › « Ranger dans » : les dossiers, et le choix (`nil` : aucun dossier).
     var folders: [Folder] = []
     var onFile: (Folder.ID?) -> Void = { _ in }
+    /// Clic droit › « Échéance… » : le calendrier du panneau.
+    var onPickDate: () -> Void = {}
     let knockOffRequest: KnockOffRequest?
     /// Appelé une fois l'animation « coup de patte » terminée.
     let onComplete: () -> Void
@@ -102,7 +104,7 @@ struct TodoRow: View {
                         .accessibilityLabel("Dossier \(folderName)")
                 }
                 if showsDueDate, let dueDate = item.dueDate {
-                    Text(dueDate, format: Self.dueDateFormat)
+                    Text(dueDate, format: .dueDate)
                         .font(Theme.Typography.caption)
                         .foregroundStyle(Theme.Palette.moustache)
                 }
@@ -120,6 +122,7 @@ struct TodoRow: View {
         .accessibilityAction(named: "Modifier", startEditing)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .contextMenu {
+            Button("Échéance…", action: onPickDate)
             if !folders.isEmpty {
                 Picker("Ranger dans", selection: Binding(get: { item.folderID }, set: onFile)) {
                     Text("Aucun dossier").tag(Folder.ID?.none)
@@ -178,11 +181,6 @@ struct TodoRow: View {
             }
         }
     }
-
-    /// « Lun. 19 oct. » : en français comme le reste de l'interface, quelle que soit la langue du Mac.
-    private static let dueDateFormat = Date.FormatStyle.dateTime
-        .weekday(.abbreviated).day().month(.abbreviated)
-        .locale(Locale(identifier: "fr_FR"))
 
     /// « Pop » feutré du système (réglage, désactivé par défaut).
     private static let pop: NSSound? = {

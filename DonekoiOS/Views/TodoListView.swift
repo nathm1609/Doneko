@@ -14,6 +14,9 @@ struct TodoListView: View {
     @State private var text = ""
     @State private var toast: Toast?
     @State private var isShowingSettings = false
+    /// Date choisie au calendrier pour la prochaine tâche, et calendrier ouvert (pour elle ou pour une tâche).
+    @State private var pickedDate: Date?
+    @State private var datePicking: DatePicking?
     @FocusState private var isInputFocused: Bool
 
     var body: some View {
@@ -61,6 +64,7 @@ struct TodoListView: View {
             withAnimation(motion(.easeOut(duration: Theme.Motion.reducedMotionFade))) { toast = nil }
         }
         .sheet(isPresented: $isShowingSettings) { SettingsView(sync: sync) }
+        .sheet(item: $datePicking) { dateSheet($0) }
     }
 
     /// Dossier choisi dans la barre, mémorisé sur cet iPhone ; supprimé entre-temps (ou « Tout ») : `nil`.
@@ -81,6 +85,7 @@ struct TodoListView: View {
                 folders: store.folders,
                 onFile: { target in animate { store.file(item.id, in: target) } },
                 onPriority: { isPriority in animate { store.setPriority(item.id, isPriority) } },
+                onPickDate: { datePicking = .task(item.id) },
                 onComplete: { complete(item.id) },
                 onEdit: { title in
                     store.edit(item.id, title: title)
@@ -189,25 +194,90 @@ struct TodoListView: View {
         .background(Theme.Palette.creme)
     }
 
+    /// Le champ, et au bout le bouton calendrier (ou la date choisie) qui ouvre « Pour quand ? ».
     private var input: some View {
-        TextField(
-            "Nouvelle tâche",
-            text: $text,
-            prompt: Text("Qu'est-ce qu'on fait tomber aujourd'hui ?").foregroundStyle(Theme.Palette.moustache)
-        )
-        .font(Theme.Typography.touchBody)
-        .foregroundStyle(Theme.Palette.encre)
-        .focused($isInputFocused)
-        .submitLabel(.send)
-        .padding(.horizontal, Theme.Layout.panelPadding)
+        HStack(spacing: Theme.Layout.smallSpacing) {
+            TextField(
+                "Nouvelle tâche",
+                text: $text,
+                prompt: Text("Qu'est-ce qu'on fait tomber aujourd'hui ?").foregroundStyle(Theme.Palette.moustache)
+            )
+            .font(Theme.Typography.touchBody)
+            .foregroundStyle(Theme.Palette.encre)
+            .focused($isInputFocused)
+            .submitLabel(.send)
+            .onSubmit {
+                withAnimation(motion(.easeOut(duration: Theme.Motion.rowAppear))) {
+                    store.add(text, in: folder, due: pickedDate)
+                }
+                text = ""
+                pickedDate = nil
+                // Retour garde le clavier ouvert pour enchaîner les tâches.
+                isInputFocused = true
+            }
+
+            Button { datePicking = .newTask } label: {
+                Group {
+                    if let pickedDate {
+                        Text(pickedDate, format: .dueDate)
+                            .font(Theme.Typography.touchCaption)
+                    } else {
+                        Image(systemName: "calendar")
+                    }
+                }
+                .frame(minWidth: Theme.Layout.touchTarget, minHeight: Theme.Layout.touchTarget)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.Palette.moustache)
+            .accessibilityLabel(pickedDate.map { "Échéance : \($0.formatted(.dueDate))" } ?? "Choisir une date")
+        }
+        .padding(.leading, Theme.Layout.panelPadding)
+        .padding(.trailing, Theme.Layout.smallSpacing)
         .frame(minHeight: Theme.Layout.touchTarget)
         .background(Theme.Palette.coussin, in: RoundedRectangle(cornerRadius: Theme.Layout.rowCornerRadius))
-        .onSubmit {
-            withAnimation(motion(.easeOut(duration: Theme.Motion.rowAppear))) { store.add(text, in: folder) }
-            text = ""
-            // Retour garde le clavier ouvert pour enchaîner les tâches.
-            isInputFocused = true
+    }
+
+    /// « Pour quand ? » : toucher un jour le choisit et referme la feuille.
+    private func dateSheet(_ picking: DatePicking) -> some View {
+        let task: TodoItem? = if case .task(let id) = picking { store.todos.first { $0.id == id } } else { nil }
+        let current = task.map(\.dueDate) ?? pickedDate
+        return NavigationStack {
+            VStack(alignment: .leading, spacing: Theme.Layout.smallSpacing) {
+                if let task {
+                    Text(task.title)
+                        .font(Theme.Typography.touchBody)
+                        .foregroundStyle(Theme.Palette.encre)
+                }
+                DueDatePicker(selection: current, today: store.currentDay) { pick($0, for: picking) }
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, Theme.Layout.panelPadding)
+            .navigationTitle("Pour quand ?")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Sans échéance") { pick(nil, for: picking) }
+                        .disabled(current == nil)
+                }
+                // Valide le jour sélectionné (aujourd'hui s'il n'y avait pas de date) ; balayer la feuille annule.
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("OK") { pick(current ?? store.currentDay, for: picking) }
+                }
+            }
         }
+        .presentationDetents([.height(Theme.Layout.datePickerSheetHeight), .large])
+        .fontDesign(.rounded)
+    }
+
+    private func pick(_ date: Date?, for picking: DatePicking) {
+        switch picking {
+        case .newTask:
+            pickedDate = date
+        case .task(let id):
+            animate { store.setDueDate(id, date) }
+        }
+        datePicking = nil
     }
 
     private func complete(_ id: TodoItem.ID) {
