@@ -25,6 +25,8 @@ enum Theme {
         static let settingsWidth: CGFloat = 420
         static let panelPadding: CGFloat = 12
         static let rowHeight: CGFloat = 32
+        /// iPhone : zone de toucher minimale d'un élément (recommandation Apple).
+        static let touchTarget: CGFloat = 44
         static let rowSpacing: CGFloat = 2
         static let rowCornerRadius: CGFloat = 8
         static let pawPadDiameter: CGFloat = 16

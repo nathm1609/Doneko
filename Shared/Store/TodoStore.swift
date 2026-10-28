@@ -174,12 +174,19 @@ final class TodoStore {
 
     /// Synchronisation iCloud activée ou coupée : la liste change de fichier. En rejoignant un fichier existant
     /// (`merging`), ses tâches sont gardées et celles d'ici qui n'y sont pas s'y ajoutent.
-    /// Écriture impossible (accès refusé) : rien ne change, et la réponse est `false`.
+    /// Fichier existant illisible (rien n'est écrasé) ou écriture impossible (accès refusé) : rien ne change,
+    /// et la réponse est `false`.
     @discardableResult
     func relocate(to persistence: Persistence, merging: Bool) -> Bool {
         var list = items
         if merging {
-            let there = persistence.load()
+            let there: [TodoItem]
+            do {
+                there = try persistence.read() ?? []
+            } catch {
+                NSLog("Doneko : impossible de lire \(persistence.url.path) (\(error))")
+                return false
+            }
             let ids = Set(there.map(\.id))
             list = there + items.filter { !ids.contains($0.id) }
         }
@@ -197,10 +204,10 @@ final class TodoStore {
         return true
     }
 
-    /// Le fichier a été modifié ailleurs (un autre Mac, via iCloud) : la liste est relue. Notre propre écriture
+    /// Le fichier a été modifié ailleurs (un autre appareil, via iCloud) : la liste est relue. Notre propre écriture
     /// ne compte pas ; fichier absent ou illisible (synchronisation en cours) : la liste reste telle quelle.
     func reloadIfChangedOnDisk() {
-        guard let persistence, let data = try? Data(contentsOf: persistence.url),
+        guard let persistence, let data = try? persistence.data(),
               data != (try? Persistence.encode(items)), let loaded = try? Persistence.decode(data) else { return }
         items = loaded
         undoStack.removeAll()

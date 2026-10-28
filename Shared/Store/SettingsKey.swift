@@ -12,4 +12,6 @@ enum SettingsKey {
     static let reminderHour = "reminderHour"
     /// Liste enregistrée dans iCloud Drive plutôt que sur ce Mac (désactivé par défaut).
     static let iCloudSync = "iCloudSync"
+    /// iPhone : signet du dossier `iCloud Drive › Doneko` choisi dans Fichiers (absent = liste sur l'iPhone).
+    static let iCloudFolderBookmark = "iCloudFolderBookmark"
 }

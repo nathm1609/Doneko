@@ -35,7 +35,12 @@ strictement** (palette, typographie, icônes, animations, micro-textes).
 - Notifications de rappel pour les tâches avec échéance.
 - Synchronisation iCloud (en dernier).
 
-Ne pas commencer V1 tant que V0 n'est pas terminé, testé et validé par l'utilisateur. Même règle pour V2.
+### V3 — iPhone et dossiers (en cours)
+App iPhone synchronisée avec le Mac par iCloud Drive, fusion tâche par tâche, dossiers sur les deux apps.
+Demande reformulée, décisions et plan par étapes : `PLAN-V3.md`. Chaque étape est validée par l'utilisateur
+avant la suivante.
+
+Ne pas commencer V1 tant que V0 n'est pas terminé, testé et validé par l'utilisateur. Même règle pour V2 et V3.
 
 ## Stack
 - Swift 5.10+, SwiftUI, macOS 14+ (Sonoma), framework Observation (`@Observable`).
@@ -46,7 +51,10 @@ Ne pas commencer V1 tant que V0 n'est pas terminé, testé et validé par l'util
 - Raccourci global : package Swift `KeyboardShortcuts` (sindresorhus).
 - Lancement au démarrage : `SMAppService.mainApp`.
 - Projet généré avec XcodeGen à partir de `project.yml`.
-- Bundle identifier : `com.nathanmarchant.doneko`.
+- Bundle identifier : `com.nathanmarchant.doneko` (Mac), `com.nathanmarchant.doneko.ios` (iPhone).
+- App iPhone : SwiftUI, iOS 17+, iPhone seulement, en portrait. Compte Apple gratuit (« Personal Team ») : pas de
+  CloudKit ni de conteneur iCloud, l'app installée sur un iPhone expire au bout de 7 jours.
+- Code commun aux deux apps dans `Shared/` (modèle, store, persistance, thème, couleurs, mascottes), testé par la cible Mac.
 - Tests : XCTest.
 
 ## Structure
@@ -55,25 +63,41 @@ Doneko/
 ├── project.yml
 ├── CLAUDE.md
 ├── DESIGN.md
-├── Doneko/
-│   ├── DonekoApp.swift          # point d'entrée, AppDelegate (store, purge, raccourci ⌃⌥⌘D)
-│   ├── Info.plist               # LSUIElement = YES
+├── PLAN-V3.md                   # V3 : iPhone, synchronisation, dossiers
+├── Shared/                      # compilé dans les deux apps
 │   ├── Models/
 │   │   └── TodoItem.swift       # id, title, createdAt, completedAt?, isPriority, dueDate?, order
 │   ├── Store/
 │   │   ├── TodoStore.swift      # @Observable : add, complete, uncomplete, undo, delete, edit, move, purge ; dates en français
 │   │   ├── Persistence.swift    # lecture / écriture JSON atomique
-│   │   └── Clock.swift          # protocole d'horloge injectable (tests de purge)
+│   │   ├── Clock.swift          # protocole d'horloge injectable (tests de purge)
+│   │   └── SettingsKey.swift    # clés des réglages (UserDefaults)
+│   ├── Views/
+│   │   └── EmptyState.swift     # mascotte endormie ou contente
+│   ├── Design/
+│   │   └── Theme.swift          # couleurs, tailles, durées d'animation issues de DESIGN.md
+│   └── Resources/
+│       └── Shared.xcassets      # couleurs nommées, mascottes, patte
+├── DonekoiOS/                   # app iPhone
+│   ├── DonekoiOSApp.swift       # point d'entrée, store
+│   ├── Info.plist
+│   ├── Views/
+│   │   └── TodoListView.swift   # liste, rond, saisie en bas, bouton de synchronisation
+│   ├── Services/
+│   │   └── FolderSync.swift     # dossier iCloud Drive › Doneko choisi dans Fichiers (signet), relu toutes les 5 s
+│   └── Resources/
+│       └── Assets.xcassets      # AppIcon iOS (taille unique 1024)
+├── Doneko/                      # app Mac
+│   ├── DonekoApp.swift          # point d'entrée, AppDelegate (store, purge, raccourci ⌃⌥⌘D)
+│   ├── Info.plist               # LSUIElement = YES
 │   ├── Views/
 │   │   ├── PanelView.swift
 │   │   ├── InputField.swift
 │   │   ├── TodoRow.swift        # rond « coussinet », animation coup de patte
 │   │   ├── DoneSection.swift    # « Tombé aujourd'hui », titres de section
-│   │   ├── EmptyState.swift     # mascotte endormie
 │   │   ├── UndoToast.swift
+│   │   ├── SettingsView.swift
 │   │   └── SwipeToDelete.swift  # glisser à deux doigts vers la gauche
-│   ├── Design/
-│   │   └── Theme.swift          # couleurs, tailles, durées d'animation issues de DESIGN.md
 │   ├── Services/
 │   │   ├── MenuBarController.swift # icône + compteur, panneau NSPanel
 │   │   ├── HotkeyService.swift
@@ -83,7 +107,7 @@ Doneko/
 │   │   ├── ObsidianExport.swift # note du jour AAAA-MM-JJ.md, section « Fait avec Doneko »
 │   │   └── Reminders.swift      # notification le jour de l'échéance, à l'heure choisie
 │   └── Resources/
-│       └── Assets.xcassets      # couleurs nommées, icônes MenuIcon* de la barre de menu, mascottes, patte, AppIcon
+│       └── Assets.xcassets      # icônes MenuIcon* de la barre de menu, AppIcon Mac
 └── DonekoTests/
     ├── TodoStoreTests.swift
     ├── PersistenceTests.swift
@@ -101,6 +125,10 @@ Doneko/
 - Lancer : `open build/Build/Products/Debug/Doneko.app`
 - Relancer après modification : `pkill -x Doneko; open build/Build/Products/Debug/Doneko.app`
 - DMG pour une release GitHub : `./make-dmg.sh` → `build/Doneko.dmg`
+- Compiler l'app iPhone (simulateur) :
+  `xcodebuild -project Doneko.xcodeproj -scheme DonekoiOS -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -derivedDataPath build build`
+- Lancer dans le simulateur : `build/Build/Products/Debug-iphonesimulator/DonekoiOS.app`
+  (outil simulateur, ou `xcrun simctl install booted …` puis `xcrun simctl launch booted com.nathanmarchant.doneko.ios`)
 
 Prérequis sur la machine : Xcode complet installé, `brew install xcodegen`.
 

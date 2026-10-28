@@ -3,6 +3,7 @@ options:
   bundleIdPrefix: com.nathanmarchant
   deploymentTarget:
     macOS: "14.0"
+    iOS: "17.0"
 settings:
   base:
     SWIFT_VERSION: "5.0"
@@ -18,6 +19,7 @@ targets:
     platform: macOS
     sources:
       - Doneko
+      - Shared
     dependencies:
       - package: KeyboardShortcuts
     settings:
@@ -39,3 +41,19 @@ targets:
       base:
         GENERATE_INFOPLIST_FILE: YES
         CODE_SIGN_IDENTITY: "-"
+  DonekoiOS:
+    type: application
+    platform: iOS
+    sources:
+      - DonekoiOS
+      - Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.nathanmarchant.doneko.ios
+        INFOPLIST_FILE: DonekoiOS/Info.plist
+        # iPhone seulement.
+        TARGETED_DEVICE_FAMILY: "1"
+        # Équipe personnelle gratuite : l'app installée sur un iPhone expire au bout de 7 jours.
+        DEVELOPMENT_TEAM: DHX32546QF
+        CODE_SIGN_STYLE: Automatic
+    scheme: {}

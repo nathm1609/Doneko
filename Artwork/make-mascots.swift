@@ -113,7 +113,7 @@ func align(_ bitmap: Bitmap, to reference: Bitmap) -> Bitmap {
 }
 
 func writeImageset(_ name: String, _ image: CGImage) {
-    let folder = root.appendingPathComponent("Doneko/Resources/Assets.xcassets/\(name).imageset")
+    let folder = root.appendingPathComponent("Shared/Resources/Shared.xcassets/\(name).imageset")
     try? FileManager.default.removeItem(at: folder)
     try! FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
     let destination = CGImageDestinationCreateWithURL(folder.appendingPathComponent("\(name).png") as CFURL, UTType.png.identifier as CFString, 1, nil)!

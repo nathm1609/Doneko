@@ -69,6 +69,18 @@ final class ICloudSyncTests: XCTestCase {
         XCTAssertEqual(store.todos.map(\.title), ["A"])
     }
 
+    func testUnreadableICloudFileIsNotOverwrittenWhenJoining() throws {
+        try FileManager.default.createDirectory(at: remote.url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let unreadable = Data("pas du JSON".utf8)
+        try unreadable.write(to: remote.url)
+        let store = TodoStore(persistence: local)
+        store.add("A")
+
+        XCTAssertFalse(store.relocate(to: remote, merging: true))
+        XCTAssertEqual(try Data(contentsOf: remote.url), unreadable)
+        XCTAssertEqual(local.load().map(\.title), ["A"])
+    }
+
     func testRefusedWriteKeepsCurrentFile() {
         let store = TodoStore(persistence: local)
         store.add("A")
