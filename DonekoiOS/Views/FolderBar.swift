@@ -25,7 +25,7 @@ struct FolderBar: View {
                 Button { startNaming(nil) } label: {
                     Image(systemName: "plus")
                         .font(Theme.Typography.touchChip)
-                        .frame(width: Theme.Layout.touchTarget, height: Theme.Layout.touchTarget)
+                        .frame(minWidth: Theme.Layout.touchTarget, minHeight: Theme.Layout.touchTarget)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -47,7 +47,9 @@ struct FolderBar: View {
                 .lineLimit(1)
                 .foregroundStyle(isSelected ? Theme.Palette.encre : Theme.Palette.moustache)
                 .padding(.horizontal, Theme.Layout.touchChipPadding)
-                .frame(height: Theme.Layout.touchChipHeight)
+                .padding(.vertical, Theme.Layout.smallSpacing)
+                // 32 pt, plus haute si le texte grandit (Dynamic Type).
+                .frame(minHeight: Theme.Layout.touchChipHeight)
                 .background(isSelected ? Theme.Palette.coussin : .clear, in: Capsule())
                 // Pastille de 32 pt, zone de toucher de 44 pt.
                 .frame(minHeight: Theme.Layout.touchTarget)

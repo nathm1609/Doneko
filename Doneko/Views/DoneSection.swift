@@ -17,7 +17,7 @@ struct DoneSection: View {
             Button { isExpanded.toggle() } label: {
                 HStack(spacing: Theme.Layout.smallSpacing) {
                     Image(systemName: "chevron.right")
-                        .rotationEffect(isExpanded ? .degrees(90) : .zero)
+                        .rotationEffect(isExpanded ? Theme.Layout.disclosureRotation : .zero)
                     Text("Tombé aujourd'hui (\(items.count))")
                         .textCase(.uppercase)
                         .tracking(Theme.Typography.sectionTitleTracking)

@@ -35,7 +35,7 @@ strictement** (palette, typographie, icônes, animations, micro-textes).
 - Notifications de rappel pour les tâches avec échéance.
 - Synchronisation iCloud (en dernier).
 
-### V3 — iPhone et dossiers (en cours)
+### V3 — iPhone et dossiers (terminée, version 1.2.0)
 App iPhone synchronisée avec le Mac par iCloud Drive, fusion tâche par tâche, dossiers sur les deux apps.
 Demande reformulée, décisions et plan par étapes : `PLAN-V3.md`. Chaque étape est validée par l'utilisateur
 avant la suivante.

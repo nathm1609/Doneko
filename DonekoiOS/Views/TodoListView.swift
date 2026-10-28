@@ -9,6 +9,8 @@ struct TodoListView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage(SettingsKey.selectedFolder) private var selectedFolderID = ""
     @AppStorage("doneSectionExpanded") private var isDoneExpanded = true
+    /// Le rond grandit avec le texte (Dynamic Type), comme dans `TodoRow`.
+    @ScaledMetric(relativeTo: .body) private var scale: CGFloat = 1
     @State private var text = ""
     @State private var toast: Toast?
     @State private var isShowingSettings = false
@@ -103,7 +105,7 @@ struct TodoListView: View {
         Text(title)
             .textCase(.uppercase)
             .tracking(Theme.Typography.sectionTitleTracking)
-            .sectionTitleStyle()
+            .sectionTitleStyle(scale: scale)
             .accessibilityAddTraits(.isHeader)
             .plainRow()
     }
@@ -116,12 +118,12 @@ struct TodoListView: View {
         } label: {
             HStack(spacing: Theme.Layout.smallSpacing) {
                 Image(systemName: "chevron.right")
-                    .rotationEffect(isDoneExpanded ? .degrees(90) : .zero)
+                    .rotationEffect(isDoneExpanded ? Theme.Layout.disclosureRotation : .zero)
                 Text("Tombé aujourd'hui (\(items.count))")
                     .textCase(.uppercase)
                     .tracking(Theme.Typography.sectionTitleTracking)
             }
-            .sectionTitleStyle()
+            .sectionTitleStyle(scale: scale)
             .frame(maxWidth: .infinity, minHeight: Theme.Layout.touchTarget, alignment: .leading)
             .contentShape(Rectangle())
         }
@@ -134,8 +136,8 @@ struct TodoListView: View {
             ForEach(items) { item in
                 HStack(spacing: 0) {
                     Button { uncomplete(item.id) } label: {
-                        PawPad(isChecked: true, diameter: Theme.Layout.touchPawPadDiameter)
-                            .frame(width: Theme.Layout.touchTarget, height: Theme.Layout.touchTarget)
+                        PawPad(isChecked: true, diameter: Theme.Layout.touchPawPadDiameter * scale)
+                            .frame(width: Theme.Layout.touchTarget * scale, height: Theme.Layout.touchTarget * scale)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
@@ -164,7 +166,7 @@ struct TodoListView: View {
             Button { isShowingSettings = true } label: {
                 Image(systemName: "gearshape")
                     .foregroundStyle(Theme.Palette.moustache)
-                    .frame(width: Theme.Layout.touchTarget, height: Theme.Layout.touchTarget)
+                    .frame(minWidth: Theme.Layout.touchTarget, minHeight: Theme.Layout.touchTarget)
             }
             .accessibilityLabel("Réglages")
         }
@@ -271,9 +273,9 @@ private extension View {
     }
 
     /// Titres de section : petites capitales Moustache, alignées sur le rond des lignes.
-    func sectionTitleStyle() -> some View {
+    func sectionTitleStyle(scale: CGFloat) -> some View {
         font(Theme.Typography.touchSectionTitle)
             .foregroundStyle(Theme.Palette.moustache)
-            .padding(.leading, (Theme.Layout.touchTarget - Theme.Layout.touchPawPadDiameter) / 2)
+            .padding(.leading, (Theme.Layout.touchTarget - Theme.Layout.touchPawPadDiameter) / 2 * scale)
     }
 }

@@ -26,7 +26,10 @@ struct TodoRow: View {
     }
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @AppStorage(SettingsKey.soundEnabled) private var soundEnabled = false
+    /// Le rond et la patte grandissent avec le texte (Dynamic Type).
+    @ScaledMetric(relativeTo: .body) private var scale: CGFloat = 1
     @State private var phase = Phase.idle
     @State private var isEditing = false
     @State private var draft = ""
@@ -56,8 +59,8 @@ struct TodoRow: View {
     private var row: some View {
         HStack(spacing: 0) {
             Button(action: knockOff) {
-                PawPad(isChecked: phase >= .checked, diameter: Theme.Layout.touchPawPadDiameter)
-                    .frame(width: Theme.Layout.touchTarget, height: Theme.Layout.touchTarget)
+                PawPad(isChecked: phase >= .checked, diameter: Theme.Layout.touchPawPadDiameter * scale)
+                    .frame(width: Theme.Layout.touchTarget * scale, height: Theme.Layout.touchTarget * scale)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -75,12 +78,16 @@ struct TodoRow: View {
                         if !focused { finishEditing() }
                     }
             } else {
-                HStack(spacing: Theme.Layout.rowContentSpacing) {
+                // Très grand texte : dossier et échéance passent sous le titre au lieu de l'écraser.
+                let layout = dynamicTypeSize.isAccessibilitySize
+                    ? AnyLayout(VStackLayout(alignment: .leading, spacing: Theme.Layout.smallSpacing))
+                    : AnyLayout(HStackLayout(spacing: Theme.Layout.rowContentSpacing))
+                layout {
                     HStack(spacing: Theme.Layout.smallSpacing) {
                         if item.isPriority {
                             Circle()
                                 .fill(Theme.Palette.sakura)
-                                .frame(width: Theme.Layout.priorityDotSize, height: Theme.Layout.priorityDotSize)
+                                .frame(width: Theme.Layout.priorityDotSize * scale, height: Theme.Layout.priorityDotSize * scale)
                                 .accessibilityHidden(true)
                         }
                         Text(item.title)
@@ -88,23 +95,26 @@ struct TodoRow: View {
                             .foregroundStyle(Theme.Palette.encre)
                             .accessibilityLabel(item.isPriority ? "Prioritaire : \(item.title)" : item.title)
                     }
-                    Spacer(minLength: 0)
-                    if let folderName {
-                        Text(folderName)
-                            .font(Theme.Typography.touchCaption)
-                            .foregroundStyle(Theme.Palette.moustache)
-                            .lineLimit(1)
-                            .accessibilityLabel("Dossier \(folderName)")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    HStack(spacing: Theme.Layout.rowContentSpacing) {
+                        if let folderName {
+                            Text(folderName)
+                                .lineLimit(1)
+                                .accessibilityLabel("Dossier \(folderName)")
+                        }
+                        if showsDueDate, let dueDate = item.dueDate {
+                            Text(dueDate, format: Self.dueDateFormat)
+                        }
                     }
-                    if showsDueDate, let dueDate = item.dueDate {
-                        Text(dueDate, format: Self.dueDateFormat)
-                            .font(Theme.Typography.touchCaption)
-                            .foregroundStyle(Theme.Palette.moustache)
-                    }
+                    .font(Theme.Typography.touchCaption)
+                    .foregroundStyle(Theme.Palette.moustache)
                 }
-                .frame(minHeight: Theme.Layout.touchTarget)
+                .padding(.vertical, Theme.Layout.smallSpacing)
+                .frame(minHeight: Theme.Layout.touchTarget * scale)
                 .contentShape(Rectangle())
                 .onTapGesture(perform: startEditing)
+                // Une seule chose lue par VoiceOver : titre, dossier, échéance, et l'action « Modifier ».
+                .accessibilityElement(children: .combine)
                 .accessibilityAction(named: "Modifier", startEditing)
             }
         }
@@ -136,7 +146,7 @@ struct TodoRow: View {
     private var paw: some View {
         Image("Paw")
             .resizable()
-            .frame(width: Theme.Layout.touchPawWidth, height: Theme.Layout.touchPawHeight)
+            .frame(width: Theme.Layout.touchPawWidth * scale, height: Theme.Layout.touchPawHeight * scale)
             .offset(x: pawOffset)
             .opacity(phase == .pawed ? 1 : 0)
             .accessibilityHidden(true)
@@ -145,9 +155,9 @@ struct TodoRow: View {
     /// Cachée à gauche de la ligne, posée sur le rond, puis poussant avec la chute.
     private var pawOffset: CGFloat {
         switch phase {
-        case .idle, .checked: -Theme.Layout.touchPawWidth
-        case .pawed: Theme.Layout.touchPawReach - Theme.Layout.touchPawWidth
-        case .falling: Theme.Layout.touchPawReach + Theme.Layout.pawPush - Theme.Layout.touchPawWidth
+        case .idle, .checked: -Theme.Layout.touchPawWidth * scale
+        case .pawed: (Theme.Layout.touchPawReach - Theme.Layout.touchPawWidth) * scale
+        case .falling: (Theme.Layout.touchPawReach + Theme.Layout.pawPush - Theme.Layout.touchPawWidth) * scale
         }
     }
 

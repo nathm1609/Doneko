@@ -91,5 +91,7 @@ puis ta validation.
 | 6 | **Services iPhone** : purge quotidienne, rappels, badge, réglages. | Réglages, rappel reçu, badge. |
 | 7 | **Passe finale** : `DESIGN.md` point par point sur les deux apps, clair et sombre, Dynamic Type, Réduire les animations, VoiceOver ; README, `CLAUDE.md`, note Obsidian ; version Mac 1.2.0 (DMG seulement sur ton feu vert). | Relecture finale. |
 
+État au 2026-10-28 : les 7 étapes sont validées et commitées ; version Mac 1.2.0.
+
 Pas prévu (à garder pour plus tard si besoin) : iPad, widget, Siri et Raccourcis, partage d'un dossier avec quelqu'un
 d'autre, couleur ou icône par dossier.

@@ -90,6 +90,7 @@ Police système **SF Pro Rounded** (aucune police à installer) :
   légère ombre portée douce.
 - Illustration source `Artwork/AppIcon.png` (générée avec Gemini), découpée dans la forme macOS par
   `Artwork/AppIcon.svg` ; `Artwork/make-appicon.sh` génère toutes les tailles de l'`AppIcon`.
+- iPhone : la même illustration en carré plein, sans ombre (iOS arrondit les coins), une seule taille de 1024 px.
 
 ### Fenêtre du DMG
 - Fond Crème, piste d'empreintes Mandarine et flèche de l'app vers Applications, chat allongé dessous qui pousse
@@ -139,6 +140,10 @@ Les autres icônes utilisent les SF Symbols, en version arrondie quand elle exis
 - Zone de toucher de 44 pt partout. Rond « coussinet » de 22 pt au centre de la sienne, patte de 26 pt de haut qui
   entre par le bord de l'écran. Pas de survol : le rond reste Moustache jusqu'à la coche.
 - Pastilles de dossier de 32 pt de haut (zone de 44 pt), mêmes couleurs que sur le Mac.
+- Très grand texte (tailles d'accessibilité) : le rond, la patte et le point Sakura grandissent avec le texte ; le
+  dossier et l'échéance passent sous le titre au lieu de l'écraser.
+- Balayer vers la gauche révèle le « Supprimer » rouge du système : la convention d'iOS l'emporte ici sur la règle
+  des grands aplats saturés, le bouton n'apparaissant que le temps du geste.
 - Gestes :
   - toucher le rond : coup de patte, vibration légère ;
   - toucher le texte : modifier ; toucher ailleurs garde la modification ;

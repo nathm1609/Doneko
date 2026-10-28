@@ -21,7 +21,7 @@ struct UndoToast: View {
                 Text("Annuler")
                     .fontWeight(.bold)
                     // Toute la hauteur du toast se touche, pas seulement le mot.
-                    .frame(maxHeight: .infinity)
+                    .frame(minHeight: height)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -29,7 +29,8 @@ struct UndoToast: View {
         .font(font)
         .foregroundStyle(Theme.Palette.creme)
         .padding(.horizontal, Theme.Layout.panelPadding)
-        .frame(height: height)
+        // Plus haut si le texte grandit (Dynamic Type sur l'iPhone).
+        .frame(minHeight: height)
         .background(Theme.Palette.encre, in: RoundedRectangle(cornerRadius: Theme.Layout.rowCornerRadius))
         .onAppear { AccessibilityNotification.Announcement(toast.message).post() }
     }

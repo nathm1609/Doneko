@@ -59,6 +59,8 @@ enum Theme {
         static let pawPush: CGFloat = 10
         /// Point Sakura devant une tâche prioritaire (« ! » en fin de saisie).
         static let priorityDotSize: CGFloat = 6
+        /// Chevron de « Tombé aujourd'hui » une fois la section dépliée.
+        static let disclosureRotation = Angle.degrees(90)
         /// Glissement à deux doigts vers la gauche au-delà duquel la tâche est supprimée.
         static let swipeDeleteThreshold: CGFloat = 80
     }
