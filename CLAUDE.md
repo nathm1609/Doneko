@@ -74,7 +74,9 @@ Doneko/
 │   │   ├── Clock.swift          # protocole d'horloge injectable (tests de purge)
 │   │   └── SettingsKey.swift    # clés des réglages (UserDefaults)
 │   ├── Views/
-│   │   └── EmptyState.swift     # mascotte endormie ou contente
+│   │   ├── EmptyState.swift     # mascotte endormie ou contente
+│   │   ├── PawPad.swift         # rond « coussinet » (16 pt sur Mac, 22 pt sur iPhone)
+│   │   └── UndoToast.swift      # « … · Annuler »
 │   ├── Design/
 │   │   └── Theme.swift          # couleurs, tailles, durées d'animation issues de DESIGN.md
 │   └── Resources/
@@ -83,7 +85,9 @@ Doneko/
 │   ├── DonekoiOSApp.swift       # point d'entrée, store
 │   ├── Info.plist
 │   ├── Views/
-│   │   └── TodoListView.swift   # liste, rond, saisie en bas, bouton de synchronisation
+│   │   ├── TodoListView.swift   # sections, « Tombé aujourd'hui », toast, dossiers et saisie en bas, synchronisation
+│   │   ├── TodoRow.swift        # coup de patte, modifier au toucher, balayer, appui long (Prioritaire, Ranger dans)
+│   │   └── FolderBar.swift      # « Tout », dossiers, « + » ; appui long : renommer, déplacer, supprimer
 │   ├── Services/
 │   │   └── FolderSync.swift     # dossier iCloud Drive › Doneko choisi dans Fichiers (signet), relu toutes les 5 s
 │   └── Resources/
@@ -97,7 +101,6 @@ Doneko/
 │   │   ├── FolderBar.swift      # « Tout », dossiers, « + » ; clic droit : renommer, déplacer, supprimer
 │   │   ├── TodoRow.swift        # rond « coussinet », animation coup de patte
 │   │   ├── DoneSection.swift    # « Tombé aujourd'hui », titres de section
-│   │   ├── UndoToast.swift
 │   │   ├── SettingsView.swift
 │   │   └── SwipeToDelete.swift  # glisser à deux doigts vers la gauche
 │   ├── Services/

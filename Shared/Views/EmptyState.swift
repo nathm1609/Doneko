@@ -5,6 +5,8 @@ import SwiftUI
 /// Un clic la fait sauter, ou remuer dans son sommeil.
 struct EmptyState: View {
     let allDone: Bool
+    /// Plus grand sur l'iPhone (Dynamic Type).
+    var font = Theme.Typography.caption
 
     /// Image-clé montrée à la place de la mascotte au repos, le temps d'un petit mouvement.
     private enum Pose { case rest, ear, yawn, cheer }
@@ -32,7 +34,7 @@ struct EmptyState: View {
             .onTapGesture { allDone ? jump() : stir() }
             .accessibilityHidden(true)
             Text(allDone ? "Table rase ! Bien joué." : "Plus rien sur la table. Doneko fait la sieste.")
-                .font(Theme.Typography.caption)
+                .font(font)
                 .foregroundStyle(Theme.Palette.moustache)
                 .multilineTextAlignment(.center)
         }

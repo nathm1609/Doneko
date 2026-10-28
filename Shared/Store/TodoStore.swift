@@ -146,6 +146,15 @@ final class TodoStore {
         save()
     }
 
+    /// Appui long › « Prioritaire » (iPhone) : la tâche remonte en haut de sa section, ou y reprend sa place.
+    func setPriority(_ id: TodoItem.ID, _ isPriority: Bool) {
+        guard let i = index(of: id), items[i].isPriority != isPriority else { return }
+        undoStack.append(.task(items[i]))
+        items[i].updatedAt = stamp(after: items[i].lastChange)
+        items[i].isPriority = isPriority
+        save()
+    }
+
     /// « Ranger dans » : `nil` sort la tâche de son dossier.
     func file(_ id: TodoItem.ID, in folder: Folder.ID?) {
         guard let i = index(of: id), items[i].folderID != folder else { return }

@@ -141,6 +141,21 @@ final class TodoStoreTests: XCTestCase {
         XCTAssertEqual(store.todos.first?.isPriority, true)
     }
 
+    func testSetPriorityMovesTaskOnTopAndUndoRestoresIt() {
+        store.add("A le 20")
+        store.add("B le 20")
+        let b = store.todos[1].id
+
+        store.setPriority(b, true)
+        XCTAssertEqual(store.todos.map(\.title), ["B", "A"])
+        XCTAssertEqual(due("B"), day(1, 20))
+
+        store.setPriority(b, true)
+        store.undo()
+        XCTAssertEqual(store.todos.map(\.title), ["A", "B"])
+        XCTAssertFalse(store.canUndo)
+    }
+
     func testMoveDownAndUp() {
         ["A", "B", "C"].forEach { store.add($0) }
         let ids = store.todos.map(\.id)

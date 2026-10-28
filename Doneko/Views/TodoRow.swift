@@ -205,34 +205,3 @@ struct TodoRow: View {
         onEditEnd(saving ? draft : nil)
     }
 }
-
-/// Rond « coussinet de patte » : contour Moustache, Mandarine + empreinte au survol, Matcha + coche une fois fait.
-struct PawPad: View {
-    let isChecked: Bool
-    let isHovered: Bool
-
-    var body: some View {
-        ZStack {
-            Circle()
-                .fill(isChecked ? Theme.Palette.matcha : .clear)
-            Circle()
-                .strokeBorder(strokeColor, lineWidth: Theme.Layout.pawPadStroke)
-            if isChecked {
-                Image(systemName: "checkmark")
-                    .font(.system(size: Theme.Layout.pawPadGlyphSize, weight: .bold))
-                    .foregroundStyle(Theme.Palette.checkmark)
-            } else if isHovered {
-                Image(systemName: "pawprint.fill")
-                    .font(.system(size: Theme.Layout.pawPadGlyphSize))
-                    .foregroundStyle(Theme.Palette.mandarine)
-            }
-        }
-        .frame(width: Theme.Layout.pawPadDiameter, height: Theme.Layout.pawPadDiameter)
-        .contentShape(Circle())
-    }
-
-    private var strokeColor: Color {
-        if isChecked { return Theme.Palette.matcha }
-        return isHovered ? Theme.Palette.mandarine : Theme.Palette.moustache
-    }
-}

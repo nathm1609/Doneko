@@ -129,6 +129,27 @@ Les autres icônes utilisent les SF Symbols, en version arrondie quand elle exis
 
 ---
 
+## Écran iPhone
+
+- Un seul écran en portrait, fond Crème. De haut en bas : le nuage de synchronisation (Moustache) à droite ;
+  « Aujourd'hui », « Plus tard », « Tombé aujourd'hui » repliable ; puis, à portée de pouce et au-dessus du clavier,
+  le toast d'annulation, la barre de dossiers et le champ de saisie (fond Coussin, coins 8 pt).
+- Tailles qui suivent Dynamic Type : tâches et champ en Body ; titres de section en Footnote semi-gras, en capitales ;
+  nom du dossier, échéance et toast en Footnote ; pastilles de dossier en Subheadline.
+- Zone de toucher de 44 pt partout. Rond « coussinet » de 22 pt au centre de la sienne, patte de 26 pt de haut qui
+  entre par le bord de l'écran. Pas de survol : le rond reste Moustache jusqu'à la coche.
+- Pastilles de dossier de 32 pt de haut (zone de 44 pt), mêmes couleurs que sur le Mac.
+- Gestes :
+  - toucher le rond : coup de patte, vibration légère ;
+  - toucher le texte : modifier ; toucher ailleurs garde la modification ;
+  - balayer vers la gauche : « Supprimer » ;
+  - appui long : « Prioritaire », « Ranger dans », « Supprimer » ; appui long puis glisser : changer de place ;
+  - appui long sur un dossier : le menu du Mac, avec icônes ; un nom de dossier se tape dans une alerte ;
+  - tirer la liste vers le bas : relire la liste partagée avec le Mac.
+- Liste entièrement vide : la mascotte au milieu de l'écran ; sinon à la place des tâches du jour, comme sur le Mac.
+
+---
+
 ## Animations
 
 L'animation de complétion est la signature de l'app. Tout le reste reste sobre.
@@ -162,9 +183,10 @@ L'animation de complétion est la signature de l'app. Tout le reste reste sobre.
 - Pendant la sieste, toutes les 7 à 14 s : l'oreille frémit (0,4 s) ou, une fois sur trois, la mascotte bâille (1,6 s).
   Les images-clés passent en fondu de 120 ms.
 
-**Accessibilité** : si « Réduire les animations » est activé dans macOS, remplacer tous les mouvements par un simple fondu de 150 ms.
+**Accessibilité** : si « Réduire les animations » est activé dans macOS ou iOS, remplacer tous les mouvements par un simple fondu de 150 ms.
 
-**Retour tactile** : petit retour haptique du trackpad à la complétion (`NSHapticFeedbackManager`, motif `.alignment`).
+**Retour tactile** : petit retour haptique du trackpad à la complétion (`NSHapticFeedbackManager`, motif `.alignment`) ;
+sur l'iPhone, vibration légère (`sensoryFeedback(.impact(weight: .light))`).
 **Son** : un « pop » feutré optionnel, désactivé par défaut.
 
 ---
@@ -186,6 +208,10 @@ Tutoiement, phrases courtes, une pointe d'humour félin, jamais de jeu de mots f
 | Clic droit sur une tâche | Ranger dans › Aucun dossier, puis les dossiers |
 | Clic droit sur un dossier | Renommer · Vers la gauche · Vers la droite · Supprimer le dossier |
 | Suppression d'un dossier | Dossier supprimé · **Annuler** |
+| Appui long sur une tâche (iPhone) | Prioritaire · Ranger dans · Supprimer |
+| Balayer une tâche vers la gauche (iPhone) | Supprimer |
+| Nouveau dossier (iPhone, alerte) | Nouveau dossier · Nom du dossier · Annuler · Créer |
+| Renommer un dossier (iPhone, alerte) | Renommer le dossier · Annuler · Renommer |
 | Info-bulle de l'icône | Doneko — 3 tâches sur la table |
 | Réglages | Raccourci pour appeler Doneko |
 | Quitter | Laisser Doneko dormir (Quitter) |

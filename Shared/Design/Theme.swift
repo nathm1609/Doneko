@@ -31,12 +31,20 @@ enum Theme {
         static let rowHeight: CGFloat = 32
         /// iPhone : zone de toucher minimale d'un élément (recommandation Apple).
         static let touchTarget: CGFloat = 44
+        /// iPhone : rond plus grand, centré dans sa zone de toucher, et patte à sa mesure (même image, 337 × 128).
+        static let touchPawPadDiameter: CGFloat = 22
+        static let touchPawHeight: CGFloat = 26
+        static let touchPawWidth: CGFloat = 68
+        static let touchPawReach: CGFloat = 36
+        /// iPhone : pastilles de la barre de dossiers.
+        static let touchChipHeight: CGFloat = 32
+        static let touchChipPadding: CGFloat = 12
         static let rowSpacing: CGFloat = 2
         static let rowCornerRadius: CGFloat = 8
         static let pawPadDiameter: CGFloat = 16
         static let pawPadStroke: CGFloat = 1.5
-        /// Empreinte au survol et coche blanche, à l'intérieur du rond.
-        static let pawPadGlyphSize: CGFloat = 8
+        /// Empreinte au survol et coche blanche, à l'intérieur du rond : la moitié de son diamètre.
+        static let pawPadGlyphRatio: CGFloat = 0.5
         static let rowHorizontalPadding: CGFloat = 8
         static let rowContentSpacing: CGFloat = 8
         static let smallSpacing: CGFloat = 4
@@ -62,6 +70,11 @@ enum Theme {
         static let sectionTitle = Font.system(size: 11, weight: .semibold, design: .rounded)
         static let sectionTitleTracking: CGFloat = 0.5
         static let caption = Font.system(size: 12, design: .rounded)
+        /// iPhone : tailles qui suivent Dynamic Type.
+        static let touchBody = Font.system(.body, design: .rounded)
+        static let touchCaption = Font.system(.footnote, design: .rounded)
+        static let touchSectionTitle = Font.system(.footnote, design: .rounded, weight: .semibold)
+        static let touchChip = Font.system(.subheadline, design: .rounded)
         /// Compteur de la barre de menu (AppKit) : medium, arrondi, chiffres à chasse fixe.
         static let counterSize: CGFloat = 12
     }
