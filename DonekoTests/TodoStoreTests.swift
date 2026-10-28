@@ -142,7 +142,7 @@ final class TodoStoreTests: XCTestCase {
     }
 
     func testMoveDownAndUp() {
-        ["A", "B", "C"].forEach(store.add)
+        ["A", "B", "C"].forEach { store.add($0) }
         let ids = store.todos.map(\.id)
 
         store.move(ids[0], to: ids[2])
@@ -153,7 +153,7 @@ final class TodoStoreTests: XCTestCase {
     }
 
     func testMoveKeepsPriorityTasksOnTop() {
-        ["Urgent !", "A", "B"].forEach(store.add)
+        ["Urgent !", "A", "B"].forEach { store.add($0) }
         let urgent = store.todos[0].id
         let b = store.todos[2].id
 
@@ -162,7 +162,7 @@ final class TodoStoreTests: XCTestCase {
     }
 
     func testMovedOrderIsSavedAndSurvivesUndoOfEarlierEdit() {
-        ["A", "B"].forEach(store.add)
+        ["A", "B"].forEach { store.add($0) }
         let a = store.todos[0].id
         store.edit(a, title: "A2")
         store.move(a, to: store.todos[1].id)
@@ -176,7 +176,7 @@ final class TodoStoreTests: XCTestCase {
         [
             "Appeler le véto demain", "Sport Après-demain", "Courses lundi", "Ménage vendredi",
             "Payer le loyer le 20 !", "Rendre le livre le 3", "Banque le 14", "Gâteau pour le 1er", "Arroser aujourd’hui",
-        ].forEach(store.add)
+        ].forEach { store.add($0) }
 
         XCTAssertEqual(due("Appeler le véto"), day(1, 16))
         XCTAssertEqual(due("Sport"), day(1, 17))
@@ -191,14 +191,14 @@ final class TodoStoreTests: XCTestCase {
     }
 
     func testDateWordsElsewhereOrAloneAreKeptInTitle() {
-        ["demain", "Demain matin réunion", "Revoir le 40", "Payer ! demain"].forEach(store.add)
+        ["demain", "Demain matin réunion", "Revoir le 40", "Payer ! demain"].forEach { store.add($0) }
 
         XCTAssertEqual(store.todos.compactMap(\.dueDate), [day(1, 16)])
         XCTAssertEqual(Set(store.todos.map(\.title)), ["demain", "Demain matin réunion", "Revoir le 40", "Payer"])
     }
 
     func testLaterTasksComeAfterTodayAndJoinItOnTheirDay() {
-        ["B lundi", "C demain", "A"].forEach(store.add)
+        ["B lundi", "C demain", "A"].forEach { store.add($0) }
         XCTAssertEqual(store.today.map(\.title), ["A"])
         XCTAssertEqual(store.later.map(\.title), ["C", "B"])
         XCTAssertEqual(store.summary, "Doneko — 1 tâche sur la table")
@@ -227,7 +227,7 @@ final class TodoStoreTests: XCTestCase {
     }
 
     func testUncompleteBringsTaskBackAtItsPlaceAndUndoRedoesIt() {
-        ["A", "B"].forEach(store.add)
+        ["A", "B"].forEach { store.add($0) }
         let a = store.todos[0].id
         store.complete(a)
         store.uncomplete(store.todos[0].id) // tâche pas faite : rien ne change
@@ -241,7 +241,7 @@ final class TodoStoreTests: XCTestCase {
     }
 
     func testMovingDoneTaskIntoListUncompletesIt() {
-        ["A", "B", "C"].forEach(store.add)
+        ["A", "B", "C"].forEach { store.add($0) }
         let c = store.todos[2].id
         store.complete(c)
 

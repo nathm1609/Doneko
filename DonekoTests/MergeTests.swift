@@ -36,7 +36,7 @@ final class MergeTests: XCTestCase {
     func testOfflineChangesOnBothDevicesAreAllKept() throws {
         let phoneFile = Persistence(url: directory.appendingPathComponent("iPhone/todos.json"))
         let mac = TodoStore(persistence: shared, clock: macClock)
-        ["Lait", "Pain", "Courrier"].forEach(mac.add)
+        ["Lait", "Pain", "Courrier"].forEach { mac.add($0) }
         try copy(shared, to: phoneFile)
         let phone = TodoStore(persistence: phoneFile, clock: phoneClock)
 
@@ -86,13 +86,13 @@ final class MergeTests: XCTestCase {
         phone.add("Croquettes") // le Mac ne l'a pas encore relu
         mac.add("Banque")
 
-        XCTAssertEqual(Set(shared.load().map(\.title)), ["Croquettes", "Banque"])
+        XCTAssertEqual(Set(shared.load().items.map(\.title)), ["Croquettes", "Banque"])
         XCTAssertEqual(Set(mac.todos.map(\.title)), ["Croquettes", "Banque"])
     }
 
     func testDeletionPurgeAndUndoReachTheOtherDevice() {
         let mac = TodoStore(persistence: shared, clock: macClock)
-        ["Lait", "Pain"].forEach(mac.add)
+        ["Lait", "Pain"].forEach { mac.add($0) }
         let phone = TodoStore(persistence: shared, clock: phoneClock)
 
         macClock.current += 60
@@ -115,15 +115,15 @@ final class MergeTests: XCTestCase {
         let mac = TodoStore(persistence: shared, clock: macClock)
         mac.add("Lait")
         mac.delete(id("Lait", in: mac))
-        XCTAssertEqual(shared.load().count, 1)
+        XCTAssertEqual(shared.load().items.count, 1)
 
         macClock.current += 29 * 86_400
         mac.purgeDone()
-        XCTAssertEqual(shared.load().count, 1)
+        XCTAssertEqual(shared.load().items.count, 1)
 
         macClock.current += 2 * 86_400
         mac.purgeDone()
-        XCTAssertEqual(shared.load(), [])
+        XCTAssertEqual(shared.load().items, [])
     }
 
     /// Fichier présent mais pas encore lisible (iCloud le télécharge) : ni mis de côté, ni écrasé par une liste vide.
@@ -135,9 +135,9 @@ final class MergeTests: XCTestCase {
         try FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: shared.url.path)
 
         XCTAssertFalse(FileManager.default.fileExists(atPath: shared.backupURL.path))
-        XCTAssertEqual(shared.load().map(\.title), ["Lait"])
+        XCTAssertEqual(shared.load().items.map(\.title), ["Lait"])
 
         phone.reloadIfChangedOnDisk()
-        XCTAssertEqual(Set(shared.load().map(\.title)), ["Lait", "Croquettes"])
+        XCTAssertEqual(Set(shared.load().items.map(\.title)), ["Lait", "Croquettes"])
     }
 }

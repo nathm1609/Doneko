@@ -25,7 +25,7 @@ final class ICloudSyncTests: XCTestCase {
     @discardableResult
     private func otherMac(_ titles: [String]) -> TodoStore {
         let store = TodoStore(persistence: remote)
-        titles.forEach(store.add)
+        titles.forEach { store.add($0) }
         return store
     }
 
@@ -36,12 +36,12 @@ final class ICloudSyncTests: XCTestCase {
 
         XCTAssertTrue(store.relocate(to: remote, merging: true))
         XCTAssertEqual(Set(store.todos.map(\.title)), ["A", "B", "C"])
-        XCTAssertEqual(Set(remote.load().map(\.title)), ["A", "B", "C"])
+        XCTAssertEqual(Set(remote.load().items.map(\.title)), ["A", "B", "C"])
 
         store.add("D")
         XCTAssertTrue(store.relocate(to: local, merging: false))
-        XCTAssertEqual(Set(local.load().map(\.title)), ["A", "B", "C", "D"])
-        XCTAssertEqual(remote.load().count, 4)
+        XCTAssertEqual(Set(local.load().items.map(\.title)), ["A", "B", "C", "D"])
+        XCTAssertEqual(remote.load().items.count, 4)
     }
 
     func testChangesFromAnotherMacAreReloadedButOwnWritesAreNot() {
@@ -78,7 +78,7 @@ final class ICloudSyncTests: XCTestCase {
 
         XCTAssertFalse(store.relocate(to: remote, merging: true))
         XCTAssertEqual(try Data(contentsOf: remote.url), unreadable)
-        XCTAssertEqual(local.load().map(\.title), ["A"])
+        XCTAssertEqual(local.load().items.map(\.title), ["A"])
     }
 
     func testRefusedWriteKeepsCurrentFile() {
@@ -88,7 +88,7 @@ final class ICloudSyncTests: XCTestCase {
         XCTAssertFalse(store.relocate(to: Persistence(url: URL(fileURLWithPath: "/dev/null/Doneko/todos.json")), merging: true))
         store.add("B")
 
-        XCTAssertEqual(Set(local.load().map(\.title)), ["A", "B"])
+        XCTAssertEqual(Set(local.load().items.map(\.title)), ["A", "B"])
     }
 
     func testSettingMovesTheListBetweenThisMacAndICloud() {
@@ -98,7 +98,7 @@ final class ICloudSyncTests: XCTestCase {
         let sync = ICloudSync(store: store, defaults: defaults, local: local, remote: remote, isDriveAvailable: true)
 
         defaults.set(true, forKey: SettingsKey.iCloudSync)
-        XCTAssertEqual(Set(remote.load().map(\.title)), ["A", "B"])
+        XCTAssertEqual(Set(remote.load().items.map(\.title)), ["A", "B"])
 
         otherMac([]).add("C")
         sync.check()
@@ -106,8 +106,8 @@ final class ICloudSyncTests: XCTestCase {
 
         defaults.set(false, forKey: SettingsKey.iCloudSync)
         store.add("D")
-        XCTAssertEqual(local.load().count, 4)
-        XCTAssertEqual(remote.load().count, 3)
+        XCTAssertEqual(local.load().items.count, 4)
+        XCTAssertEqual(remote.load().items.count, 3)
     }
 
     func testAnotherMacsChangesArriveOnTheirOwn() {
@@ -130,7 +130,7 @@ final class ICloudSyncTests: XCTestCase {
         store.add("A")
         sync.check()
 
-        XCTAssertEqual(local.load().map(\.title), ["A"])
+        XCTAssertEqual(local.load().items.map(\.title), ["A"])
         XCTAssertFalse(FileManager.default.fileExists(atPath: remote.url.path))
     }
 }

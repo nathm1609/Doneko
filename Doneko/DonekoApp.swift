@@ -21,6 +21,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var menuBar: MenuBarController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Lancée pour héberger les tests : ne touche ni à la vraie liste, ni à Obsidian, ni à la barre de menu.
+        guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
         UserDefaults.standard.register(defaults: [SettingsKey.showCounter: true, SettingsKey.reminderHour: 9])
         let store = TodoStore(persistence: ICloudSync.persistence())
         let menuBar = MenuBarController(store: store)

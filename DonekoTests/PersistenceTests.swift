@@ -18,7 +18,7 @@ final class PersistenceTests: XCTestCase {
     }
 
     func testLoadWithoutFileReturnsEmptyList() {
-        XCTAssertEqual(persistence.load(), [])
+        XCTAssertEqual(persistence.load().items, [])
     }
 
     func testSaveThenLoadRoundTripsEveryField() throws {
@@ -28,16 +28,16 @@ final class PersistenceTests: XCTestCase {
             TodoItem(title: "À faire", createdAt: date, order: 1),
         ]
 
-        try persistence.save(items)
+        try persistence.save(SavedList(items: items))
 
-        XCTAssertEqual(persistence.load(), items)
+        XCTAssertEqual(persistence.load().items, items)
     }
 
     func testCorruptedFileIsMovedToBakAndLoadsEmpty() throws {
-        try persistence.save([])
+        try persistence.save(SavedList())
         try Data("pas du json".utf8).write(to: persistence.url)
 
-        XCTAssertEqual(persistence.load(), [])
+        XCTAssertEqual(persistence.load().items, [])
         XCTAssertFalse(FileManager.default.fileExists(atPath: persistence.url.path))
         XCTAssertEqual(try String(contentsOf: persistence.backupURL, encoding: .utf8), "pas du json")
     }
@@ -60,10 +60,10 @@ final class PersistenceTests: XCTestCase {
 
     /// Doneko 1.1 n'écrivait ni `updatedAt` ni `deletedAt`.
     func testFileFromVersion1StillLoads() throws {
-        try persistence.save([])
+        try persistence.save(SavedList())
         let json = #"[{"createdAt":"2027-01-15T08:00:00Z","id":"6F1C1E52-8B0A-4F7C-9A11-2D8E5B7C4A10","isPriority":false,"order":0,"title":"Lait"}]"#
         try Data(json.utf8).write(to: persistence.url)
 
-        XCTAssertEqual(persistence.load().map(\.title), ["Lait"])
+        XCTAssertEqual(persistence.load().items.map(\.title), ["Lait"])
     }
 }

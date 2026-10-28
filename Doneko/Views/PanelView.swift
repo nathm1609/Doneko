@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// Champ de saisie → tâches à faire → « Tombé aujourd'hui » → barre basse.
+/// Champ de saisie → barre de dossiers → tâches à faire → « Tombé aujourd'hui » → barre basse.
 struct PanelView: View {
     let store: TodoStore
     /// Ferme le panneau (Échap).
@@ -11,6 +11,7 @@ struct PanelView: View {
     let openSettings: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage(SettingsKey.selectedFolder) private var selectedFolderID = ""
     @State private var newTitle = ""
     @State private var toast: Toast?
     @State private var selection: TodoItem.ID?
@@ -26,10 +27,14 @@ struct PanelView: View {
                 text: $newTitle,
                 isFocused: $isInputFocused,
                 onSubmit: { title in
-                    withAnimation(motion(.easeOut(duration: Theme.Motion.rowAppear))) { store.add(title) }
+                    withAnimation(motion(.easeOut(duration: Theme.Motion.rowAppear))) { store.add(title, in: folder) }
                 },
                 onListKey: handleListKey
             )
+
+            FolderBar(store: store, selection: folderSelection, onDelete: deleteFolder) {
+                isInputFocused = true
+            }
 
             // Hauteur au contenu, puis défilement une fois le maximum atteint. Hauteur explicite : MenuBarExtra
             // mesure le panneau en partant de 0, et une zone de défilement sans hauteur s'y écrase à 0.
@@ -63,6 +68,11 @@ struct PanelView: View {
                     .keyboardShortcut(.cancelAction)
                 Button("Quitter") { NSApplication.shared.terminate(nil) }
                     .keyboardShortcut("q")
+                // ⌘1 : « Tout » ; ⌘2 à ⌘9 : les dossiers, dans l'ordre de la barre.
+                ForEach(1...9, id: \.self) { n in
+                    Button("Dossier \(n)") { selectFolder(number: n) }
+                        .keyboardShortcut(KeyEquivalent(Character(String(n))))
+                }
             }
             .opacity(0)
             .accessibilityHidden(true)
@@ -97,27 +107,43 @@ struct PanelView: View {
         .fontDesign(.rounded)
     }
 
+    /// Dossier choisi dans la barre, mémorisé sur ce Mac ; supprimé entre-temps (ou « Tout ») : `nil`.
+    private var folder: Folder.ID? {
+        store.folders.first { $0.id.uuidString == selectedFolderID }?.id
+    }
+
+    private var folderSelection: Binding<Folder.ID?> {
+        Binding {
+            folder
+        } set: { id in
+            selectedFolderID = id?.uuidString ?? ""
+            selection = nil
+        }
+    }
+
     private var lists: some View {
         VStack(alignment: .leading, spacing: Theme.Layout.rowSpacing) {
+            let today = store.today(in: folder)
+            let later = store.later(in: folder)
+            let done = store.done(in: folder)
             // Sans tâche pour plus tard, pas de titres : une seule liste.
-            let hasLater = !store.later.isEmpty
-            if hasLater {
+            if !later.isEmpty {
                 SectionTitle(title: "Aujourd'hui")
             }
-            if store.today.isEmpty {
-                EmptyState(allDone: !store.done.isEmpty)
+            if today.isEmpty {
+                EmptyState(allDone: !done.isEmpty)
                     // Liste vide : une tâche faite glissée ici revient quand même.
                     .onDrop(of: [.donekoTask], delegate: ReorderDropDelegate(draggedID: $draggedID, onEnter: uncomplete))
             } else {
-                rows(store.today)
+                rows(today)
             }
-            if hasLater {
+            if !later.isEmpty {
                 SectionTitle(title: "Plus tard")
                     .padding(.top, Theme.Layout.panelPadding)
-                rows(store.later, showsDueDate: true)
+                rows(later, showsDueDate: true)
             }
-            if !store.done.isEmpty {
-                DoneSection(items: store.done, onUncomplete: uncomplete, onDelete: delete, onDrag: dragProvider)
+            if !done.isEmpty {
+                DoneSection(items: done, onUncomplete: uncomplete, onDelete: delete, onDrag: dragProvider)
                     .padding(.top, Theme.Layout.panelPadding)
             }
         }
@@ -129,6 +155,9 @@ struct PanelView: View {
                 item: item,
                 isSelected: item.id == selection,
                 showsDueDate: showsDueDate,
+                folderName: folder == nil ? store.folder(of: item)?.name : nil,
+                folders: store.folders,
+                onFile: { file(item.id, in: $0) },
                 knockOffRequest: knockOffRequest,
                 onComplete: { complete(item) },
                 onEditEnd: { title in
@@ -185,7 +214,7 @@ struct PanelView: View {
     }
 
     private func moveSelection(by delta: Int) {
-        let ids = store.todos.map(\.id)
+        let ids = store.todos(in: folder).map(\.id)
         guard let current = selection, let index = ids.firstIndex(of: current) else {
             if delta > 0 { selection = ids.first }
             return
@@ -198,7 +227,7 @@ struct PanelView: View {
     /// La tâche qui va disparaître cède la sélection à sa voisine (suivante, sinon précédente).
     private func selectNeighbor(of id: TodoItem.ID) {
         guard selection == id else { return }
-        let ids = store.todos.map(\.id)
+        let ids = store.todos(in: folder).map(\.id)
         guard let index = ids.firstIndex(of: id) else { return }
         if index + 1 < ids.count {
             selection = ids[index + 1]
@@ -256,6 +285,30 @@ struct PanelView: View {
         withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
             store.undo()
             toast = nil
+        }
+    }
+
+    /// « Ranger dans » : rangée ailleurs, la tâche quitte la liste du dossier affiché.
+    private func file(_ id: TodoItem.ID, in target: Folder.ID?) {
+        if target != folder { selectNeighbor(of: id) }
+        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
+            store.file(id, in: target)
+        }
+    }
+
+    private func deleteFolder(_ deleted: Folder) {
+        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
+            store.deleteFolder(deleted.id)
+            toast = Toast(message: "Dossier supprimé")
+        }
+    }
+
+    /// ⌘1 : « Tout » ; ⌘2 à ⌘9 : le dossier à cette place, s'il existe.
+    private func selectFolder(number: Int) {
+        if number == 1 {
+            folderSelection.wrappedValue = nil
+        } else if store.folders.indices.contains(number - 2) {
+            folderSelection.wrappedValue = store.folders[number - 2].id
         }
     }
 

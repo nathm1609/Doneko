@@ -68,7 +68,7 @@ Police système **SF Pro Rounded** (aucune police à installer) :
 | Champ de saisie | 14 pt | Regular |
 | Texte d'une tâche | 13 pt | Regular |
 | Titres de section (« Tombé aujourd'hui ») | 11 pt | Semibold, majuscules, interlettrage +0,5 |
-| Toast, état vide, aide | 12 pt | Regular |
+| Toast, état vide, aide, barre de dossiers, nom du dossier sur une ligne | 12 pt | Regular |
 | Compteur dans la barre de menu | 12 pt | Medium, chiffres à chasse fixe (`.monospacedDigit()`) |
 
 ---
@@ -110,9 +110,22 @@ Les autres icônes utilisent les SF Symbols, en version arrondie quand elle exis
 
 - Largeur fixe : **320 pt**. Hauteur qui s'adapte au contenu, maximum 480 pt puis défilement.
 - Coins arrondis : 14 pt. Marges internes : 12 pt.
-- Ordre vertical : champ de saisie → tâches à faire → section repliable « Tombé aujourd'hui » → barre basse discrète (bouton réglages ; quitter passe par le clic droit sur l'icône ou ⌘Q).
+- Ordre vertical : champ de saisie → barre de dossiers → tâches à faire → section repliable « Tombé aujourd'hui » → barre basse discrète (bouton réglages ; quitter passe par le clic droit sur l'icône ou ⌘Q).
 - Hauteur d'une ligne : 32 pt, espacement 2 pt, coins 8 pt, fond Coussin uniquement au survol ou à la sélection clavier.
 - Tâche prioritaire : petit point Sakura à gauche du texte, remontée en haut de liste.
+
+### Dossiers
+- Barre sous le champ : pastilles arrondies de 24 pt de haut, texte 12 pt : « Tout », les dossiers dans leur ordre, puis « + ».
+  Pastille choisie : fond Coussin, texte Encre ; les autres : texte Moustache, sans fond. La barre défile
+  horizontalement quand elle dépasse.
+- Le dossier choisi filtre la liste (« Aujourd'hui », « Plus tard » et « Tombé aujourd'hui » restent) et reçoit les
+  nouvelles tâches. Le choix est mémorisé sur chaque appareil.
+- `#nom` dans la saisie range la tâche, en créant le dossier au besoin : « Lait #courses demain ! ».
+- Dans « Tout », le nom du dossier s'affiche au bout de la ligne (12 pt, Moustache), avant l'échéance.
+- Clic droit sur une tâche : « Ranger dans ». Clic droit sur un dossier : « Renommer », « Vers la gauche »,
+  « Vers la droite », « Supprimer le dossier ». Le nom se tape dans la pastille même, cerclée de Mandarine.
+- ⌘1 : « Tout » ; ⌘2 à ⌘9 : les dossiers, dans l'ordre de la barre.
+- Ni couleur ni emoji par dossier : un nom suffit.
 
 ---
 
@@ -168,6 +181,11 @@ Tutoiement, phrases courtes, une pointe d'humour félin, jamais de jeu de mots f
 | Toast après complétion | Doneko l'a fait tomber · **Annuler** |
 | Section des tâches faites | Tombé aujourd'hui (3) |
 | Suppression | Tâche supprimée · **Annuler** |
+| Barre de dossiers | Tout · courses · maison · + |
+| Bouton « + » (info-bulle, VoiceOver) | Nouveau dossier |
+| Clic droit sur une tâche | Ranger dans › Aucun dossier, puis les dossiers |
+| Clic droit sur un dossier | Renommer · Vers la gauche · Vers la droite · Supprimer le dossier |
+| Suppression d'un dossier | Dossier supprimé · **Annuler** |
 | Info-bulle de l'icône | Doneko — 3 tâches sur la table |
 | Réglages | Raccourci pour appeler Doneko |
 | Quitter | Laisser Doneko dormir (Quitter) |

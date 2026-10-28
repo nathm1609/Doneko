@@ -22,7 +22,7 @@ final class RemindersTests: XCTestCase {
     }
 
     func testDatedTasksAreRemindedOnTheirDayAtChosenHour() {
-        ["Sans date", "Véto demain", "Courses lundi !"].forEach(store.add)
+        ["Sans date", "Véto demain", "Courses lundi !"].forEach { store.add($0) }
 
         let reminders = reminders(hour: 9)
 
@@ -33,7 +33,7 @@ final class RemindersTests: XCTestCase {
     }
 
     func testPastTimesDoneTasksAndNeverAreNotReminded() {
-        ["Ce matin aujourd'hui", "Ce soir aujourd'hui", "Fait demain"].forEach(store.add)
+        ["Ce matin aujourd'hui", "Ce soir aujourd'hui", "Fait demain"].forEach { store.add($0) }
         store.complete(store.todos.first { $0.title == "Fait" }!.id)
 
         XCTAssertEqual(reminders(hour: 7), []) // 7 h est passé : il est 8 h

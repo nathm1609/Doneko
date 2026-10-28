@@ -66,10 +66,11 @@ Doneko/
 ├── PLAN-V3.md                   # V3 : iPhone, synchronisation, dossiers
 ├── Shared/                      # compilé dans les deux apps
 │   ├── Models/
-│   │   └── TodoItem.swift       # id, title, createdAt, completedAt?, isPriority, dueDate?, order, updatedAt?, deletedAt?
+│   │   ├── TodoItem.swift       # Syncable ; id, title, createdAt, completedAt?, isPriority, dueDate?, order, folderID?, updatedAt?, deletedAt?
+│   │   └── Folder.swift         # id, name, order, updatedAt?, deletedAt?
 │   ├── Store/
-│   │   ├── TodoStore.swift      # @Observable : add, complete, uncomplete, undo, delete, edit, move, purge, fusion ; dates en français
-│   │   ├── Persistence.swift    # lecture / écriture JSON atomique, lecture sans attendre iCloud, versions en conflit
+│   │   ├── TodoStore.swift      # @Observable : tâches, dossiers, #nom, undo, purge, fusion ; dates en français
+│   │   ├── Persistence.swift    # SavedList { items, folders } en JSON atomique (lit aussi l'ancien tableau), lecture sans attendre iCloud, versions en conflit
 │   │   ├── Clock.swift          # protocole d'horloge injectable (tests de purge)
 │   │   └── SettingsKey.swift    # clés des réglages (UserDefaults)
 │   ├── Views/
@@ -93,6 +94,7 @@ Doneko/
 │   ├── Views/
 │   │   ├── PanelView.swift
 │   │   ├── InputField.swift
+│   │   ├── FolderBar.swift      # « Tout », dossiers, « + » ; clic droit : renommer, déplacer, supprimer
 │   │   ├── TodoRow.swift        # rond « coussinet », animation coup de patte
 │   │   ├── DoneSection.swift    # « Tombé aujourd'hui », titres de section
 │   │   ├── UndoToast.swift
@@ -112,6 +114,7 @@ Doneko/
     ├── TodoStoreTests.swift
     ├── PersistenceTests.swift
     ├── DailyPurgeTests.swift
+    ├── FolderTests.swift        # dossiers, #nom, filtre, suppression avec annulation, sync
     ├── ICloudSyncTests.swift
     ├── MergeTests.swift         # Mac et iPhone sur le même fichier : hors ligne, suppressions, même seconde
     ├── ObsidianExportTests.swift

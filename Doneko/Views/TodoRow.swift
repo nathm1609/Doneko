@@ -13,6 +13,11 @@ struct TodoRow: View {
     let isSelected: Bool
     /// Échéance affichée à droite (section « Plus tard »).
     var showsDueDate = false
+    /// Nom du dossier, discret au bout de la ligne (dans « Tout »).
+    var folderName: String?
+    /// Clic droit › « Ranger dans » : les dossiers, et le choix (`nil` : aucun dossier).
+    var folders: [Folder] = []
+    var onFile: (Folder.ID?) -> Void = { _ in }
     let knockOffRequest: KnockOffRequest?
     /// Appelé une fois l'animation « coup de patte » terminée.
     let onComplete: () -> Void
@@ -89,6 +94,13 @@ struct TodoRow: View {
                         .accessibilityLabel(item.isPriority ? "Prioritaire : \(item.title)" : item.title)
                 }
                 Spacer(minLength: 0)
+                if let folderName {
+                    Text(folderName)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Palette.moustache)
+                        .lineLimit(1)
+                        .accessibilityLabel("Dossier \(folderName)")
+                }
                 if showsDueDate, let dueDate = item.dueDate {
                     Text(dueDate, format: Self.dueDateFormat)
                         .font(Theme.Typography.caption)
@@ -107,6 +119,16 @@ struct TodoRow: View {
         .onTapGesture(count: 2, perform: startEditing)
         .accessibilityAction(named: "Modifier", startEditing)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .contextMenu {
+            if !folders.isEmpty {
+                Picker("Ranger dans", selection: Binding(get: { item.folderID }, set: onFile)) {
+                    Text("Aucun dossier").tag(Folder.ID?.none)
+                    ForEach(folders) { folder in
+                        Text(folder.name).tag(Folder.ID?.some(folder.id))
+                    }
+                }
+            }
+        }
     }
 
     /// Patte rousse qui entre par le bord gauche de la ligne, se pose sur le rond et pousse la tâche hors de la table.

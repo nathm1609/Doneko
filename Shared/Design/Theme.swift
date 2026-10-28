@@ -17,8 +17,12 @@ enum Theme {
     enum Layout {
         static let panelWidth: CGFloat = 320
         static let panelMaxHeight: CGFloat = 480
-        /// Zone des tâches : le panneau (480) moins le champ, les marges et la barre basse.
-        static let listMaxHeight: CGFloat = 380
+        /// Zone des tâches : le panneau (480) moins le champ, la barre de dossiers, les marges et la barre basse.
+        static let listMaxHeight: CGFloat = 344
+        /// Barre de dossiers : pastilles arrondies (« Tout », un dossier, « + »), et largeur du champ de nom.
+        static let folderChipHeight: CGFloat = 24
+        static let folderChipPadding: CGFloat = 10
+        static let folderNameWidth: CGFloat = 96
         static let panelCornerRadius: CGFloat = 14
         /// Espace entre la barre de menu (ou le bord de l'écran) et le panneau.
         static let panelScreenGap: CGFloat = 4
