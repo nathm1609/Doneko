@@ -26,8 +26,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         UserDefaults.standard.register(defaults: [SettingsKey.showCounter: true, SettingsKey.reminderHour: 9])
         let store = TodoStore(persistence: ICloudSync.persistence())
         let menuBar = MenuBarController(store: store)
-        dailyPurge = DailyPurge(store: store)
+        // L'export d'abord : il reprend les tâches faites ailleurs avant que la purge les efface.
         obsidianExport = ObsidianExport(store: store)
+        dailyPurge = DailyPurge(store: store)
         reminders = Reminders(store: store, onOpen: { menuBar.show() })
         iCloudSync = ICloudSync(store: store)
         self.menuBar = menuBar

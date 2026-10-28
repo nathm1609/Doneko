@@ -3,7 +3,8 @@ import Observation
 import UserNotifications
 
 /// Rappels des échéances : une notification par tâche datée, le jour venu à l'heure choisie dans les réglages.
-/// Une tâche qui tombe, change de date ou disparaît voit son rappel suivre. Clic sur un rappel : le panneau s'ouvre.
+/// Une tâche qui tombe, change de date ou disparaît voit son rappel suivre. Clic sur un rappel : le panneau s'ouvre
+/// (Mac) ou l'app (iPhone). Les deux appareils rappellent chacun de leur côté, à l'heure réglée sur chacun.
 /// Toujours utilisé sur le fil principal (l'observation et l'autorisation y renvoient), d'où `@unchecked Sendable`.
 final class Reminders: NSObject, UNUserNotificationCenterDelegate, @unchecked Sendable {
     struct Reminder: Equatable {
@@ -14,6 +15,9 @@ final class Reminders: NSObject, UNUserNotificationCenterDelegate, @unchecked Se
 
     /// Rappels à programmer : tâches à faire avec une échéance, à `hour` heures ce jour-là, s'il n'est pas déjà passé.
     /// `hour` négatif : pas de rappel.
+    /// Une seule demande d'autorisation par app : elle couvre aussi la pastille de l'icône de l'iPhone.
+    static let permissions: UNAuthorizationOptions = [.alert, .sound, .badge]
+
     static func reminders(for todos: [TodoItem], hour: Int, now: Date, calendar: Calendar) -> [Reminder] {
         guard hour >= 0 else { return [] }
         return todos.compactMap { item in
@@ -80,7 +84,7 @@ final class Reminders: NSObject, UNUserNotificationCenterDelegate, @unchecked Se
         // Autorisation demandée à la première tâche datée seulement ; une fois accordée, on reprogramme.
         guard !wanted.isEmpty, !hasAskedPermission else { return }
         hasAskedPermission = true
-        center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
+        center.requestAuthorization(options: Self.permissions) { granted, _ in
             guard granted else { return }
             DispatchQueue.main.async {
                 self.scheduled = []
@@ -89,7 +93,7 @@ final class Reminders: NSObject, UNUserNotificationCenterDelegate, @unchecked Se
         }
     }
 
-    /// Rappel affiché même quand une fenêtre de Doneko est au premier plan (réglages).
+    /// Rappel affiché même quand Doneko est au premier plan (fenêtre des réglages sur le Mac, app sur l'iPhone).
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.banner, .list, .sound])

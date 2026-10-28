@@ -73,6 +73,8 @@ Doneko/
 │   │   ├── Persistence.swift    # SavedList { items, folders } en JSON atomique (lit aussi l'ancien tableau), lecture sans attendre iCloud, versions en conflit
 │   │   ├── Clock.swift          # protocole d'horloge injectable (tests de purge)
 │   │   └── SettingsKey.swift    # clés des réglages (UserDefaults)
+│   ├── Services/
+│   │   └── Reminders.swift      # notification le jour de l'échéance, à l'heure choisie (Mac et iPhone)
 │   ├── Views/
 │   │   ├── EmptyState.swift     # mascotte endormie ou contente
 │   │   ├── PawPad.swift         # rond « coussinet » (16 pt sur Mac, 22 pt sur iPhone)
@@ -82,16 +84,20 @@ Doneko/
 │   └── Resources/
 │       └── Shared.xcassets      # couleurs nommées, mascottes, patte
 ├── DonekoiOS/                   # app iPhone
-│   ├── DonekoiOSApp.swift       # point d'entrée, store
+│   ├── DonekoiOSApp.swift       # point d'entrée : store, synchronisation, purge, rappels, pastille
 │   ├── Info.plist
 │   ├── Views/
-│   │   ├── TodoListView.swift   # sections, « Tombé aujourd'hui », toast, dossiers et saisie en bas, synchronisation
+│   │   ├── TodoListView.swift   # sections, « Tombé aujourd'hui », toast, dossiers et saisie en bas, bouton ⚙︎
 │   │   ├── TodoRow.swift        # coup de patte, modifier au toucher, balayer, appui long (Prioritaire, Ranger dans)
-│   │   └── FolderBar.swift      # « Tout », dossiers, « + » ; appui long : renommer, déplacer, supprimer
+│   │   ├── FolderBar.swift      # « Tout », dossiers, « + » ; appui long : renommer, déplacer, supprimer
+│   │   └── SettingsView.swift   # synchronisation, heure de vidage, rappels, son, pastille
 │   ├── Services/
-│   │   └── FolderSync.swift     # dossier iCloud Drive › Doneko choisi dans Fichiers (signet), relu toutes les 5 s
+│   │   ├── FolderSync.swift     # dossier iCloud Drive › Doneko choisi dans Fichiers (signet), relu toutes les 5 s
+│   │   ├── DailyPurge.swift     # vide « Tombé aujourd'hui », ou le masque seulement si la liste est partagée avec le Mac
+│   │   └── Badge.swift          # nombre de tâches du jour sur l'icône
 │   └── Resources/
-│       └── Assets.xcassets      # AppIcon iOS (taille unique 1024)
+│       ├── Assets.xcassets      # AppIcon iOS (taille unique 1024)
+│       └── Pop.wav              # « pop » feutré, généré par Artwork/make-pop.py
 ├── Doneko/                      # app Mac
 │   ├── DonekoApp.swift          # point d'entrée, AppDelegate (store, purge, raccourci ⌃⌥⌘D)
 │   ├── Info.plist               # LSUIElement = YES
@@ -109,8 +115,7 @@ Doneko/
 │   │   ├── LaunchAtLogin.swift
 │   │   ├── DailyPurge.swift
 │   │   ├── ICloudSync.swift     # liste dans iCloud Drive, fusionnée quand un autre appareil la change
-│   │   ├── ObsidianExport.swift # note du jour AAAA-MM-JJ.md, section « Fait avec Doneko »
-│   │   └── Reminders.swift      # notification le jour de l'échéance, à l'heure choisie
+│   │   └── ObsidianExport.swift # note du jour AAAA-MM-JJ.md, section « Fait avec Doneko » ; créé avant la purge
 │   └── Resources/
 │       └── Assets.xcassets      # icônes MenuIcon* de la barre de menu, AppIcon Mac
 └── DonekoTests/

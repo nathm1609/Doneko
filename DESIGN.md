@@ -131,7 +131,7 @@ Les autres icônes utilisent les SF Symbols, en version arrondie quand elle exis
 
 ## Écran iPhone
 
-- Un seul écran en portrait, fond Crème. De haut en bas : le nuage de synchronisation (Moustache) à droite ;
+- Un seul écran en portrait, fond Crème. De haut en bas : le bouton ⚙︎ des réglages (Moustache) à droite ;
   « Aujourd'hui », « Plus tard », « Tombé aujourd'hui » repliable ; puis, à portée de pouce et au-dessus du clavier,
   le toast d'annulation, la barre de dossiers et le champ de saisie (fond Coussin, coins 8 pt).
 - Tailles qui suivent Dynamic Type : tâches et champ en Body ; titres de section en Footnote semi-gras, en capitales ;
@@ -146,6 +146,9 @@ Les autres icônes utilisent les SF Symbols, en version arrondie quand elle exis
   - appui long : « Prioritaire », « Ranger dans », « Supprimer » ; appui long puis glisser : changer de place ;
   - appui long sur un dossier : le menu du Mac, avec icônes ; un nom de dossier se tape dans une alerte ;
   - tirer la liste vers le bas : relire la liste partagée avec le Mac.
+- Bouton ⚙︎ (Moustache) en haut à droite : « Réglages » en feuille. La synchronisation avec le Mac s'y règle.
+- Pastille rouge du système sur l'icône : le nombre de tâches du jour, comme le compteur de la barre de menu.
+- « Pop » feutré optionnel (désactivé par défaut) : son propre à l'app (`Artwork/make-pop.py`), muet en silencieux.
 - Liste entièrement vide : la mascotte au milieu de l'écran ; sinon à la place des tâches du jour, comme sur le Mac.
 
 ---
@@ -212,6 +215,9 @@ Tutoiement, phrases courtes, une pointe d'humour félin, jamais de jeu de mots f
 | Balayer une tâche vers la gauche (iPhone) | Supprimer |
 | Nouveau dossier (iPhone, alerte) | Nouveau dossier · Nom du dossier · Annuler · Créer |
 | Renommer un dossier (iPhone, alerte) | Renommer le dossier · Annuler · Renommer |
+| Réglages (iPhone) | Synchronisation avec le Mac · Dossier · Arrêter la synchronisation · Choisir le dossier Doneko… |
+| | Vider « Tombé aujourd'hui » à · Rappeler les tâches datées à · Petit « pop » quand une tâche tombe · Afficher le nombre de tâches sur l'icône |
+| Rappel | (titre de la tâche) — C'est pour aujourd'hui. |
 | Info-bulle de l'icône | Doneko — 3 tâches sur la table |
 | Réglages | Raccourci pour appeler Doneko |
 | Quitter | Laisser Doneko dormir (Quitter) |

@@ -41,6 +41,18 @@ final class DailyPurgeTests: XCTestCase {
         XCTAssertEqual(store.todos.map(\.title), ["À faire"])
     }
 
+    func testHideDoneMasksYesterdayButKeepsItForTheMac() {
+        addDone("Hier")
+        clock.current += day
+        addDone("Aujourd'hui")
+
+        store.hideDone(atHour: 0)
+
+        XCTAssertEqual(store.done.map(\.title), ["Aujourd'hui"])
+        // Toujours dans la liste enregistrée : le Mac l'exportera dans Obsidian, puis la videra.
+        XCTAssertEqual(Set(store.items.map(\.title)), ["Hier", "Aujourd'hui"])
+    }
+
     func testDoneJustBeforeMidnightIsPurgedRightAfter() {
         clock.current += 16 * hour - 1 // 23:59:59
         addDone("Tard")

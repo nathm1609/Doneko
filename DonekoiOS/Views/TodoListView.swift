@@ -1,7 +1,6 @@
 import SwiftUI
-import UniformTypeIdentifiers
 
-/// Écran principal : en haut, le bouton de synchronisation avec le Mac ; puis « Aujourd'hui », « Plus tard » et
+/// Écran principal : en haut, le bouton des réglages ; puis « Aujourd'hui », « Plus tard » et
 /// « Tombé aujourd'hui » ; en bas, au-dessus du clavier, le toast d'annulation, la barre de dossiers et la saisie.
 struct TodoListView: View {
     let store: TodoStore
@@ -12,8 +11,7 @@ struct TodoListView: View {
     @AppStorage("doneSectionExpanded") private var isDoneExpanded = true
     @State private var text = ""
     @State private var toast: Toast?
-    @State private var isPickingFolder = false
-    @State private var isFolderRefused = false
+    @State private var isShowingSettings = false
     @FocusState private var isInputFocused: Bool
 
     var body: some View {
@@ -51,7 +49,7 @@ struct TodoListView: View {
                 EmptyState(allDone: false, font: Theme.Typography.touchCaption)
             }
         }
-        .safeAreaInset(edge: .top) { syncBar }
+        .safeAreaInset(edge: .top) { topBar }
         .safeAreaInset(edge: .bottom, spacing: 0) { bottomBar }
         .background(Theme.Palette.creme)
         .fontDesign(.rounded)
@@ -60,14 +58,7 @@ struct TodoListView: View {
             try? await Task.sleep(for: .seconds(Theme.Motion.undoToastDuration))
             withAnimation(motion(.easeOut(duration: Theme.Motion.reducedMotionFade))) { toast = nil }
         }
-        .fileImporter(isPresented: $isPickingFolder, allowedContentTypes: [.folder]) { result in
-            if case .success(let folder) = result, !sync.attach(folder) { isFolderRefused = true }
-        }
-        .alert("Ce dossier ne peut pas être utilisé", isPresented: $isFolderRefused) {
-            Button("OK") {}
-        } message: {
-            Text("Choisis le dossier Doneko dans iCloud Drive.")
-        }
+        .sheet(isPresented: $isShowingSettings) { SettingsView(sync: sync) }
     }
 
     /// Dossier choisi dans la barre, mémorisé sur cet iPhone ; supprimé entre-temps (ou « Tout ») : `nil`.
@@ -166,32 +157,19 @@ struct TodoListView: View {
         }
     }
 
-    private var syncBar: some View {
+    /// La synchronisation avec le Mac se règle dans « Réglages ».
+    private var topBar: some View {
         HStack {
             Spacer()
-            if let name = sync.folderName {
-                Menu {
-                    Text("Synchronisé avec « \(name) »")
-                    Button("Arrêter la synchronisation") { sync.detach() }
-                } label: {
-                    syncIcon("checkmark.icloud")
-                }
-                .accessibilityLabel("Synchronisé avec « \(name) »")
-            } else {
-                Button { isPickingFolder = true } label: {
-                    syncIcon("icloud")
-                }
-                .accessibilityLabel("Synchroniser avec le Mac")
+            Button { isShowingSettings = true } label: {
+                Image(systemName: "gearshape")
+                    .foregroundStyle(Theme.Palette.moustache)
+                    .frame(width: Theme.Layout.touchTarget, height: Theme.Layout.touchTarget)
             }
+            .accessibilityLabel("Réglages")
         }
         .padding(.horizontal, Theme.Layout.panelPadding)
         .background(Theme.Palette.creme)
-    }
-
-    private func syncIcon(_ name: String) -> some View {
-        Image(systemName: name)
-            .foregroundStyle(Theme.Palette.moustache)
-            .frame(width: Theme.Layout.touchTarget, height: Theme.Layout.touchTarget)
     }
 
     /// À portée de pouce : le toast, les dossiers (où ira la tâche tapée), puis le champ.

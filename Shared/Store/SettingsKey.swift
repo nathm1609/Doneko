@@ -6,6 +6,8 @@ enum SettingsKey {
     static let soundEnabled = "soundEnabled"
     /// Compteur de tâches à côté de l'icône (affiché par défaut).
     static let showCounter = "showCounter"
+    /// iPhone : nombre de tâches du jour en pastille sur l'icône (affiché par défaut).
+    static let showBadge = "showBadge"
     /// Chemin du dossier Obsidian où exporter les tâches faites (vide = pas d'export).
     static let obsidianFolder = "obsidianFolder"
     /// Heure (0 à 23) du rappel des tâches datées, le jour venu (9 h par défaut). -1 = jamais.

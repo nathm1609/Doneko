@@ -100,6 +100,21 @@ final class ObsidianExportTests: XCTestCase {
         XCTAssertEqual(try String(contentsOf: note, encoding: .utf8), "## Fait avec Doneko\n- [x] A\n")
     }
 
+    func testTasksAlreadyDoneAtLaunchAreExportedBeforeThePurge() throws {
+        // Tombée sur l'iPhone hier soir, pendant que Doneko était quitté sur le Mac.
+        store.add("Sur l'iPhone")
+        store.complete(store.todos[0].id)
+        clock.current += 24 * 3600
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+
+        // Au lancement du Mac : l'export d'abord, puis la purge quotidienne.
+        export = ObsidianExport(store: store, defaults: defaults, calendar: calendar)
+        store.purgeDone()
+
+        XCTAssertEqual(try String(contentsOf: note, encoding: .utf8), "## Fait avec Doneko\n- [x] Sur l'iPhone\n")
+    }
+
     func testNothingIsWrittenWithoutFolder() {
         defaults.removeObject(forKey: SettingsKey.obsidianFolder)
         complete("A")

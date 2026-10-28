@@ -19,6 +19,8 @@ final class TodoStore {
     @ObservationIgnored private var persistence: Persistence?
     /// Début du jour en cours : sépare « Aujourd'hui » de « Plus tard ». Avancé par `refreshDay()`.
     private(set) var currentDay: Date
+    /// Les tâches faites avant sont masquées (`hideDone`), pas effacées.
+    private(set) var doneSince = Date.distantPast
 
     private enum Undo {
         /// Version précédente d'une tâche touchée par complete / delete / edit / file.
@@ -63,7 +65,7 @@ final class TodoStore {
     func later(in folder: Folder.ID?) -> [TodoItem] { todos(in: folder).filter(isLater) }
 
     func done(in folder: Folder.ID?) -> [TodoItem] {
-        items.filter { $0.completedAt != nil && isIn(folder, $0) }
+        items.filter { ($0.completedAt.map { $0 >= doneSince } ?? false) && isIn(folder, $0) }
             .sorted { ($0.completedAt ?? .distantPast) > ($1.completedAt ?? .distantPast) }
     }
 
@@ -382,9 +384,7 @@ final class TodoStore {
     /// Vide « Tombé aujourd'hui » : retire les tâches faites avant le dernier passage de l'heure de purge
     /// (minuit par défaut, réglable), et oublie les suppressions de plus de 30 jours.
     func purgeDone(atHour hour: Int = 0) {
-        let now = clock.now()
-        var boundary = calendar.date(bySettingHour: hour, minute: 0, second: 0, of: now) ?? calendar.startOfDay(for: now)
-        if boundary > now { boundary = calendar.date(byAdding: .day, value: -1, to: boundary) ?? boundary }
+        let boundary = purgeBoundary(atHour: hour)
         let purged = items.filter { ($0.completedAt ?? .distantFuture) < boundary }
         guard !purged.isEmpty || tombstones.contains(where: { isForgotten($0) })
                 || buriedFolders.contains(where: { isForgotten($0) }) else { return }
@@ -399,6 +399,21 @@ final class TodoStore {
             return false
         }
         save()
+    }
+
+    /// iPhone synchronisé avec le Mac : vide « Tombé aujourd'hui » à l'écran seulement. Les tâches faites avant le
+    /// dernier passage de l'heure de purge restent dans le fichier, pour que le Mac les exporte dans Obsidian avant de
+    /// les effacer avec `purgeDone`.
+    func hideDone(atHour hour: Int = 0) {
+        let boundary = purgeBoundary(atHour: hour)
+        if boundary != doneSince { doneSince = boundary }
+    }
+
+    /// Dernier passage de l'heure de purge (minuit par défaut) : début de la journée de « Tombé aujourd'hui ».
+    private func purgeBoundary(atHour hour: Int) -> Date {
+        let now = clock.now()
+        let boundary = calendar.date(bySettingHour: hour, minute: 0, second: 0, of: now) ?? calendar.startOfDay(for: now)
+        return boundary > now ? calendar.date(byAdding: .day, value: -1, to: boundary) ?? boundary : boundary
     }
 
     /// Ce que l'autre appareil a écrit depuis notre dernière lecture est d'abord fusionné, jamais écrasé.

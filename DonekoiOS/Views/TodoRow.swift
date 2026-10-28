@@ -1,3 +1,4 @@
+import AVFoundation
 import SwiftUI
 
 /// Une tâche sur l'iPhone. Toucher le rond : coup de patte. Toucher le texte : modifier. Balayer vers la gauche :
@@ -25,6 +26,7 @@ struct TodoRow: View {
     }
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage(SettingsKey.soundEnabled) private var soundEnabled = false
     @State private var phase = Phase.idle
     @State private var isEditing = false
     @State private var draft = ""
@@ -151,6 +153,7 @@ struct TodoRow: View {
 
     private func knockOff() {
         guard phase == .idle, !isEditing else { return }
+        if soundEnabled { Self.pop?.play() }
 
         if reduceMotion {
             withAnimation(.easeOut(duration: Theme.Motion.reducedMotionFade)) {
@@ -180,6 +183,16 @@ struct TodoRow: View {
     private static let dueDateFormat = Date.FormatStyle.dateTime
         .weekday(.abbreviated).day().month(.abbreviated)
         .locale(Locale(identifier: "fr_FR"))
+
+    /// « Pop » feutré (réglage, désactivé par défaut), muet quand l'iPhone est en silencieux.
+    private static let pop: AVAudioPlayer? = {
+        try? AVAudioSession.sharedInstance().setCategory(.ambient)
+        guard let url = Bundle.main.url(forResource: "Pop", withExtension: "wav"),
+              let player = try? AVAudioPlayer(contentsOf: url) else { return nil }
+        player.volume = Theme.Sound.popVolume
+        player.prepareToPlay()
+        return player
+    }()
 
     private func startEditing() {
         guard !isEditing, phase == .idle else { return }
