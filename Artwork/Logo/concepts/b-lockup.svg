@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1012 256" width="1012" height="256">
+<title>Doneko</title>
+<g transform="translate(0 -10)"><path fill="#000" fill-rule="evenodd" d="M40 164C38 136 46 118 58 108L56 74Q56 58 70 66L104.6 86Q128 80 151.4 86L186 66Q200 58 200 74L198 108C210 118 218 136 216 164ZM82 130A18 18 0 1 0 118 130A18 18 0 1 0 82 130ZM99 128A8 8 0 1 0 115 128A8 8 0 1 0 99 128ZM138 130A18 18 0 1 0 174 130A18 18 0 1 0 138 130ZM155 128A8 8 0 1 0 171 128A8 8 0 1 0 155 128Z"/>
+<rect x="16" y="176" width="224" height="32" rx="16" fill="#000"/></g>
+<g transform="translate(288 0)"><path fill="none" stroke="#000" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" d="M24 148A40 40 0 1 0 104 148A40 40 0 1 0 24 148ZM104 68V188M144 148A40 40 0 1 0 224 148A40 40 0 1 0 144 148ZM266 108V188M266 148A40 40 0 0 1 346 148V188M388 148H468A40 40 0 1 0 456.3 176.3M508 68V188M566 108L510 156M530 142L568 188M608 148A40 40 0 1 0 688 148A40 40 0 1 0 608 148Z"/></g>
+</svg>

@@ -1,0 +1,40 @@
+{
+  "brand": "Doneko",
+  "tagline": "Fais tomber tes tâches",
+  "brief": "Une petite app de to-do dans la barre de menu du Mac (et sur l'iPhone). Sa mascotte, un chat roux, fait tomber les tâches faites comme un chat pousse un objet du bord de la table. Le logo doit garder ce chat, dire « fait » d'un coup d'œil, et rester lisible à 16 px dans la barre de menu.",
+  "adjectives": ["léger", "malicieux", "doux"],
+  "criteria": "Garde la tête de chat déjà connue, dit done + neko en un signe, lisible à 16 px, fonctionne en une couleur et en mode sombre.",
+  "industry": "software",
+  "mockups": ["readme", "app-icon", "favicon-tab", "sticker", "social", "tshirt"],
+  "brand_color": "#FF8A3D",
+  "tile_color": "#1F1B24",
+  "greyscale": false,
+  "final": true,
+  "designer": "Doneko",
+  "concepts": [
+    {
+      "name": "Le clin d'œil",
+      "symbol": "../doneko-symbol-color.svg",
+      "lockup": "../doneko-horizontal-color.svg",
+      "stacked": "../doneko-stacked-color.svg",
+      "symbol_on_tile": "../doneko-symbol-color-dark.svg",
+      "stacked_on_tile": "../doneko-stacked-color-dark.svg",
+      "symbol_on_dark": "../doneko-symbol-color-dark.svg",
+      "lockup_on_dark": "../doneko-horizontal-color-dark.svg",
+      "stacked_on_dark": "../doneko-stacked-color-dark.svg",
+      "idea": "Doneko fait un clin d'œil, et son œil fermé est une coche.",
+      "rationale": [
+        "Done + neko en un seul signe : la coche et le chat",
+        "Le clin d'œil porte le côté malicieux sans détail en plus",
+        "Même silhouette que l'icône de la barre de menu : rien à réapprendre",
+        "Une version simplifiée garde la coche lisible à 16 px"
+      ]
+    }
+  ],
+  "recommendation": "Le clin d'œil : la tête de chat déjà connue, avec une coche à la place d'un œil.",
+  "next_steps": [
+    "Mettre le logo en tête du README (versions claire et sombre)",
+    "Image d'aperçu du dépôt GitHub (exports/doneko-social.png)",
+    "Décider si l'icône de la barre de menu passe au style plein"
+  ]
+}

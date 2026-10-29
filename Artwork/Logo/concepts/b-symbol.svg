@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+<title>Doneko</title>
+<g transform="translate(0 -10)"><path fill="#000" fill-rule="evenodd" d="M40 164C38 136 46 118 58 108L56 74Q56 58 70 66L104.6 86Q128 80 151.4 86L186 66Q200 58 200 74L198 108C210 118 218 136 216 164ZM82 130A18 18 0 1 0 118 130A18 18 0 1 0 82 130ZM99 128A8 8 0 1 0 115 128A8 8 0 1 0 99 128ZM138 130A18 18 0 1 0 174 130A18 18 0 1 0 138 130ZM155 128A8 8 0 1 0 171 128A8 8 0 1 0 155 128Z"/>
+<rect x="16" y="176" width="224" height="32" rx="16" fill="#000"/></g>
+</svg>
