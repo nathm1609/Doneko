@@ -76,14 +76,17 @@ Doneko/
 │   ├── Services/
 │   │   └── Reminders.swift      # notification le jour de l'échéance, à l'heure choisie (Mac et iPhone)
 │   ├── Views/
-│   │   ├── EmptyState.swift     # mascotte endormie ou contente
+│   │   ├── EmptyState.swift     # mascotte endormie (vidéo de la sieste) ou contente
+│   │   ├── LoopingVideo.swift   # vidéo en boucle avec transparence, lue seulement quand on la voit
+│   │   ├── PawPush.swift        # patte du coup de patte, image par image
 │   │   ├── PawPad.swift         # rond « coussinet » (16 pt sur Mac, 22 pt sur iPhone)
 │   │   ├── DueDatePicker.swift  # calendrier « Pour quand ? », format « Ven. 25 déc. »
 │   │   └── UndoToast.swift      # « … · Annuler »
 │   ├── Design/
 │   │   └── Theme.swift          # couleurs, tailles, durées d'animation issues de DESIGN.md
 │   └── Resources/
-│       └── Shared.xcassets      # couleurs nommées, mascottes, patte
+│       ├── Shared.xcassets      # couleurs nommées, mascottes, images de la patte (PawPush00…)
+│       └── MascotNap.mov        # sieste en boucle (HEVC avec transparence), faite par Artwork/make-animations.swift
 ├── DonekoiOS/                   # app iPhone
 │   ├── DonekoiOSApp.swift       # point d'entrée : store, synchronisation, purge, rappels, pastille
 │   ├── Info.plist
@@ -138,6 +141,7 @@ Doneko/
 - Lancer : `open build/Build/Products/Debug/Doneko.app`
 - Relancer après modification : `pkill -x Doneko; open build/Build/Products/Debug/Doneko.app`
 - DMG pour une release GitHub : `./make-dmg.sh` → `build/Doneko.dmg`
+- Animations vidéo (sieste, patte), après avoir changé `Artwork/Videos/*.mp4` : `swift -O Artwork/make-animations.swift`
 - Compiler l'app iPhone (simulateur) :
   `xcodebuild -project Doneko.xcodeproj -scheme DonekoiOS -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -derivedDataPath build build`
 - Lancer dans le simulateur : `build/Build/Products/Debug-iphonesimulator/DonekoiOS.app`

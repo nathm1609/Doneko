@@ -31,10 +31,10 @@ enum Theme {
         static let rowHeight: CGFloat = 32
         /// iPhone : zone de toucher minimale d'un élément (recommandation Apple).
         static let touchTarget: CGFloat = 44
-        /// iPhone : rond plus grand, centré dans sa zone de toucher, et patte à sa mesure (même image, 337 × 128).
+        /// iPhone : rond plus grand, centré dans sa zone de toucher, et patte à sa mesure (mêmes images, 424 × 160).
         static let touchPawPadDiameter: CGFloat = 22
         static let touchPawHeight: CGFloat = 26
-        static let touchPawWidth: CGFloat = 68
+        static let touchPawWidth: CGFloat = 69
         static let touchPawReach: CGFloat = 36
         /// iPhone : pastilles de la barre de dossiers.
         static let touchChipHeight: CGFloat = 32
@@ -51,12 +51,13 @@ enum Theme {
         static let focusRingWidth: CGFloat = 2
         /// Illustration de la mascotte (endormie ou contente) quand la liste est vide.
         static let mascotSize: CGFloat = 96
-        /// Patte qui pousse la tâche hors de la table (image Paw, 337 × 128) : elle entre par le bord gauche de la ligne,
-        /// se pose sur le rond, puis pousse encore un peu pendant la chute.
+        /// Patte qui pousse la tâche hors de la table (images PawPush, 424 × 160) : elle entre par le bord gauche de la
+        /// ligne et son bout se pose sur le rond, à `pawReach` du bord, puis pousse pendant la chute.
         static let pawHeight: CGFloat = 20
         static let pawWidth: CGFloat = 53
         static let pawReach: CGFloat = 26
-        static let pawPush: CGFloat = 10
+        /// Bout de la patte posée, en part de la largeur des images (donné par Artwork/make-animations.swift).
+        static let pawRestTip: CGFloat = 0.639
         /// Point Sakura devant une tâche prioritaire (« ! » en fin de saisie).
         static let priorityDotSize: CGFloat = 6
         /// iPhone : feuille « Pour quand ? », juste assez haute pour le calendrier.
@@ -91,7 +92,8 @@ enum Theme {
     /// Durées en secondes.
     enum Motion {
         static let checkFill = 0.12
-        static let pawSlide = 0.15
+        /// Images de la patte par seconde : l'entrée et le petit recul durent 0,27 s, la poussée accompagne la chute.
+        static let pawFrameRate = 30.0
         static let fall = 0.30
         static let fallRotation = Angle.degrees(8)
         static let fallDistance: CGFloat = 80
@@ -104,11 +106,10 @@ enum Theme {
         static let swipeFade = 0.5
         static let reducedMotionFade = 0.15
         static let undoToastDuration = 5.0
+        /// Mascotte contente : balancement de la tête d'un côté à l'autre, au rythme d'une respiration lente.
+        /// (Endormie, elle respire dans sa vidéo, MascotNap.)
         static let breathePeriod = 3.0
-        static let breatheScale: CGFloat = 1.03
-        /// Balancement de la tête au rythme de la respiration (d'un côté à l'autre), plus ample quand elle est contente.
         static let mascotSwayContent = Angle.degrees(3)
-        static let mascotSwayAsleep = Angle.degrees(1.5)
         /// Tête de chat de la barre de menu : petit saut quand une tâche arrive, coup de tête quand une tâche part.
         static let iconReaction = 0.4
         static let iconHopLift: CGFloat = 2
@@ -126,12 +127,8 @@ enum Theme {
         static let mascotLanding = 0.45
         static let mascotWiggleAngle = Angle.degrees(6)
         static let mascotBounce = 0.6
-        /// Images-clés de la mascotte (oreille, bâillement, joie) : fondu d'entrée et de sortie, puis durée affichée.
+        /// Image-clé de la joie, le temps du saut : fondu d'entrée et de sortie, puis durée affichée.
         static let mascotPoseFade = 0.12
-        static let mascotEarTwitch = 0.4
-        static let mascotYawn = 1.6
         static let mascotCheer = 0.9
-        /// Pendant la sieste, intervalle entre deux petits mouvements.
-        static let mascotNapEvery = 7.0...14.0
     }
 }

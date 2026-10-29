@@ -37,6 +37,8 @@ struct TodoRow: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage(SettingsKey.soundEnabled) private var soundEnabled = false
     @State private var phase = Phase.idle
+    /// Début du geste de la patte (images PawPush), au moment où elle entre.
+    @State private var pawStart: Date?
     @State private var isHovered = false
     @State private var isPadHovered = false
     @State private var isEditing = false
@@ -50,8 +52,8 @@ struct TodoRow: View {
                 .rotationEffect(phase == .falling && !reduceMotion ? Theme.Motion.fallRotation : .zero, anchor: .leading)
                 .opacity(phase == .falling ? 0 : 1)
 
-            if !reduceMotion {
-                paw
+            if let pawStart {
+                paw(from: pawStart)
             }
         }
         .onChange(of: knockOffRequest) { _, request in
@@ -134,23 +136,14 @@ struct TodoRow: View {
         }
     }
 
-    /// Patte rousse qui entre par le bord gauche de la ligne, se pose sur le rond et pousse la tâche hors de la table.
-    private var paw: some View {
-        Image("Paw")
-            .resizable()
+    /// Patte rousse qui entre par le bord gauche de la ligne (la liste coupe ce qui dépasse), se pose sur le rond, recule
+    /// un peu et pousse la tâche hors de la table, en s'effaçant pendant la chute.
+    private func paw(from start: Date) -> some View {
+        PawPush(start: start)
             .frame(width: Theme.Layout.pawWidth, height: Theme.Layout.pawHeight)
-            .offset(x: pawOffset)
-            .opacity(phase == .pawed ? 1 : 0)
+            .offset(x: Theme.Layout.pawReach - Theme.Layout.pawWidth * Theme.Layout.pawRestTip)
+            .opacity(phase == .falling ? 0 : 1)
             .accessibilityHidden(true)
-    }
-
-    /// Cachée à gauche de la ligne (la liste coupe ce qui dépasse), posée sur le rond, puis poussant avec la chute.
-    private var pawOffset: CGFloat {
-        switch phase {
-        case .idle, .checked: -Theme.Layout.pawWidth
-        case .pawed: Theme.Layout.pawReach - Theme.Layout.pawWidth
-        case .falling: Theme.Layout.pawReach + Theme.Layout.pawPush - Theme.Layout.pawWidth
-        }
     }
 
     private func knockOff() {
@@ -170,9 +163,10 @@ struct TodoRow: View {
         withAnimation(.easeOut(duration: Theme.Motion.checkFill)) {
             phase = .checked
         } completion: {
-            withAnimation(.easeOut(duration: Theme.Motion.pawSlide)) {
-                phase = .pawed
-            } completion: {
+            phase = .pawed
+            pawStart = .now
+            Task {
+                try? await Task.sleep(for: .seconds(PawPush.entryDuration))
                 withAnimation(.spring(duration: Theme.Motion.fall, bounce: Theme.Motion.springBounce)) {
                     phase = .falling
                 } completion: {

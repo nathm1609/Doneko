@@ -64,7 +64,7 @@ iCloud Drive.
 **Un chat qui vit**
 - La tête de chat de la barre de menu saute quand une tâche arrive, donne un coup de patte quand elle tombe, cligne
   des yeux et s'endort quand il n'y a plus rien à faire aujourd'hui.
-- Dans le panneau vide, le chat fait la sieste (oreille qui remue, bâillements) ou saute de joie quand tout est fait.
+- Dans le panneau vide, le chat fait la sieste (il respire, ses « z » montent) ou saute de joie quand tout est fait.
 
 **Avec le reste du Mac**
 - **Rappels** : une notification le jour de l'échéance, à l'heure choisie.

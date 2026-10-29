@@ -30,10 +30,13 @@ Ses états, utilisés dans l'icône de la barre de menu et les écrans vides :
 
 Dans le panneau vide, les états **Endormi** et **Content** sont des illustrations en couleur (96 pt), dans le style de
 l'icône de l'app : `Artwork/MascotAsleep.webp` et `Artwork/MascotContent.webp`, générées avec Gemini sur fond magenta
-uni, détourées par `swift Artwork/make-mascots.swift`. Leurs images-clés d'animation sont des retouches Gemini
-(Nano Banana Pro) des mêmes têtes : `MascotAsleepEar` (oreille repliée), `MascotYawn` (bâillement), `MascotCheer`
-(joie, bouche ouverte). Le script les recale sur la mascotte endormie (largeur aux joues, bas du collier) pour qu'on
-passe de l'une à l'autre sans que la tête bouge. La barre de menu garde des icônes monochromes (template).
+uni, détourées par `swift Artwork/make-mascots.swift`. L'image-clé du saut de joie, `MascotCheer` (bouche ouverte), est
+une retouche Gemini (Nano Banana Pro) de la mascotte contente, recalée sur elle (largeur aux joues, bas du collier) pour
+qu'on passe de l'une à l'autre sans que la tête bouge.
+La sieste est une vidéo en boucle : `Artwork/Videos/MascotNap.mp4`, générée avec Veo (Google Flow) sur fond magenta,
+détourée et bouclée par `swift -O Artwork/make-animations.swift` en `MascotNap.mov` (HEVC avec transparence, 320 px).
+L'image fixe `MascotAsleep` la remplace quand on réduit les animations. La barre de menu garde des icônes monochromes
+(template).
 
 ---
 
@@ -175,8 +178,9 @@ L'animation de complétion est la signature de l'app. Tout le reste reste sobre.
 
 **Le coup de patte (complétion)**
 1. La coche se remplit en Matcha (120 ms).
-2. Une patte rousse (illustration `Artwork/Paw.png`, 20 pt de haut) entre par le bord gauche de la ligne et se pose
-   sur le rond (150 ms).
+2. Une patte rousse (20 pt de haut) entre par le bord gauche de la ligne, se pose sur le rond et recule un peu pour
+   prendre son élan (270 ms). Elle est jouée image par image, à 30 images/s : `PawPush00` à `PawPush12`, tirées de la
+   vidéo Veo `Artwork/Videos/PawPush.mp4` par `Artwork/make-animations.swift`.
 3. La ligne glisse vers la droite en pivotant légèrement (environ 8°) et s'estompe, comme un objet qui tombe de la table (300 ms, ressort doux) ;
    la patte pousse encore un peu et s'efface.
 4. Les lignes suivantes remontent pour combler l'espace (ressort, 250 ms).
@@ -197,10 +201,8 @@ L'animation de complétion est la signature de l'app. Tout le reste reste sobre.
 - Tête de la barre de menu au repos, toutes les 6 à 14 s : éveillée, elle cligne des yeux (150 ms) ; endormie, son « z »
   monte de 2 pt en s'effaçant puis revient (1,4 s).
 - Panneau vide : la mascotte contente saute de joie en arrivant (montée de 12 pt, retombée avec rebond), avec
-  l'image `MascotCheer` le temps du saut. Un clic la fait sauter de nouveau ; endormie, elle remue l'oreille et se
+  l'image `MascotCheer` le temps du saut (fondu de 120 ms). Un clic la fait sauter de nouveau ; endormie, elle se
   tortille dans son sommeil, puis se rendort.
-- Pendant la sieste, toutes les 7 à 14 s : l'oreille frémit (0,4 s) ou, une fois sur trois, la mascotte bâille (1,6 s).
-  Les images-clés passent en fondu de 120 ms.
 
 **Accessibilité** : si « Réduire les animations » est activé dans macOS ou iOS, remplacer tous les mouvements par un simple fondu de 150 ms.
 

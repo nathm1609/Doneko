@@ -1,20 +1,18 @@
 // Détoure les mascottes (illustrations générées avec Gemini sur fond magenta uni) et les range dans l'Asset Catalog.
-// Aussi les images-clés des animations et la patte du coup de patte (Artwork/Paw.png).
+// Aussi l'image-clé du saut de joie. La sieste et la patte du coup de patte sont des vidéos : make-animations.swift.
 // Usage, depuis la racine du projet : swift Artwork/make-mascots.swift
 import CoreGraphics
 import Foundation
 import ImageIO
 import UniformTypeIdentifiers
 
-/// Mascottes et images-clés de leurs animations (retouches Gemini des deux premières, en .png).
+/// Mascottes et image-clé de la joie (retouche Gemini de la mascotte contente, en .png). La mascotte endormie reste
+/// l'image fixe montrée quand on réduit les animations, et la référence sur laquelle les autres sont recalées.
 let sources = [
-    ("MascotAsleep", "webp"), ("MascotContent", "webp"),
-    ("MascotAsleepEar", "png"), ("MascotYawn", "png"), ("MascotCheer", "png"),
+    ("MascotAsleep", "webp"), ("MascotContent", "webp"), ("MascotCheer", "png"),
 ]
 let names = sources.map(\.0)
 let outputSize = 512
-/// Patte du coup de patte : hauteur de sortie, la largeur suit.
-let pawHeight = 128
 let sRGB = CGColorSpace(name: CGColorSpace.sRGB)!
 
 /// Pixels RGBA prémultipliés.
@@ -162,13 +160,3 @@ for (name, bitmap) in zip(names, bitmaps) {
                                                width: CGFloat(bitmap.width) * scale, height: CGFloat(bitmap.height) * scale))
     writeImageset(name, context.makeImage()!)
 }
-
-// Patte : détourée et recadrée au plus près, la jambe entre par le bord gauche.
-var paw = load(root.appendingPathComponent("Artwork/Paw.png"))
-removeMagenta(&paw)
-let pawBounds = visibleBounds(paw)
-let pawContext = CGContext(data: nil, width: Int((pawBounds.width * CGFloat(pawHeight) / pawBounds.height).rounded()), height: pawHeight,
-                           bitsPerComponent: 8, bytesPerRow: 0, space: sRGB, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-pawContext.interpolationQuality = .high
-pawContext.draw(makeImage(paw).cropping(to: pawBounds)!, in: CGRect(x: 0, y: 0, width: pawContext.width, height: pawHeight))
-writeImageset("Paw", pawContext.makeImage()!)
