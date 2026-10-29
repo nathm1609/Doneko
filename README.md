@@ -78,7 +78,8 @@ iCloud Drive.
   portée de pouce.
 - Balayer pour supprimer, toucher le texte pour modifier, appui long pour « Prioritaire » et « Ranger dans ».
 - Le nombre de tâches du jour en pastille sur l'icône, et les rappels des échéances.
-- Mode clair et sombre, « Réduire les animations » respecté, VoiceOver, interface entièrement en français.
+- Mode clair et sombre (ou imposé dans Réglages › Apparence), « Réduire les animations » respecté, VoiceOver,
+  interface entièrement en français.
 
 ## Aperçu
 
@@ -146,10 +147,11 @@ L'app iPhone n'est pas sur l'App Store : elle s'installe depuis Xcode, avec un s
 
 > [!NOTE]
 > Avec un compte gratuit, l'app installée **expire au bout de 7 jours** : relance-la depuis Xcode pour une nouvelle
-> semaine. Tes tâches restent.
+> semaine. Tes tâches restent. Une nouvelle version s'installe de la même façon (la mise à jour depuis les
+> réglages n'existe que sur le Mac).
 
 **Synchroniser avec le Mac**
-1. Mets **tous tes Mac** à jour en Doneko 1.2 : la version 1.1 ne sait pas lire la liste avec dossiers.
+1. Mets **tous tes Mac** en Doneko 1.2 ou plus récent : la version 1.1 ne sait pas lire la liste avec dossiers.
 2. Sur le Mac : Réglages › **Synchroniser avec iCloud Drive**.
 3. Sur l'iPhone : ⚙︎ › **Choisir le dossier Doneko…** › iCloud Drive › Doneko.
 
@@ -222,11 +224,14 @@ Clic droit sur l'icône de la barre de menu : **Réglages…** et **Quitter**.
   un autre Mac ou l'iPhone la change. Les deux versions sont fusionnées tâche par tâche : la modification la plus
   récente de chaque tâche gagne, et une suppression l'emporte pendant 30 jours.
 - **Lancer au démarrage.**
+- **Mise à jour** : « Rechercher » regarde s'il y a une version plus récente sur GitHub ; « Installer et relancer »
+  la télécharge, vérifie son empreinte SHA-256, la met à la place de l'app et relance Doneko. Tes tâches et tes
+  réglages restent. Rien ne passe par le réseau sans ce clic.
 
 Sans synchronisation, les tâches sont enregistrées dans `~/Library/Application Support/Doneko/todos.json`.
 
-Sur l'iPhone, le bouton ⚙︎ ouvre les mêmes réglages, ou presque : synchronisation avec le Mac, heure de vidage,
-rappels, « pop » et pastille sur l'icône. Quand la liste est partagée, l'iPhone masque les tâches de la veille sans
+Sur l'iPhone, le bouton ⚙︎ ouvre les mêmes réglages, ou presque : synchronisation avec le Mac, apparence (clair,
+sombre ou automatique), heure de vidage, rappels, « pop » et pastille sur l'icône. Quand la liste est partagée, l'iPhone masque les tâches de la veille sans
 les effacer : le Mac les exporte dans Obsidian, puis les vide.
 
 ## Compiler depuis les sources
@@ -266,7 +271,8 @@ xcodebuild -project Doneko.xcodeproj -scheme Doneko -derivedDataPath build test
 - Le projet Xcode est généré par XcodeGen à partir de `project.yml` : ne pas modifier le `.xcodeproj` à la main.
 - La direction artistique (palette, typographie, animations, micro-textes) est décrite dans [`DESIGN.md`](DESIGN.md).
 - Les illustrations sont dans `Artwork/` : `make-appicon.sh` génère l'icône, `make-mascots.swift` détoure les mascottes,
-  `make-pop.py` génère le « pop » de l'iPhone.
+  `make-animations.swift` tire la sieste et le coup de patte des vidéos de `Artwork/Videos/`, `make-pop.py` génère
+  le « pop » de l'iPhone. Le logo et son guide sont dans `Artwork/Logo/`.
 - `./make-dmg.sh` compile la version Release et produit `build/Doneko.dmg`, à joindre tel quel à une release
   GitHub : le lien de téléchargement du README suppose ce nom. Le Finder enregistre la disposition de la fenêtre
   (fond, icônes) : macOS demande une fois l'autorisation de le piloter, et aucun volume Doneko ne doit être ouvert.
