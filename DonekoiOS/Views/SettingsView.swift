@@ -11,6 +11,7 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.reminderHour) private var reminderHour = 9
     @AppStorage(SettingsKey.soundEnabled) private var soundEnabled = false
     @AppStorage(SettingsKey.showBadge) private var showBadge = true
+    @AppStorage(SettingsKey.appearance) private var appearance = ""
     @State private var isPickingFolder = false
     @State private var isFolderRefused = false
 
@@ -29,8 +30,14 @@ struct SettingsView: View {
                 } footer: {
                     Text("Dans Fichiers : iCloud Drive › Doneko, le dossier de la synchronisation du Mac.")
                 }
+                .listRowBackground(Theme.Palette.coussin)
 
                 Section {
+                    Picker("Apparence", selection: $appearance) {
+                        Text("Automatique").tag("")
+                        Text("Clair").tag("light")
+                        Text("Sombre").tag("dark")
+                    }
                     Picker("Vider « Tombé aujourd'hui » à", selection: $purgeHour) {
                         hours
                     }
@@ -45,7 +52,10 @@ struct SettingsView: View {
                         Text("Synchronisé : les tâches de la veille disparaissent d'ici, le Mac les exporte dans Obsidian.")
                     }
                 }
+                .listRowBackground(Theme.Palette.coussin)
             }
+            // Fond Crème de la feuille, cases Coussin : la même matière que la liste.
+            .scrollContentBackground(.hidden)
             .navigationTitle("Réglages")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -62,6 +72,7 @@ struct SettingsView: View {
                 Text("Choisis le dossier Doneko dans iCloud Drive.")
             }
         }
+        .presentationBackground(Theme.Palette.creme)
         .fontDesign(.rounded)
     }
 

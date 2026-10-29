@@ -34,7 +34,7 @@ struct PanelView: View {
                 isPickingDate: datePicking == .newTask,
                 onCalendar: { togglePicking(.newTask) },
                 onSubmit: { title in
-                    withAnimation(motion(.easeOut(duration: Theme.Motion.rowAppear))) {
+                    withAnimation(motion(.spring(duration: Theme.Motion.rowAppear, bounce: Theme.Motion.settleBounce))) {
                         store.add(title, in: folder, due: pickedDate)
                     }
                     pickedDate = nil
@@ -67,7 +67,7 @@ struct PanelView: View {
             Button(action: openSettings) {
                 Image(systemName: "gearshape")
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressable)
             .foregroundStyle(Theme.Palette.moustache)
             .accessibilityLabel("Réglages")
         }
@@ -120,8 +120,12 @@ struct PanelView: View {
         }
         .frame(width: Theme.Layout.panelWidth)
         .frame(maxHeight: Theme.Layout.panelMaxHeight)
-        .background(Theme.Palette.creme, in: RoundedRectangle(cornerRadius: Theme.Layout.panelCornerRadius))
+        .background { PanelBackground() }
         .clipShape(RoundedRectangle(cornerRadius: Theme.Layout.panelCornerRadius))
+        .overlay {
+            RoundedRectangle(cornerRadius: Theme.Layout.panelCornerRadius)
+                .strokeBorder(Theme.Palette.encre.opacity(Theme.Layout.panelEdgeOpacity), lineWidth: Theme.Layout.panelEdgeWidth)
+        }
         .fontDesign(.rounded)
     }
 
@@ -195,7 +199,7 @@ struct PanelView: View {
                 guard id != item.id else { return }
                 // Une tâche faite qui revient : le toast annulerait ce retour, pas la dernière action affichée.
                 if store.done.contains(where: { $0.id == id }) { toast = nil }
-                withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
+                withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.settleBounce))) {
                     store.move(id, to: item.id)
                 }
             })
@@ -260,14 +264,14 @@ struct PanelView: View {
     private func complete(_ item: TodoItem) {
         selectNeighbor(of: item.id)
         // Les lignes suivantes remontent combler la place.
-        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
+        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.settleBounce))) {
             store.complete(item.id)
             toast = Toast(message: "Doneko l'a fait tomber")
         }
     }
 
     private func uncomplete(_ id: TodoItem.ID) {
-        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
+        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.settleBounce))) {
             store.uncomplete(id)
             toast = nil
         }
@@ -276,7 +280,7 @@ struct PanelView: View {
     /// VoiceOver : même effet qu'un glisser-déposer sur la ligne voisine.
     private func reorder(_ id: TodoItem.ID, in items: [TodoItem], by delta: Int) {
         guard let i = items.firstIndex(where: { $0.id == id }), items.indices.contains(i + delta) else { return }
-        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
+        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.settleBounce))) {
             store.move(id, to: items[i + delta].id)
         }
     }
@@ -294,14 +298,14 @@ struct PanelView: View {
 
     private func delete(_ id: TodoItem.ID) {
         selectNeighbor(of: id)
-        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
+        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.settleBounce))) {
             store.delete(id)
             toast = Toast(message: "Tâche supprimée")
         }
     }
 
     private func undo() {
-        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
+        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.settleBounce))) {
             store.undo()
             toast = nil
         }
@@ -348,7 +352,7 @@ struct PanelView: View {
         case .newTask:
             pickedDate = date
         case .task(let id):
-            withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
+            withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.settleBounce))) {
                 store.setDueDate(id, date)
             }
         }
@@ -358,13 +362,13 @@ struct PanelView: View {
     /// « Ranger dans » : rangée ailleurs, la tâche quitte la liste du dossier affiché.
     private func file(_ id: TodoItem.ID, in target: Folder.ID?) {
         if target != folder { selectNeighbor(of: id) }
-        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
+        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.settleBounce))) {
             store.file(id, in: target)
         }
     }
 
     private func deleteFolder(_ deleted: Folder) {
-        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.springBounce))) {
+        withAnimation(motion(.spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.settleBounce))) {
             store.deleteFolder(deleted.id)
             toast = Toast(message: "Dossier supprimé")
         }
@@ -436,5 +440,32 @@ private struct OnHostWindowBecomeKey: NSViewRepresentable {
                 ) { [weak self] _ in self?.action(window) }
             }
         }
+    }
+}
+
+/// Matière des panneaux de la barre de menu (comme le Centre de contrôle), teintée de Crème : le bureau transparaît à
+/// peine. « Réduire la transparence » : Crème plein.
+private struct PanelBackground: View {
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    var body: some View {
+        if reduceTransparency {
+            Theme.Palette.creme
+        } else {
+            VisualEffect().overlay(Theme.Palette.creme.opacity(Theme.Layout.panelTintOpacity))
+        }
+    }
+
+    private struct VisualEffect: NSViewRepresentable {
+        func makeNSView(context: Context) -> NSVisualEffectView {
+            let view = NSVisualEffectView()
+            view.material = .popover
+            view.blendingMode = .behindWindow
+            // Active même quand le panneau n'a pas le focus : la matière ne vire pas au gris.
+            view.state = .active
+            return view
+        }
+
+        func updateNSView(_ view: NSVisualEffectView, context: Context) {}
     }
 }

@@ -41,7 +41,7 @@ struct FolderBar: View {
                             .frame(height: Theme.Layout.folderChipHeight)
                             .contentShape(Capsule())
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable)
                     .foregroundStyle(Theme.Palette.moustache)
                     .help("Nouveau dossier")
                     .accessibilityLabel("Nouveau dossier")
@@ -61,7 +61,7 @@ struct FolderBar: View {
                 .background(isSelected ? Theme.Palette.coussin : .clear, in: Capsule())
                 .contentShape(Capsule())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 

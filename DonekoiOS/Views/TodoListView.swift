@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// Écran principal : en haut, le bouton des réglages ; puis « Aujourd'hui », « Plus tard » et
-/// « Tombé aujourd'hui » ; en bas, au-dessus du clavier, le toast d'annulation, la barre de dossiers et la saisie.
+/// Écran principal : le grand titre « Aujourd'hui » (la date dessous) et le bouton des réglages ; les tâches du jour,
+/// « Plus tard » et « Tombé aujourd'hui » ; en bas, au-dessus du clavier, le toast d'annulation, la barre de dossiers
+/// et la saisie.
 struct TodoListView: View {
     let store: TodoStore
     let sync: FolderSync
@@ -23,48 +24,57 @@ struct TodoListView: View {
         let today = store.today(in: folder)
         let later = store.later(in: folder)
         let done = store.done(in: folder)
-        List {
-            // Sans tâche pour plus tard, pas de titres : une seule liste.
-            if !later.isEmpty {
-                sectionTitle("Aujourd'hui")
-            }
-            if today.isEmpty {
-                // Liste entièrement vide : la mascotte est au centre de l'écran, pas en ligne.
-                if !later.isEmpty || !done.isEmpty {
-                    EmptyState(allDone: !done.isEmpty, font: Theme.Typography.touchCaption)
-                        .plainRow()
+        NavigationStack {
+            // Les tâches du jour suivent le grand titre « Aujourd'hui » : pas de titre de section pour elles.
+            List {
+                if today.isEmpty {
+                    // Liste entièrement vide : la mascotte est au centre de l'écran, pas en ligne.
+                    if !later.isEmpty || !done.isEmpty {
+                        EmptyState(allDone: !done.isEmpty, font: Theme.Typography.touchCaption)
+                            .plainRow()
+                    }
+                } else {
+                    rows(today)
                 }
-            } else {
-                rows(today)
+                if !later.isEmpty {
+                    sectionTitle("Plus tard")
+                    rows(later, showsDueDate: true)
+                }
+                if !done.isEmpty {
+                    doneSection(done)
+                }
             }
-            if !later.isEmpty {
-                sectionTitle("Plus tard")
-                rows(later, showsDueDate: true)
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .scrollDismissesKeyboard(.interactively)
+            .refreshable { sync.check() }
+            .overlay {
+                if today.isEmpty, later.isEmpty, done.isEmpty {
+                    EmptyState(allDone: false, font: Theme.Typography.touchCaption)
+                }
             }
-            if !done.isEmpty {
-                doneSection(done)
+            .safeAreaInset(edge: .bottom, spacing: 0) { bottomBar }
+            .background(Theme.Palette.creme)
+            .navigationTitle("Aujourd'hui")
+            .daySubtitle(store.currentDay)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { isShowingSettings = true } label: {
+                        Image(systemName: "gearshape")
+                            .foregroundStyle(Theme.Palette.moustache)
+                    }
+                    .accessibilityLabel("Réglages")
+                }
             }
+            .task(id: toast) {
+                guard toast != nil else { return }
+                try? await Task.sleep(for: .seconds(Theme.Motion.undoToastDuration))
+                withAnimation(motion(.easeOut(duration: Theme.Motion.reducedMotionFade))) { toast = nil }
+            }
+            .sheet(isPresented: $isShowingSettings) { SettingsView(sync: sync) }
+            .sheet(item: $datePicking) { dateSheet($0) }
         }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
-        .scrollDismissesKeyboard(.interactively)
-        .refreshable { sync.check() }
-        .overlay {
-            if today.isEmpty, later.isEmpty, done.isEmpty {
-                EmptyState(allDone: false, font: Theme.Typography.touchCaption)
-            }
-        }
-        .safeAreaInset(edge: .top) { topBar }
-        .safeAreaInset(edge: .bottom, spacing: 0) { bottomBar }
-        .background(Theme.Palette.creme)
         .fontDesign(.rounded)
-        .task(id: toast) {
-            guard toast != nil else { return }
-            try? await Task.sleep(for: .seconds(Theme.Motion.undoToastDuration))
-            withAnimation(motion(.easeOut(duration: Theme.Motion.reducedMotionFade))) { toast = nil }
-        }
-        .sheet(isPresented: $isShowingSettings) { SettingsView(sync: sync) }
-        .sheet(item: $datePicking) { dateSheet($0) }
     }
 
     /// Dossier choisi dans la barre, mémorisé sur cet iPhone ; supprimé entre-temps (ou « Tout ») : `nil`.
@@ -108,25 +118,26 @@ struct TodoListView: View {
 
     private func sectionTitle(_ title: String) -> some View {
         Text(title)
-            .textCase(.uppercase)
-            .tracking(Theme.Typography.sectionTitleTracking)
             .sectionTitleStyle(scale: scale)
             .accessibilityAddTraits(.isHeader)
             .plainRow()
     }
 
-    /// « Tombé aujourd'hui (3) », repliable. Toucher le rond coché remet la tâche sur la table.
+    /// « Tombé aujourd'hui 3 », repliable par le chevron au bout. Toucher le rond coché remet la tâche sur la table.
     @ViewBuilder
     private func doneSection(_ items: [TodoItem]) -> some View {
         Button {
             animate { isDoneExpanded.toggle() }
         } label: {
-            HStack(spacing: Theme.Layout.smallSpacing) {
+            HStack(spacing: Theme.Layout.rowContentSpacing) {
+                // Une seule phrase : en très grand texte, le nombre passe à la ligne avec le titre.
+                Text("Tombé aujourd'hui ")
+                    + Text(items.count, format: .number).monospacedDigit().foregroundStyle(Theme.Palette.moustache)
+                Spacer(minLength: 0)
                 Image(systemName: "chevron.right")
+                    .font(Theme.Typography.touchCaption.weight(.semibold))
+                    .foregroundStyle(Theme.Palette.moustache)
                     .rotationEffect(isDoneExpanded ? Theme.Layout.disclosureRotation : .zero)
-                Text("Tombé aujourd'hui (\(items.count))")
-                    .textCase(.uppercase)
-                    .tracking(Theme.Typography.sectionTitleTracking)
             }
             .sectionTitleStyle(scale: scale)
             .frame(maxWidth: .infinity, minHeight: Theme.Layout.touchTarget, alignment: .leading)
@@ -164,21 +175,6 @@ struct TodoListView: View {
         }
     }
 
-    /// La synchronisation avec le Mac se règle dans « Réglages ».
-    private var topBar: some View {
-        HStack {
-            Spacer()
-            Button { isShowingSettings = true } label: {
-                Image(systemName: "gearshape")
-                    .foregroundStyle(Theme.Palette.moustache)
-                    .frame(minWidth: Theme.Layout.touchTarget, minHeight: Theme.Layout.touchTarget)
-            }
-            .accessibilityLabel("Réglages")
-        }
-        .padding(.horizontal, Theme.Layout.panelPadding)
-        .background(Theme.Palette.creme)
-    }
-
     /// À portée de pouce : le toast, les dossiers (où ira la tâche tapée), puis le champ.
     private var bottomBar: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -192,6 +188,13 @@ struct TodoListView: View {
         }
         .padding([.horizontal, .bottom], Theme.Layout.panelPadding)
         .background(Theme.Palette.creme)
+        // Les tâches s'effacent en passant sous la barre au lieu d'y être coupées net.
+        .background(alignment: .top) {
+            LinearGradient(colors: [Theme.Palette.creme.opacity(0), Theme.Palette.creme], startPoint: .top, endPoint: .bottom)
+                .frame(height: Theme.Layout.scrollEdgeFade)
+                .offset(y: -Theme.Layout.scrollEdgeFade)
+                .allowsHitTesting(false)
+        }
     }
 
     /// Le champ, et au bout le bouton calendrier (ou la date choisie) qui ouvre « Pour quand ? ».
@@ -232,10 +235,10 @@ struct TodoListView: View {
             .foregroundStyle(Theme.Palette.moustache)
             .accessibilityLabel(pickedDate.map { "Échéance : \($0.formatted(.dueDate))" } ?? "Choisir une date")
         }
-        .padding(.leading, Theme.Layout.panelPadding)
+        .padding(.leading, Theme.Layout.touchFieldPadding)
         .padding(.trailing, Theme.Layout.smallSpacing)
         .frame(minHeight: Theme.Layout.touchTarget)
-        .background(Theme.Palette.coussin, in: RoundedRectangle(cornerRadius: Theme.Layout.rowCornerRadius))
+        .background(Theme.Palette.coussin, in: Capsule())
     }
 
     /// « Pour quand ? » : toucher un jour le choisit et referme la feuille.
@@ -267,6 +270,7 @@ struct TodoListView: View {
             }
         }
         .presentationDetents([.height(Theme.Layout.datePickerSheetHeight), .large])
+        .presentationBackground(Theme.Palette.creme)
         .fontDesign(.rounded)
     }
 
@@ -342,10 +346,29 @@ private extension View {
             ))
     }
 
-    /// Titres de section : petites capitales Moustache, alignées sur le rond des lignes.
+    /// Titres de section : Encre semi-gras, un peu d'air au-dessus, alignés sur le rond des lignes.
     func sectionTitleStyle(scale: CGFloat) -> some View {
         font(Theme.Typography.touchSectionTitle)
-            .foregroundStyle(Theme.Palette.moustache)
+            .foregroundStyle(Theme.Palette.encre)
+            .padding(.top, Theme.Layout.touchSectionGap)
             .padding(.leading, (Theme.Layout.touchTarget - Theme.Layout.touchPawPadDiameter) / 2 * scale)
+    }
+
+    /// iOS 26 : la date du jour sous le grand titre (« Jeudi 29 octobre »).
+    @ViewBuilder
+    func daySubtitle(_ day: Date) -> some View {
+        if #available(iOS 26, *) {
+            navigationSubtitle(day.formatted(.dayTitle))
+        } else {
+            self
+        }
+    }
+}
+
+private extension FormatStyle where Self == Date.FormatStyle {
+    static var dayTitle: Date.FormatStyle {
+        var style = Date.FormatStyle.dateTime.weekday(.wide).day().month(.wide).locale(Locale(identifier: "fr_FR"))
+        style.capitalizationContext = .beginningOfSentence
+        return style
     }
 }

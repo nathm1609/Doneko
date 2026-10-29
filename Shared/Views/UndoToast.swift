@@ -24,14 +24,15 @@ struct UndoToast: View {
                     .frame(minHeight: height)
                     .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressable)
         }
         .font(font)
         .foregroundStyle(Theme.Palette.creme)
         .padding(.horizontal, Theme.Layout.panelPadding)
         // Plus haut si le texte grandit (Dynamic Type sur l'iPhone).
         .frame(minHeight: height)
-        .background(Theme.Palette.encre, in: RoundedRectangle(cornerRadius: Theme.Layout.rowCornerRadius))
+        .background(Theme.Palette.encre, in: Capsule())
+        .shadow(color: .black.opacity(Theme.Layout.toastShadowOpacity), radius: Theme.Layout.toastShadowRadius, y: Theme.Layout.toastShadowY)
         .onAppear { AccessibilityNotification.Announcement(toast.message).post() }
     }
 }

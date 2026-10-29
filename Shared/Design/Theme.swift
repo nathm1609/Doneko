@@ -24,6 +24,10 @@ enum Theme {
         static let folderChipPadding: CGFloat = 10
         static let folderNameWidth: CGFloat = 96
         static let panelCornerRadius: CGFloat = 14
+        /// Panneau Mac : matière des panneaux de la barre de menu, teintée de Crème, et filet de bord à peine visible.
+        static let panelTintOpacity = 0.82
+        static let panelEdgeOpacity = 0.08
+        static let panelEdgeWidth: CGFloat = 0.5
         /// Espace entre la barre de menu (ou le bord de l'écran) et le panneau.
         static let panelScreenGap: CGFloat = 4
         static let settingsWidth: CGFloat = 420
@@ -39,6 +43,12 @@ enum Theme {
         /// iPhone : pastilles de la barre de dossiers.
         static let touchChipHeight: CGFloat = 32
         static let touchChipPadding: CGFloat = 12
+        /// iPhone : champ de saisie en capsule, texte écarté de l'arrondi.
+        static let touchFieldPadding: CGFloat = 16
+        /// iPhone : air au-dessus d'un titre de section (« Plus tard », « Tombé aujourd'hui »).
+        static let touchSectionGap: CGFloat = 12
+        /// iPhone : les tâches s'effacent sur cette hauteur en passant sous la barre du bas.
+        static let scrollEdgeFade: CGFloat = 16
         static let rowSpacing: CGFloat = 2
         static let rowCornerRadius: CGFloat = 8
         static let pawPadDiameter: CGFloat = 16
@@ -48,7 +58,11 @@ enum Theme {
         static let rowHorizontalPadding: CGFloat = 8
         static let rowContentSpacing: CGFloat = 8
         static let smallSpacing: CGFloat = 4
-        static let focusRingWidth: CGFloat = 2
+        static let focusRingWidth: CGFloat = 1
+        /// Toast d'annulation : capsule qui flotte au-dessus de la liste.
+        static let toastShadowOpacity = 0.15
+        static let toastShadowRadius: CGFloat = 8
+        static let toastShadowY: CGFloat = 2
         /// Illustration de la mascotte (endormie ou contente) quand la liste est vide.
         static let mascotSize: CGFloat = 96
         /// Patte qui pousse la tâche hors de la table (images PawPush, 424 × 160) : elle entre par le bord gauche de la
@@ -78,10 +92,19 @@ enum Theme {
         /// iPhone : tailles qui suivent Dynamic Type.
         static let touchBody = Font.system(.body, design: .rounded)
         static let touchCaption = Font.system(.footnote, design: .rounded)
-        static let touchSectionTitle = Font.system(.footnote, design: .rounded, weight: .semibold)
+        /// iPhone : titres de section en minuscules, sous le grand titre « Aujourd'hui » de la barre de navigation.
+        static let touchSectionTitle = Font.system(.title3, design: .rounded, weight: .semibold)
         static let touchChip = Font.system(.subheadline, design: .rounded)
         /// Compteur de la barre de menu (AppKit) : medium, arrondi, chiffres à chasse fixe.
         static let counterSize: CGFloat = 12
+        #if os(iOS)
+        /// iPhone : titres de la barre de navigation (UIKit), gras et arrondis comme le reste. Taille prise au lancement.
+        static func navigationTitle(_ style: UIFont.TextStyle) -> UIFont {
+            let descriptor = UIFont.preferredFont(forTextStyle: style).fontDescriptor
+            let bold = descriptor.addingAttributes([.traits: [UIFontDescriptor.TraitKey.weight: UIFont.Weight.bold]])
+            return UIFont(descriptor: bold.withDesign(.rounded) ?? bold, size: 0)
+        }
+        #endif
     }
 
     enum Sound {
@@ -97,8 +120,14 @@ enum Theme {
         static let fall = 0.30
         static let fallRotation = Angle.degrees(8)
         static let fallDistance: CGFloat = 80
-        /// Ressort doux de la chute et de la remontée des lignes.
+        /// Ressort de la chute : la tâche poussée a de l'élan, elle peut dépasser un peu.
         static let springBounce = 0.15
+        /// Ressort amorti, sans rebond, pour tout ce qui se range sans élan : lignes qui remontent, ajout, toast.
+        static let settleBounce = 0.0
+        /// Réponse dès l'appui sur un bouton : il se resserre un peu (ou pâlit, si on réduit les animations).
+        static let press = 0.1
+        static let pressScale: CGFloat = 0.94
+        static let pressedOpacity = 0.6
         static let closeGap = 0.25
         static let rowAppear = 0.20
         static let rowAppearOffset: CGFloat = 8

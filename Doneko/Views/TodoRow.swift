@@ -67,7 +67,7 @@ struct TodoRow: View {
             Button(action: knockOff) {
                 PawPad(isChecked: phase >= .checked, isHovered: isPadHovered)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressable)
             .onHover { isPadHovered = $0 }
             .accessibilityLabel("Faire tomber « \(item.title) »")
 
@@ -98,17 +98,13 @@ struct TodoRow: View {
                         .accessibilityLabel(item.isPriority ? "Prioritaire : \(item.title)" : item.title)
                 }
                 Spacer(minLength: 0)
-                if let folderName {
-                    Text(folderName)
+                if let details {
+                    Text(details.text)
                         .font(Theme.Typography.caption)
+                        .monospacedDigit()
                         .foregroundStyle(Theme.Palette.moustache)
                         .lineLimit(1)
-                        .accessibilityLabel("Dossier \(folderName)")
-                }
-                if showsDueDate, let dueDate = item.dueDate {
-                    Text(dueDate, format: .dueDate)
-                        .font(Theme.Typography.caption)
-                        .foregroundStyle(Theme.Palette.moustache)
+                        .accessibilityLabel(details.spoken)
                 }
             }
         }
@@ -134,6 +130,15 @@ struct TodoRow: View {
                 }
             }
         }
+    }
+
+    /// Dossier et échéance en une seule étiquette discrète au bout de la ligne : « courses · Sam. 16 janv. ».
+    private var details: (text: String, spoken: String)? {
+        let due = showsDueDate ? item.dueDate?.formatted(.dueDate) : nil
+        let text = [folderName, due].compactMap { $0 }
+        guard !text.isEmpty else { return nil }
+        let spoken = [folderName.map { "Dossier \($0)" }, due.map { "échéance \($0)" }].compactMap { $0 }
+        return (text.joined(separator: " · "), spoken.joined(separator: ", "))
     }
 
     /// Patte rousse qui entre par le bord gauche de la ligne (la liste coupe ce qui dépasse), se pose sur le rond, recule

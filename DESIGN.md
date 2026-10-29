@@ -47,7 +47,7 @@ Couleurs nommées pour être utilisées telles quelles dans le code (`Color("Man
 | Nom | Rôle | Clair | Sombre |
 |---|---|---|---|
 | **Mandarine** | Accent principal, mascotte, focus | `#FF8A3D` | `#FF9B57` |
-| **Crème** | Fond du panneau | `#FBF7F0` | `#1C1A22` |
+| **Crème** | Fond du panneau (teinte de sa matière sur Mac) | `#FBF7F0` | `#1C1A22` |
 | **Coussin** | Surface des lignes au survol, champ de saisie | `#F2ECE2` | `#26232E` |
 | **Encre** | Texte principal | `#1F1B24` | `#F2EEF6` |
 | **Moustache** | Texte secondaire, tâches faites, séparateurs | `#6D6874` | `#90889A` |
@@ -57,7 +57,9 @@ Couleurs nommées pour être utilisées telles quelles dans le code (`Color("Man
 Règles :
 - La Mandarine est rare : focus, coche au survol, mascotte, compteur. Pas de grands aplats orange.
 - Contraste texte/fond au minimum AA (4,5:1) dans les deux modes.
-- Le mode clair/sombre suit le système.
+- Le mode clair/sombre suit le système ; sur l'iPhone, « Réglages › Apparence » peut imposer le clair ou le sombre.
+- iPhone : la Mandarine est la teinte de l'app (boutons « OK », interrupteurs, curseur, calendrier). Le bouton ⚙︎ reste
+  Moustache.
 
 ---
 
@@ -114,6 +116,9 @@ Les autres icônes utilisent les SF Symbols, en version arrondie quand elle exis
 
 - Largeur fixe : **320 pt**. Hauteur qui s'adapte au contenu, maximum 480 pt puis défilement.
 - Coins arrondis : 14 pt. Marges internes : 12 pt.
+- Fond : la matière translucide des panneaux de la barre de menu (comme le Centre de contrôle), teintée de Crème à
+  82 % : le bureau transparaît à peine. Filet de bord Encre à 8 %, 0,5 pt. « Réduire la transparence » : Crème plein.
+- Champ de saisie : fond Coussin, cerclé d'un filet Mandarine de 1 pt quand il a le curseur.
 - Ordre vertical : champ de saisie → barre de dossiers → tâches à faire → section repliable « Tombé aujourd'hui » → barre basse discrète (bouton réglages ; quitter passe par le clic droit sur l'icône ou ⌘Q).
 - Hauteur d'une ligne : 32 pt, espacement 2 pt, coins 8 pt, fond Coussin uniquement au survol ou à la sélection clavier.
 - Tâche prioritaire : petit point Sakura à gauche du texte, remontée en haut de liste.
@@ -133,7 +138,8 @@ Les autres icônes utilisent les SF Symbols, en version arrondie quand elle exis
 - Le dossier choisi filtre la liste (« Aujourd'hui », « Plus tard » et « Tombé aujourd'hui » restent) et reçoit les
   nouvelles tâches. Le choix est mémorisé sur chaque appareil.
 - `#nom` dans la saisie range la tâche, en créant le dossier au besoin : « Lait #courses demain ! ».
-- Dans « Tout », le nom du dossier s'affiche au bout de la ligne (12 pt, Moustache), avant l'échéance.
+- Au bout de la ligne, une seule étiquette discrète (12 pt, Moustache, chiffres à chasse fixe) : le dossier (dans
+  « Tout ») et l'échéance (« Plus tard »), séparés par un point médian : « courses · Sam. 16 janv. ».
 - Clic droit sur une tâche : « Ranger dans ». Clic droit sur un dossier : « Renommer », « Vers la gauche »,
   « Vers la droite », « Supprimer le dossier ». Le nom se tape dans la pastille même, cerclée de Mandarine.
 - ⌘1 : « Tout » ; ⌘2 à ⌘9 : les dossiers, dans l'ordre de la barre.
@@ -143,14 +149,20 @@ Les autres icônes utilisent les SF Symbols, en version arrondie quand elle exis
 
 ## Écran iPhone
 
-- Un seul écran en portrait, fond Crème. De haut en bas : le bouton ⚙︎ des réglages (Moustache) à droite ;
-  « Aujourd'hui », « Plus tard », « Tombé aujourd'hui » repliable ; puis, à portée de pouce et au-dessus du clavier,
-  le toast d'annulation, la barre de dossiers et le champ de saisie (fond Coussin, coins 8 pt).
-- Tailles qui suivent Dynamic Type : tâches et champ en Body ; titres de section en Footnote semi-gras, en capitales ;
-  nom du dossier, échéance et toast en Footnote ; pastilles de dossier en Subheadline.
+- Un seul écran en portrait, fond Crème. De haut en bas : la barre de navigation du système, avec le grand titre
+  « Aujourd'hui » (la date dessous, « Jeudi 29 octobre », depuis iOS 26) et le bouton ⚙︎ des réglages (Moustache) à
+  droite ; le titre se replie en haut quand la liste défile. Puis les tâches du jour, « Plus tard », « Tombé
+  aujourd'hui » repliable ; enfin, à portée de pouce et au-dessus du clavier, le toast d'annulation, la barre de
+  dossiers et le champ de saisie (capsule Coussin). Les tâches s'effacent sur 16 pt en passant sous cette barre.
+- Tailles qui suivent Dynamic Type : tâches et champ en Body ; titres de section en Title 3 semi-gras, Encre, en
+  minuscules, 12 pt d'air au-dessus ; nom du dossier, échéance et toast en Footnote ; pastilles de dossier en
+  Subheadline. Titres de la barre de navigation en gras arrondi, Encre.
+- « Tombé aujourd'hui 3 » : le nombre en Moustache, le chevron au bout de la ligne.
 - Zone de toucher de 44 pt partout. Rond « coussinet » de 22 pt au centre de la sienne, patte de 26 pt de haut qui
   entre par le bord de l'écran. Pas de survol : le rond reste Moustache jusqu'à la coche.
-- Pastilles de dossier de 32 pt de haut (zone de 44 pt), mêmes couleurs que sur le Mac.
+- Pastilles de dossier de 32 pt de haut (zone de 44 pt), mêmes couleurs que sur le Mac. Le fond Coussin glisse vers
+  la pastille touchée (ressort amorti, sans mouvement si on réduit les animations), avec le petit retour haptique de
+  sélection.
 - Très grand texte (tailles d'accessibilité) : le rond, la patte et le point Sakura grandissent avec le texte ; le
   dossier et l'échéance passent sous le titre au lieu de l'écraser.
 - Balayer vers la gauche révèle le « Supprimer » rouge du système : la convention d'iOS l'emporte ici sur la règle
@@ -164,6 +176,8 @@ Les autres icônes utilisent les SF Symbols, en version arrondie quand elle exis
   - appui long sur un dossier : le menu du Mac, avec icônes ; un nom de dossier se tape dans une alerte ;
   - tirer la liste vers le bas : relire la liste partagée avec le Mac.
 - Bouton ⚙︎ (Moustache) en haut à droite : « Réglages » en feuille. La synchronisation avec le Mac s'y règle.
+- Feuilles (« Réglages », « Pour quand ? ») sur fond Crème, cases Coussin : la même matière que la liste, en clair
+  comme en sombre.
 - Bouton calendrier au bout du champ, comme sur le Mac ; « Pour quand ? » s'ouvre en feuille juste assez haute pour
   le calendrier (470 pt), avec « Sans échéance » à gauche et « OK » à droite. Balayer la feuille annule.
 - Pastille rouge du système sur l'icône : le nombre de tâches du jour, comme le compteur de la barre de menu.
@@ -182,15 +196,20 @@ L'animation de complétion est la signature de l'app. Tout le reste reste sobre.
    prendre son élan (270 ms). Elle est jouée image par image, à 30 images/s : `PawPush00` à `PawPush12`, tirées de la
    vidéo Veo `Artwork/Videos/PawPush.mp4` par `Artwork/make-animations.swift`.
 3. La ligne glisse vers la droite en pivotant légèrement (environ 8°) et s'estompe, comme un objet qui tombe de la table (300 ms, ressort doux) ;
-   la patte pousse encore un peu et s'efface.
-4. Les lignes suivantes remontent pour combler l'espace (ressort, 250 ms).
+   la patte pousse avec elle et s'efface.
+4. Les lignes suivantes remontent pour combler l'espace (ressort amorti, sans rebond, 250 ms).
 
 **Autres mouvements**
 - Ouverture du panneau : apparition native, aucun effet ajouté.
 - Ajout d'une tâche : la ligne apparaît en glissant légèrement du haut (200 ms).
-- Toast d'annulation : monte depuis le bas, disparaît après 5 s.
-- Liste vide : la mascotte endormie « respire » très lentement (échelle 1 → 1,03, 3 s, en boucle). Au même rythme,
-  sa tête se balance légèrement d'un côté à l'autre : ±1,5° endormie, ±3° contente.
+- Toast d'annulation : capsule Encre à l'ombre douce, qui monte depuis le bas et disparaît après 5 s.
+- Appui sur un bouton (rond, pastilles, calendrier, ⚙︎, « Annuler ») : il se resserre dès l'appui (94 %, 100 ms),
+  sans attendre le relâchement ; il pâlit à la place si on réduit les animations.
+- Tout ce qui se range sans élan (ajout, lignes qui remontent, toast) suit un ressort amorti, sans rebond. Seuls les
+  gestes qui ont de l'élan dépassent un peu : la tâche poussée hors de la table, le glisser pour supprimer.
+- Liste vide : la mascotte endormie fait la sieste en vidéo (9,5 s en boucle) : elle respire, ses « z » montent, sa
+  bouche s'entrouvre. La vidéo ne tourne que lorsqu'on la voit (panneau ouvert, app au premier plan). La mascotte
+  contente se balance d'un côté à l'autre (±3°, 3 s).
 
 **La mascotte réagit**
 - Tête de la barre de menu, quand le nombre de tâches du jour change (400 ms) :
@@ -237,7 +256,9 @@ Tutoiement, phrases courtes, une pointe d'humour félin, jamais de jeu de mots f
 | Nouveau dossier (iPhone, alerte) | Nouveau dossier · Nom du dossier · Annuler · Créer |
 | Renommer un dossier (iPhone, alerte) | Renommer le dossier · Annuler · Renommer |
 | Réglages (iPhone) | Synchronisation avec le Mac · Dossier · Arrêter la synchronisation · Choisir le dossier Doneko… |
+| | Apparence · Automatique · Clair · Sombre |
 | | Vider « Tombé aujourd'hui » à · Rappeler les tâches datées à · Petit « pop » quand une tâche tombe · Afficher le nombre de tâches sur l'icône |
+| Titre de l'écran (iPhone) | Aujourd'hui · Jeudi 29 octobre |
 | Rappel | (titre de la tâche) — C'est pour aujourd'hui. |
 | Info-bulle de l'icône | Doneko — 3 tâches sur la table |
 | Réglages | Raccourci pour appeler Doneko |

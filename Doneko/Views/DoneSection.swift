@@ -35,7 +35,7 @@ struct DoneSection: View {
                         Button { onUncomplete(item.id) } label: {
                             PawPad(isChecked: true, isHovered: false)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.pressable)
                         .help("Remettre sur la table")
                         Text(item.title)
                             .font(Theme.Typography.task)

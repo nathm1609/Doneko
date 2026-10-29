@@ -13,13 +13,16 @@ struct FolderBar: View {
     @State private var renaming: Folder?
     @State private var isNaming = false
     @State private var draft = ""
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// Le fond de la pastille choisie glisse d'un dossier à l'autre.
+    @Namespace private var chipBackground
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: Theme.Layout.smallSpacing) {
-                chip("Tout", isSelected: selection == nil) { selection = nil }
+                chip("Tout", isSelected: selection == nil) { select(nil) }
                 ForEach(store.folders) { folder in
-                    chip(folder.name, isSelected: selection == folder.id) { selection = folder.id }
+                    chip(folder.name, isSelected: selection == folder.id) { select(folder.id) }
                         .contextMenu { menu(for: folder) }
                 }
                 Button { startNaming(nil) } label: {
@@ -33,6 +36,7 @@ struct FolderBar: View {
                 .accessibilityLabel("Nouveau dossier")
             }
         }
+        .sensoryFeedback(.selection, trigger: selection)
         .alert(renaming == nil ? "Nouveau dossier" : "Renommer le dossier", isPresented: $isNaming) {
             TextField("Nom du dossier", text: $draft)
             Button("Annuler", role: .cancel) {}
@@ -50,7 +54,13 @@ struct FolderBar: View {
                 .padding(.vertical, Theme.Layout.smallSpacing)
                 // 32 pt, plus haute si le texte grandit (Dynamic Type).
                 .frame(minHeight: Theme.Layout.touchChipHeight)
-                .background(isSelected ? Theme.Palette.coussin : .clear, in: Capsule())
+                .background {
+                    if isSelected {
+                        Capsule()
+                            .fill(Theme.Palette.coussin)
+                            .matchedGeometryEffect(id: "selected", in: chipBackground)
+                    }
+                }
                 // Pastille de 32 pt, zone de toucher de 44 pt.
                 .frame(minHeight: Theme.Layout.touchTarget)
                 .contentShape(Rectangle())
@@ -81,6 +91,13 @@ struct FolderBar: View {
         }
     }
 
+    /// Ressort amorti, sans rebond : la pastille se range sans élan. Sans mouvement si on réduit les animations.
+    private func select(_ folder: Folder.ID?) {
+        withAnimation(reduceMotion ? nil : .spring(duration: Theme.Motion.closeGap, bounce: Theme.Motion.settleBounce)) {
+            selection = folder
+        }
+    }
+
     /// `nil` : nouveau dossier.
     private func startNaming(_ folder: Folder?) {
         renaming = folder
@@ -93,7 +110,7 @@ struct FolderBar: View {
         if let renaming {
             store.renameFolder(renaming.id, to: draft)
         } else if let id = store.addFolder(draft) {
-            selection = id
+            select(id)
         }
     }
 }

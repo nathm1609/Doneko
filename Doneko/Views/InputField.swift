@@ -41,7 +41,7 @@ struct InputField: View {
                     Image(systemName: "calendar")
                 }
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressable)
             .foregroundStyle(isPickingDate ? Theme.Palette.mandarine : Theme.Palette.moustache)
             .help(dueDate == nil ? "Choisir une date" : "Changer la date")
             .accessibilityLabel(dueDate.map { "Échéance : \($0.formatted(.dueDate))" } ?? "Choisir une date")
