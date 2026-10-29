@@ -12,6 +12,7 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.iCloudSync) private var iCloudSync = false
     @State private var isChoosingFolder = false
     @State private var launchAtLogin = LaunchAtLogin.isEnabled
+    @State private var updater = Updater()
 
     var body: some View {
         Form {
@@ -55,9 +56,34 @@ struct SettingsView: View {
                     // Reflète un refus de macOS (version de développement, validation demandée).
                     launchAtLogin = LaunchAtLogin.isEnabled
                 }
+            LabeledContent {
+                switch updater.state {
+                case .checking, .installing:
+                    ProgressView().controlSize(.small)
+                case let .available(release):
+                    Button("Installer et relancer") { Task { await updater.install(release) } }
+                default:
+                    Button("Rechercher") { Task { await updater.check() } }
+                }
+            } label: {
+                Text("Mise à jour")
+                Text(updateDetail)
+            }
         }
         .formStyle(.grouped)
         .fontDesign(.rounded)
         .frame(width: Theme.Layout.settingsWidth)
+    }
+
+    private var updateDetail: String {
+        switch updater.state {
+        case .idle: "Version \(Updater.currentVersion)"
+        case .checking: "Recherche d'une nouvelle version…"
+        case .upToDate: "Doneko \(Updater.currentVersion) est la dernière version"
+        case .checkFailed: "GitHub ne répond pas, réessaie plus tard"
+        case let .available(release): "Doneko \(release.version) est disponible"
+        case .installing: "Installation… Doneko va se relancer"
+        case .installFailed: "L'installation a échoué : télécharge le DMG sur GitHub"
+        }
     }
 }

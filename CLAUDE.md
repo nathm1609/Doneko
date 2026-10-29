@@ -119,7 +119,8 @@ Doneko/
 │   │   ├── LaunchAtLogin.swift
 │   │   ├── DailyPurge.swift
 │   │   ├── ICloudSync.swift     # liste dans iCloud Drive, fusionnée quand un autre appareil la change
-│   │   └── ObsidianExport.swift # note du jour AAAA-MM-JJ.md, section « Fait avec Doneko » ; créé avant la purge
+│   │   ├── ObsidianExport.swift # note du jour AAAA-MM-JJ.md, section « Fait avec Doneko » ; créé avant la purge
+│   │   └── Updater.swift        # réglage « Mise à jour » : dernière release GitHub, DMG vérifié (SHA-256), installé, relancé
 │   └── Resources/
 │       └── Assets.xcassets      # icônes MenuIcon* de la barre de menu, AppIcon Mac
 └── DonekoTests/
@@ -131,6 +132,7 @@ Doneko/
     ├── MergeTests.swift         # Mac et iPhone sur le même fichier : hors ligne, suppressions, même seconde
     ├── ObsidianExportTests.swift
     ├── RemindersTests.swift
+    ├── UpdaterTests.swift       # réponse GitHub, refus sans empreinte ou hors github.com, comparaison des versions
     └── MenuBarControllerTests.swift
 ```
 

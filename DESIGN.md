@@ -262,6 +262,7 @@ Tutoiement, phrases courtes, une pointe d'humour félin, jamais de jeu de mots f
 | Rappel | (titre de la tâche) — C'est pour aujourd'hui. |
 | Info-bulle de l'icône | Doneko — 3 tâches sur la table |
 | Réglages | Raccourci pour appeler Doneko |
+| Réglages › Mise à jour (Mac) | Mise à jour · Version 1.4.0 · Rechercher · Recherche d'une nouvelle version… · Doneko 1.4.0 est la dernière version · Doneko 1.5.0 est disponible · Installer et relancer · Installation… Doneko va se relancer · GitHub ne répond pas, réessaie plus tard · L'installation a échoué : télécharge le DMG sur GitHub |
 | Quitter | Laisser Doneko dormir (Quitter) |
 
 ---

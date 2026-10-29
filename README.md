@@ -113,6 +113,9 @@ iCloud Drive.
 2. Ouvre-le et glisse **Doneko** dans **Applications**.
 3. Lance Doneko depuis Applications : la tête de chat apparaît dans la barre de menu.
 
+Les versions suivantes s'installent depuis l'app : **Réglages › Mise à jour › Rechercher**, puis **Installer et relancer**
+(depuis la 1.4.0).
+
 <p align="center">
   <img src="docs/images/dmg.png" width="480" alt="Fenêtre du DMG : l'icône de Doneko à gauche, le dossier Applications à droite, reliés par des empreintes de pattes, avec le chat allongé en dessous">
 </p>
