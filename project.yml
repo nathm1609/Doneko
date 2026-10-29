@@ -12,7 +12,8 @@ settings:
 packages:
   KeyboardShortcuts:
     url: https://github.com/sindresorhus/KeyboardShortcuts
-    from: "2.0.0"
+    # Version exacte : une nouvelle version n'entre pas dans l'app sans qu'on l'ait choisie.
+    exactVersion: "2.4.0"
 targets:
   Doneko:
     type: application

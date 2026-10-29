@@ -85,7 +85,9 @@ final class ObsidianExport: @unchecked Sendable {
     /// `note` dont la section « Fait avec Doneko » contient une ligne par titre de `titles` (sans doublon en trop)
     /// et une ligne de moins par titre de `removed`. Section créée en fin de note si besoin ; le reste est intact.
     static func merge(_ note: String, ensuring titles: [String], removing removed: [String]) -> String {
-        let line = { (title: String) in "- [x] \(title)" }
+        // Un titre venu d'un fichier synchronisé peut contenir des retours à la ligne : il reste sur sa ligne, sans
+        // pouvoir ajouter de titre ni de ligne à la note.
+        let line = { (title: String) in "- [x] \(title.components(separatedBy: .newlines).joined(separator: " "))" }
         var lines = note.components(separatedBy: "\n")
         guard let heading = lines.firstIndex(where: { $0.trimmingCharacters(in: .whitespacesAndNewlines) == Self.heading }) else {
             guard !titles.isEmpty else { return note }

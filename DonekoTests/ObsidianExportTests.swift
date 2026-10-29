@@ -62,6 +62,15 @@ final class ObsidianExportTests: XCTestCase {
         )
     }
 
+    func testTitleWithLineBreaksStaysOnOneLine() {
+        let title = "Lait\n## Piège\r\n- [x] Faux"
+        let note = ObsidianExport.merge("", ensuring: [title], removing: [])
+
+        XCTAssertEqual(note, "## Fait avec Doneko\n- [x] Lait ## Piège  - [x] Faux\n")
+        // La même tâche décochée retrouve sa ligne et la retire.
+        XCTAssertEqual(ObsidianExport.merge(note, ensuring: [], removing: [title]), "## Fait avec Doneko\n")
+    }
+
     func testCompletedTasksGoToTheNoteOfTheDayAndUncheckedOnesLeaveIt() throws {
         try "# 15 janvier\nRéunion à 10 h\n".write(to: note, atomically: true, encoding: .utf8)
 
